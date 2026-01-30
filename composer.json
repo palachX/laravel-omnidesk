@@ -1,0 +1,48 @@
+{
+    "name": "palach/laravel-omnidesk",
+    "description": "Omnidesk library",
+    "keywords": [
+        "omnidesk",
+        "laravel"
+    ],
+    "type": "library",
+    "homepage": "https://github.com/palachX/laravel-omnidesk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Gursky",
+            "email": "gusrki.alex@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3.6",
+        "spatie/laravel-data": "^4.19",
+        "spatie/laravel-package-tools": "^1.92"
+    },
+    "autoload": {
+        "psr-4": {
+            "Palach\\Omnidesk\\": "src/",
+            "Palach\\Omnidesk\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Palach\\Omnidesk\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "rector/rector": "^1.1",
+        "laravel/pint": "1.17.3",
+        "phpstan/phpstan": "^1.11",
+        "orchestra/testbench": "^10.0"
+    },
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Palach\\Omnidesk\\Providers\\OmnideskServiceProvider"
+            ]
+        }
+    }
+}

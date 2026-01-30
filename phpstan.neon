@@ -1,0 +1,8 @@
+parameters:
+    paths:
+        - src
+    level: 9
+    ignoreErrors:
+            - message: '#array\|string\|null given#'
+              paths:
+                  - src/Commands
