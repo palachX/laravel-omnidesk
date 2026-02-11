@@ -153,7 +153,7 @@ final class StoreCaseTest extends AbstractTestCase
             "$this->host".$url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->storeCase(StoreCasePayload::from($payload));
+        $responseData = $this->makeHttpClient()->cases()->store(StoreCasePayload::from($payload));
 
         $payload = StoreCasePayload::from($payload);
 
@@ -180,7 +180,7 @@ final class StoreCaseTest extends AbstractTestCase
             "{$this->host}{$url}" => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->storeCase($payloadDto);
+        $responseData = $this->makeHttpClient()->cases()->store($payloadDto);
 
         Http::assertSent(function (Request $request) use ($url) {
             $this->assertSame("{$this->host}{$url}", $request->url());

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Palach\Omnidesk\UseCases\V1\StoreMessage;
 
+use InvalidArgumentException;
+use LogicException;
 use Palach\Omnidesk\Interfaces\InteractsWithFiles;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
@@ -63,5 +65,15 @@ final class Payload extends Data implements InteractsWithFiles
         }
 
         return $multipart;
+    }
+
+    public function getCaseIdentifier(): int|string
+    {
+        return match (true) {
+            $this->message->caseId instanceof Optional && $this->message->caseNumber instanceof Optional => throw new InvalidArgumentException('Not set caseId or CaseNumber'),
+            ! ($this->message->caseId instanceof Optional) => $this->message->caseId,
+            ! ($this->message->caseNumber instanceof Optional) => $this->message->caseNumber,
+            default => throw new LogicException('Both caseId and caseNumber are set'),
+        };
     }
 }

@@ -95,7 +95,7 @@ final class FetchCaseListTest extends AbstractTestCase
             "$this->host".self::API_URL_CASES.'*' => Http::response($response),
         ]);
 
-        $list = $this->makeHttpClient()->fetchCaseList(FetchCaseListPayload::from($payload));
+        $list = $this->makeHttpClient()->cases()->fetchList(FetchCaseListPayload::from($payload));
 
         $payload = FetchCaseListPayload::from($payload);
 

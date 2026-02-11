@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Palach\Omnidesk\Clients;
+
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Palach\Omnidesk\DTO\CaseData;
+use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
+use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
+use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
+use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
+
+final readonly class CasesClient
+{
+    private const string API_URL = '/api/cases.json';
+
+    public function __construct(
+        private OmnideskTransport $transport,
+    ) {}
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function store(StoreCasePayload $payload): StoreCaseResponse
+    {
+        $response = $payload->isAttachment()
+            ? $this->transport->postMultipart(self::API_URL, $payload->toMultipart())
+            : $this->transport->postJson(self::API_URL, $payload->toArray());
+
+        $case = $this->extract('case', $response);
+
+        return new StoreCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchList(FetchCaseListPayload $payload): FetchCaseListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $cases = collect($response)
+            ->map(fn ($item) => CaseData::from($item['case']));
+
+        return new FetchCaseListResponse(
+            cases: $cases,
+            total: $total,
+        );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function extract(string $key, mixed $response): array
+    {
+        if (! is_array($response) || ! isset($response[$key])) {
+            throw new UnexpectedResponseException("$key not found in response");
+        }
+
+        return $response[$key];
+    }
+}

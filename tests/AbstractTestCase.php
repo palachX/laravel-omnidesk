@@ -8,7 +8,7 @@ use Faker\Factory;
 use Faker\Generator;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
-use Palach\Omnidesk\Services\HttpClient;
+use Palach\Omnidesk\Facade\HttpClient;
 
 abstract class AbstractTestCase extends TestCase
 {
