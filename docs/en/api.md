@@ -1,36 +1,50 @@
-# Omnidesk API (HttpClient and Use Cases)
+# Omnidesk API (HttpClient, Clients and Use Cases)
 
-The package provides an HTTP client for the Omnidesk API and typed use cases for common operations.
+The package provides an HTTP client facade for the Omnidesk API, transport layer, and typed use cases for common operations.
 
-## HttpClient
+## HttpClient and clients
 
-Class `Omnidesk\Services\HttpClient` is registered in the container as a singleton and uses configuration (host, email, api_key) from `config/omnidesk.php`.
+Class `Palach\Omnidesk\Facade\HttpClient` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
+It exposes two typed clients:
+
+- `Palach\Omnidesk\Clients\CasesClient` — operations with cases
+- `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 
 Usage (inject via constructor or `app(HttpClient::class)`):
 
 ```php
-use Omnidesk\Services\HttpClient;
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
 ```
 
-### Authentication
+### Transport and authentication
 
-All requests use HTTP Basic Auth with `email` and `api_key` from config. Headers: `Content-Type: application/json`, `Accept: application/json`.
+Internally, both clients use `Palach\Omnidesk\Transport\OmnideskTransport`, which sends requests with HTTP Basic Auth (`email` and `api_key` from config) and headers: `Accept: application/json`.  
+On network errors or unexpected response format, methods throw (`RequestException`, `ConnectionException`, `UnexpectedResponseException`).
 
 ### Methods
 
-- **storeCase(StoreCasePayload $payload): StoreCaseResponse** — create a case.
-- **fetchCaseList(FetchCaseListPayload $payload): FetchCaseListResponse** — list cases with pagination and filters.
-- **storeMessage(StoreMessagePayload $payload): StoreMessageResponse** — create a message in a case.
-- **updateMessage(UpdateMessagePayload $payload): UpdateMessageResponse** — update a message.
-
-On network errors or unexpected response format, methods throw (`RequestException`, `ConnectionException`, `UnexpectedResponseException`).
+- **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — create a case.
+- **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — list cases with pagination and filters.
+- **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — create a message in a case.
+- **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — update a message.
 
 ---
 
 ## Store Case (create case)
 
-**Payload:** `Omnidesk\UseCases\V1\StoreCase\Payload`  
-**Response:** `Omnidesk\UseCases\V1\StoreCase\Response` (contains `CaseData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreCase\Response` (contains `CaseData`).
 
 **CaseStoreData** (payload `case` field):
 
@@ -51,12 +65,17 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 Example:
 
 ```php
-use Omnidesk\Services\HttpClient;
-use Omnidesk\UseCases\V1\StoreCase\CaseStoreData;
-use Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
-use Omnidesk\DTO\AttachmentData;
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\StoreCase\CaseStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
+use Palach\Omnidesk\DTO\AttachmentData;
 
-$client = app(HttpClient::class);
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
 $payload = new StoreCasePayload(
     case: new CaseStoreData(
         userCustomId: 'ext-123',
@@ -77,7 +96,7 @@ $payload = new StoreCasePayload(
         ],
     )
 );
-$response = $client->storeCase($payload);
+$response = $cases->store($payload);
 $case = $response->case; // CaseData
 ```
 
@@ -85,8 +104,8 @@ $case = $response->case; // CaseData
 
 ## Fetch Case List (list cases)
 
-**Payload:** `Omnidesk\UseCases\V1\FetchCaseList\Payload`  
-**Response:** `Omnidesk\UseCases\V1\FetchCaseList\Response` (fields: `cases` — collection of `CaseData`, `total` — total count).
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCaseList\Response` (fields: `cases` — collection of `CaseData`, `total` — total count).
 
 Query parameters (all optional):
 
@@ -104,16 +123,21 @@ GET request uses `Payload::toQuery()`.
 Example:
 
 ```php
-use Omnidesk\Services\HttpClient;
-use Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 
-$client = app(HttpClient::class);
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
 $payload = new FetchCaseListPayload(
     page: 1,
     limit: 20,
     status: ['open'],
 );
-$response = $client->fetchCaseList($payload);
+$response = $cases->fetchList($payload);
 $cases = $response->cases;
 $total = $response->total;
 ```
@@ -122,8 +146,8 @@ $total = $response->total;
 
 ## Store Message (create message)
 
-**Payload:** `Omnidesk\UseCases\V1\StoreMessage\Payload`  
-**Response:** `Omnidesk\UseCases\V1\StoreMessage\Response` (field `message` — `MessageData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreMessage\Response` (field `message` — `MessageData`).
 
 **MessageStoreData** (payload `message` field):
 
@@ -141,12 +165,32 @@ $total = $response->total;
 Example:
 
 ```php
-use Omnidesk\Services\HttpClient;
-use Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;
-use Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
-use Omnidesk\DTO\AttachmentData;
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
+use Palach\Omnidesk\DTO\AttachmentData;
 
-$client = app(HttpClient::class);
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new StoreMessagePayload(
+    message: new MessageStoreData(
+        userId: 12345,
+        content: 'Reply text',
+        caseId: 98765,
+        attachments: [
+            new AttachmentData(
+                name: 'screenshot.png',
+                mimeType: 'image/png',
+                content: '...base64-encoded-file...',
+            ),
+        ],
+        attachmentUrls: [
+            'https://example.com/files/screenshot.png',
+        ],
 $payload = new StoreMessagePayload(
     message: new MessageStoreData(
         userId: 12345,
@@ -164,7 +208,7 @@ $payload = new StoreMessagePayload(
         ],
     )
 );
-$response = $client->storeMessage($payload);
+$response = $messages->store($payload);
 $message = $response->message; // MessageData
 ```
 
@@ -172,8 +216,8 @@ $message = $response->message; // MessageData
 
 ## Update Message (update message)
 
-**Payload:** `Omnidesk\UseCases\V1\UpdateMessage\Payload`  
-**Response:** `Omnidesk\UseCases\V1\UpdateMessage\Response` (field `message` — `MessageData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateMessage\Response` (field `message` — `MessageData`).
 
 **MessageUpdateData** (payload `message` field):
 
@@ -189,11 +233,16 @@ $message = $response->message; // MessageData
 Example:
 
 ```php
-use Omnidesk\Services\HttpClient;
-use Omnidesk\UseCases\V1\UpdateMessage\MessageUpdateData;
-use Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateMessage\MessageUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
 
-$client = app(HttpClient::class);
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
 $payload = new UpdateMessagePayload(
     message: new MessageUpdateData(
         messageId: 111222,
@@ -201,7 +250,7 @@ $payload = new UpdateMessagePayload(
         caseId: 98765,
     )
 );
-$response = $client->updateMessage($payload);
+$response = $messages->update($payload);
 $message = $response->message;
 ```
 
