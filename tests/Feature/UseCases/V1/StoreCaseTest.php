@@ -16,7 +16,7 @@ final class StoreCaseTest extends AbstractTestCase
 {
     private const string API_URL_CASES = '/api/cases.json';
 
-    public static function dataProvider(): iterable
+    public static function dataArrayProvider(): iterable
     {
         yield [
             'payload' => [
@@ -46,28 +46,179 @@ final class StoreCaseTest extends AbstractTestCase
                 ],
             ],
         ];
+        yield [
+            'payload' => [
+                'case' => [
+                    'user_email' => 'example@example.com',
+                    'user_phone' => '+79998887755',
+                    'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
+                    'subject' => 'Subject case',
+                    'content' => 'I need help',
+                    'content_html' => 'I need help',
+                    'channel' => 'chh200',
+                    'attachment_urls' => [
+                        'https://abcompany.ru/548899/contract.pdf',
+                        'https://abcompany.ru/548899/invoice.pdf',
+                    ],
+                ],
+            ],
+            'response' => [
+                'case' => [
+                    'case_id' => 2000,
+                    'case_number' => '664-245651',
+                    'subject' => 'Договор и счёт',
+                    'user_id' => 123,
+                    'staff_id' => 321,
+                    'group_id' => 444,
+                    'status' => 'waiting',
+                    'priority' => 'normal',
+                    'channel' => 'chh21',
+                    'deleted' => false,
+                    'spam' => false,
+                    'attachments' => [
+                        [
+                            'file_id' => 345,
+                            'file_name' => 'contract.pdf',
+                            'file_size' => 40863,
+                            'mime_type' => 'application/pdf',
+                            'url' => 'https://[domain].omnidesk.ru/some_path_here/345',
+                        ],
+                        [
+                            'file_id' => 346,
+                            'file_name' => 'invoice.pdf',
+                            'file_size' => 50863,
+                            'mime_type' => 'application/pdf',
+                            'url' => 'https://[domain].omnidesk.ru/some_path_here/346',
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
-    #[DataProvider('dataProvider')]
-    public function testHttp($payload, array $response): void
+    public static function dataMultipartProvider(): iterable
     {
+        yield [
+            'payload' => [
+                'case' => [
+                    'user_email' => 'example@example.com',
+                    'user_phone' => '+79998887755',
+                    'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
+                    'subject' => 'Subject case',
+                    'content' => 'I need help',
+                    'content_html' => 'I need help',
+                    'channel' => 'chh200',
+                    'attachments' => [
+                        [
+                            'name' => 'file.txt',
+                            'mime_type' => 'text/plain',
+                            'content' => 'file-content',
+                        ],
+                    ],
+                ],
+            ],
+            'response' => [
+                'case' => [
+                    'case_id' => 2000,
+                    'case_number' => '664-245651',
+                    'subject' => 'Договор и счёт',
+                    'user_id' => 123,
+                    'staff_id' => 321,
+                    'group_id' => 444,
+                    'status' => 'waiting',
+                    'priority' => 'normal',
+                    'channel' => 'chh21',
+                    'deleted' => false,
+                    'spam' => false,
+                    'attachments' => [
+                        [
+                            'file_id' => 345,
+                            'file_name' => 'file.txt',
+                            'file_size' => 40863,
+                            'mime_type' => 'text/plain',
+                            'url' => 'https://[domain].omnidesk.ru/some_path_here/345',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    #[DataProvider('dataArrayProvider')]
+    public function testHttp(array $payload, array $response): void
+    {
+        $url = self::API_URL_CASES;
+
         Http::fake([
-            "$this->host".self::API_URL_CASES => Http::response($response),
+            "$this->host".$url => Http::response($response),
         ]);
 
         $responseData = $this->makeHttpClient()->storeCase(StoreCasePayload::from($payload));
 
         $payload = StoreCasePayload::from($payload);
 
-        Http::assertSent(function (Request $request) use ($payload) {
+        Http::assertSent(function (Request $request) use ($payload, $url) {
 
             $this->assertEquals($payload->toArray(), $request->data());
             $this->assertTrue($request->isJson());
 
-            return $request->url() === "{$this->host}".self::API_URL_CASES
+            return $request->url() === "{$this->host}".$url
                 && $request->method() === SymfonyRequest::METHOD_POST;
         });
 
         $this->assertEquals(StoreCaseResponse::from($response), $responseData);
+    }
+
+    #[DataProvider('dataMultipartProvider')]
+    public function testHttpMultipart(array $payload, array $response): void
+    {
+        $payloadDto = StoreCasePayload::from($payload);
+
+        $url = self::API_URL_CASES;
+
+        Http::fake([
+            "{$this->host}{$url}" => Http::response($response),
+        ]);
+
+        $responseData = $this->makeHttpClient()->storeCase($payloadDto);
+
+        Http::assertSent(function (Request $request) use ($url) {
+            $this->assertSame("{$this->host}{$url}", $request->url());
+            $this->assertSame(SymfonyRequest::METHOD_POST, $request->method());
+
+            $this->assertFalse($request->isJson());
+
+            $contentType = $request->header('Content-Type')[0] ?? '';
+            $this->assertStringContainsString('multipart/form-data', $contentType);
+
+            $body = $request->body();
+
+            $this->assertStringContainsString('name="case[user_custom_id]"', $body);
+            $this->assertStringContainsString('8e334869-a6ca-41da-b5cd-a8a51f99a529', $body);
+
+            $this->assertStringContainsString('name="case[subject]"', $body);
+            $this->assertStringContainsString('Subject case', $body);
+
+            $this->assertStringContainsString('name="case[user_email]"', $body);
+            $this->assertStringContainsString('example@example.com', $body);
+
+            $this->assertStringContainsString('name="case[user_phone]"', $body);
+            $this->assertStringContainsString('+79998887755', $body);
+
+            $this->assertStringContainsString(
+                'name="case[attachments][0]"',
+                $body
+            );
+
+            $this->assertStringContainsString('file.txt', $body);
+            $this->assertStringContainsString('file-content', $body);
+
+            return true;
+        });
+
+        $this->assertEquals(
+            StoreCaseResponse::from($response),
+            $responseData
+        );
     }
 }

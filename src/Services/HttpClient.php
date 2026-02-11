@@ -44,7 +44,6 @@ final readonly class HttpClient
             $this->config->apiKey
         )->baseUrl($this->config->host)
             ->withHeaders([
-                'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ]);
     }
@@ -58,14 +57,21 @@ final readonly class HttpClient
     private function sendPostRequest(
         string $url,
         array $bodyParams = [],
+        bool $isMultipart = false,
     ): mixed {
-        $options = [];
-        if ($bodyParams) {
-            $options['json'] = $bodyParams;
+        $request = $this->getBaseHttp();
+
+        if ($isMultipart) {
+            return $request
+                ->asMultipart()
+                ->post($url, $bodyParams)
+                ->throw()
+                ->json();
         }
 
-        return $this->getBaseHttp()
-            ->send(Request::METHOD_POST, $url, $options)
+        return $request
+            ->asJson()
+            ->post($url, $bodyParams)
             ->throw()
             ->json();
     }
@@ -81,7 +87,8 @@ final readonly class HttpClient
         array $query,
     ): mixed {
         return $this->getBaseHttp()
-            ->send(Request::METHOD_GET, "$url?".http_build_query($query))
+            ->withQueryParameters($query)
+            ->send(Request::METHOD_GET, $url)
             ->throw()
             ->json();
     }
@@ -92,7 +99,13 @@ final readonly class HttpClient
      */
     public function storeCase(StoreCasePayload $payload): StoreCaseResponse
     {
-        $response = $this->sendPostRequest(self::API_URL_CASES, $payload->toArray());
+        if ($payload->isAttachment()) {
+            $data = $payload->toMultipart();
+        } else {
+            $data = $payload->toArray();
+        }
+
+        $response = $this->sendPostRequest(self::API_URL_CASES, $data, $payload->isAttachment());
 
         if (! is_array($response) || ! array_key_exists('case', $response)) {
             throw new UnexpectedResponseException('Case not found in response');
@@ -142,9 +155,15 @@ final readonly class HttpClient
     public function storeMessage(StoreMessagePayload $payload): StoreMessageResponse
     {
         $caseNumberOrId = $this->getCaseNumberOrId($payload);
-
         $url = sprintf(self::API_URL_STORE_MESSAGES, $caseNumberOrId);
-        $response = $this->sendPostRequest($url, $payload->toArray());
+
+        if ($payload->isAttachment()) {
+            $data = $payload->toMultipart();
+        } else {
+            $data = $payload->toArray();
+        }
+
+        $response = $this->sendPostRequest($url, $data, $payload->isAttachment());
 
         if (! is_array($response) || ! array_key_exists('message', $response)) {
             throw new UnexpectedResponseException('Message not found in response');

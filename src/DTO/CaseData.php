@@ -7,10 +7,14 @@ namespace Palach\Omnidesk\DTO;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
+use Spatie\LaravelData\Optional;
 
 #[MapName(SnakeCaseMapper::class)]
 final class CaseData extends Data
 {
+    /**
+     * @param  FileData[]|Optional  $attachments
+     */
     public function __construct(
         public readonly int $caseId,
         public readonly string $caseNumber,
@@ -23,5 +27,6 @@ final class CaseData extends Data
         public readonly string $channel,
         public readonly bool $deleted,
         public readonly bool $spam,
+        public readonly array|Optional $attachments = new Optional
     ) {}
 }

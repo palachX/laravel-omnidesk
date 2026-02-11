@@ -89,7 +89,7 @@ final class FetchCaseListTest extends AbstractTestCase
     }
 
     #[DataProvider('dataProvider')]
-    public function testHttp($payload, array $response): void
+    public function testHttp(array $payload, array $response): void
     {
         Http::fake([
             "$this->host".self::API_URL_CASES.'*' => Http::response($response),
@@ -100,7 +100,8 @@ final class FetchCaseListTest extends AbstractTestCase
         $payload = FetchCaseListPayload::from($payload);
 
         Http::assertSent(function (Request $request) use ($payload) {
-            $this->assertTrue($request->isJson());
+            $this->assertFalse($request->isJson());
+            $this->assertFalse($request->isMultipart());
 
             return $request->url() === $this->host.self::API_URL_CASES.'?'.http_build_query($payload->toQuery())
                 && $request->method() === SymfonyRequest::METHOD_GET;
