@@ -43,6 +43,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 | channel | string | yes | Channel |
 | user_email | string | no* | User email |
 | user_phone | string | no* | User phone |
+| attachments | AttachmentData[] | no | Array of `AttachmentData` DTOs (binary file content as base64) |
+| attachmentUrls | string[] | no | Array of URLs to files that should be attached to the case |
 
 \* One of `user_email` or `user_phone` is required (`RequiredWithout` attribute).
 
@@ -52,6 +54,7 @@ Example:
 use Omnidesk\Services\HttpClient;
 use Omnidesk\UseCases\V1\StoreCase\CaseStoreData;
 use Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
+use Omnidesk\DTO\AttachmentData;
 
 $client = app(HttpClient::class);
 $payload = new StoreCasePayload(
@@ -62,6 +65,16 @@ $payload = new StoreCasePayload(
         contentHtml: '<p>Text</p>',
         channel: 'email',
         userEmail: 'user@example.com',
+        attachments: [
+            new AttachmentData(
+                name: 'manual.pdf',
+                mimeType: 'application/pdf',
+                content: '...base64-encoded-file...',
+            ),
+        ],
+        attachmentUrls: [
+            'https://example.com/files/manual.pdf',
+        ],
     )
 );
 $response = $client->storeCase($payload);
@@ -120,6 +133,8 @@ $total = $response->total;
 | content | string | yes | Message text |
 | case_id | int | no* | Case ID |
 | case_number | string | no* | Case number |
+| attachments | AttachmentData[] | no | Array of `AttachmentData` DTOs (binary file content as base64) |
+| attachmentUrls | string[] | no | Array of URLs to files that should be attached to the message |
 
 \* One of `case_id` or `case_number` is required (`RequiredWithout`).
 
@@ -129,6 +144,7 @@ Example:
 use Omnidesk\Services\HttpClient;
 use Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;
 use Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
+use Omnidesk\DTO\AttachmentData;
 
 $client = app(HttpClient::class);
 $payload = new StoreMessagePayload(
@@ -136,6 +152,16 @@ $payload = new StoreMessagePayload(
         userId: 12345,
         content: 'Reply text',
         caseId: 98765,
+        attachments: [
+            new AttachmentData(
+                name: 'screenshot.png',
+                mimeType: 'image/png',
+                content: '...base64-encoded-file...',
+            ),
+        ],
+        attachmentUrls: [
+            'https://example.com/files/screenshot.png',
+        ],
     )
 );
 $response = $client->storeMessage($payload);
@@ -183,8 +209,10 @@ $message = $response->message;
 
 ## Response DTOs
 
-- **CaseData** (`Omnidesk\DTO\CaseData`) — case structure from API responses.
-- **MessageData** (`Omnidesk\DTO\MessageData`) — message structure from API responses.
+- **CaseData** (`Omnidesk\DTO\CaseData`) — case structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
+- **MessageData** (`Omnidesk\DTO\MessageData`) — message structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
+- **AttachmentData** (`Omnidesk\DTO\AttachmentData`) — outgoing attachment DTO used in Store Case/Store Message payloads: `name`, `mimeType`, `content` (base64-encoded file body).
+- **FileData** (`Omnidesk\DTO\FileData`) — attachment DTO in responses: `fileId`, `fileName`, `fileSize`, `mimeType`, `url`.
 
 Fields match Omnidesk API responses and are mapped via Spatie Laravel Data (snake_case → camelCase).
 

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [1.1.0] - 2026-02-11
+
+### Added
+
+- Ability to send file attachments when creating a Case (support for `attachments` and `attachmentUrls` fields)
+- Ability to send file attachments when creating a Message (support for `attachments` and `attachmentUrls` fields)
 - Bilingual documentation (Russian and English) in `docs/ru/` and `docs/en/`
 - Main documentation index at `docs/README.md` with language selection
 - Documentation sections: Installation, Configuration, Webhooks, API, Artisan commands

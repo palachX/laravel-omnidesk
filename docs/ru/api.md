@@ -43,6 +43,8 @@ use Omnidesk\Services\HttpClient;
 | channel | string | да | Канал |
 | user_email | string | нет* | Email пользователя |
 | user_phone | string | нет* | Телефон пользователя |
+| attachments | AttachmentData[] | нет | Массив DTO `AttachmentData` (двоичное содержимое файла в base64) |
+| attachmentUrls | string[] | нет | Массив строковых URL файлов, которые нужно прикрепить к обращению |
 
 \* Одно из полей `user_email` или `user_phone` обязательно (атрибут `RequiredWithout`).
 
@@ -52,6 +54,7 @@ use Omnidesk\Services\HttpClient;
 use Omnidesk\Services\HttpClient;
 use Omnidesk\UseCases\V1\StoreCase\CaseStoreData;
 use Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
+use Omnidesk\DTO\AttachmentData;
 
 $client = app(HttpClient::class);
 $payload = new StoreCasePayload(
@@ -62,6 +65,16 @@ $payload = new StoreCasePayload(
         contentHtml: '<p>Текст</p>',
         channel: 'email',
         userEmail: 'user@example.com',
+        attachments: [
+            new AttachmentData(
+                name: 'manual.pdf',
+                mimeType: 'application/pdf',
+                content: '...base64-encoded-file...',
+            ),
+        ],
+        attachmentUrls: [
+            'https://example.com/files/manual.pdf',
+        ],
     )
 );
 $response = $client->storeCase($payload);
@@ -120,6 +133,8 @@ $total = $response->total;
 | content | string | да | Текст сообщения |
 | case_id | int | нет* | ID обращения |
 | case_number | string | нет* | Номер обращения |
+| attachments | AttachmentData[] | нет | Массив DTO `AttachmentData` (двоичное содержимое файла в base64) |
+| attachmentUrls | string[] | нет | Массив строковых URL файлов, которые нужно прикрепить к сообщению |
 
 \* Обязательно одно из: `case_id` или `case_number` (`RequiredWithout`).
 
@@ -129,6 +144,7 @@ $total = $response->total;
 use Omnidesk\Services\HttpClient;
 use Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;
 use Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
+use Omnidesk\DTO\AttachmentData;
 
 $client = app(HttpClient::class);
 $payload = new StoreMessagePayload(
@@ -136,6 +152,16 @@ $payload = new StoreMessagePayload(
         userId: 12345,
         content: 'Текст ответа',
         caseId: 98765,
+        attachments: [
+            new AttachmentData(
+                name: 'screenshot.png',
+                mimeType: 'image/png',
+                content: '...base64-encoded-file...',
+            ),
+        ],
+        attachmentUrls: [
+            'https://example.com/files/screenshot.png',
+        ],
     )
 );
 $response = $client->storeMessage($payload);
@@ -183,8 +209,10 @@ $message = $response->message;
 
 ## DTO ответов
 
-- **CaseData** (`Omnidesk\DTO\CaseData`) — структура обращения из ответов API.
-- **MessageData** (`Omnidesk\DTO\MessageData`) — структура сообщения из ответов API.
+- **CaseData** (`Omnidesk\DTO\CaseData`) — структура обращения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
+- **MessageData** (`Omnidesk\DTO\MessageData`) — структура сообщения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
+- **AttachmentData** (`Omnidesk\DTO\AttachmentData`) — DTO для исходящих вложений в payload Store Case/Store Message: `name`, `mimeType`, `content` (двоичное тело файла в base64).
+- **FileData** (`Omnidesk\DTO\FileData`) — DTO вложения в ответах: `fileId`, `fileName`, `fileSize`, `mimeType`, `url`.
 
 Поля соответствуют ответам Omnidesk API и маппятся через Spatie Laravel Data (snake_case → camelCase).
 
