@@ -24,12 +24,12 @@ final class UpdateMessagePayloadTest extends AbstractTestCase
             ],
 
             'expected' => new UpdateMessagePayload(
+                caseId: 123,
+                messageId: 911,
                 message: new MessageUpdateData(
                     content: 'I need help!',
                     contentHtml: '<p>I need help</p>',
-                ),
-                caseId: 123,
-                messageId: 911
+                )
             ),
         ];
     }
