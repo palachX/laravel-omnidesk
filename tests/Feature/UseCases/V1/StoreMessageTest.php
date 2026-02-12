@@ -18,9 +18,10 @@ final class StoreMessageTest extends AbstractTestCase
     {
         yield [
             'payload' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_id' => 123,
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
                     'user_id' => 321,
                 ],
             ],
@@ -30,14 +31,18 @@ final class StoreMessageTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
+                    'content_html' => '<p>I need help!</p>',
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                 ],
             ],
         ];
         yield [
             'payload' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_id' => 123,
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
                     'user_id' => 321,
                     'attachment_urls' => [
                         'https://abcompany.ru/548899/contract.pdf',
@@ -51,6 +56,9 @@ final class StoreMessageTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
+                    'content_html' => '<p>I need help!</p>',
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                     'attachments' => [
                         [
                             'file_id' => 345,
@@ -76,9 +84,10 @@ final class StoreMessageTest extends AbstractTestCase
     {
         yield [
             'payload' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_id' => 123,
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
                     'user_id' => 321,
                     'attachments' => [
                         [
@@ -95,6 +104,9 @@ final class StoreMessageTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
+                    'content_html' => '<p>I need help!</p>',
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                     'attachments' => [
                         [
                             'file_id' => 345,
@@ -113,7 +125,7 @@ final class StoreMessageTest extends AbstractTestCase
     public function testHttp(array $payload, array $response): void
     {
         $payload = StoreMessagePayload::from($payload);
-        $caseId = $payload->message->caseId;
+        $caseId = $payload->caseId;
 
         $url = "/api/cases/$caseId/messages.json";
 
@@ -139,7 +151,7 @@ final class StoreMessageTest extends AbstractTestCase
     public function testHttpMultipart(array $payload, array $response): void
     {
         $payloadDto = StoreMessagePayload::from($payload);
-        $caseId = $payloadDto->message->caseId;
+        $caseId = $payloadDto->caseId;
 
         $url = "/api/cases/$caseId/messages.json";
 
@@ -161,12 +173,6 @@ final class StoreMessageTest extends AbstractTestCase
             $body = $request->body();
 
             $this->assertStringContainsString(
-                'name="message[case_id]"',
-                $body
-            );
-            $this->assertStringContainsString('123', $body);
-
-            $this->assertStringContainsString(
                 'name="message[user_id]"',
                 $body
             );
@@ -177,6 +183,12 @@ final class StoreMessageTest extends AbstractTestCase
                 $body
             );
             $this->assertStringContainsString('I need help!', $body);
+
+            $this->assertStringContainsString(
+                'name="message[content_html]"',
+                $body
+            );
+            $this->assertStringContainsString('<p>I need help!</p>', $body);
 
             $this->assertStringContainsString(
                 'name="message[attachments][0]"',

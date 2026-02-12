@@ -21,6 +21,7 @@ final class StoreMessageResponseTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
+                    'content_html' => '<p>I need help!</p>',
                     'attachments' => [
                         [
                             'file_id' => 345,
@@ -37,6 +38,8 @@ final class StoreMessageResponseTest extends AbstractTestCase
                             'url' => 'https://[domain].omnidesk.ru/some_path_here/346',
                         ],
                     ],
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                 ],
             ],
 
@@ -46,6 +49,9 @@ final class StoreMessageResponseTest extends AbstractTestCase
                     userId: 123,
                     staffId: 321,
                     content: 'I need help',
+                    contentHtml: '<p>I need help!</p>',
+                    note: false,
+                    createdAt: 'Mon, 06 May 2014 00:15:17 +0300',
                     attachments: [
                         new FileData(
                             fileId: 345,
@@ -72,6 +78,9 @@ final class StoreMessageResponseTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
+                    'content_html' => '<p>I need help!</p>',
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                 ],
             ],
 
@@ -80,7 +89,10 @@ final class StoreMessageResponseTest extends AbstractTestCase
                     messageId: 2000,
                     userId: 123,
                     staffId: 321,
-                    content: 'I need help'
+                    content: 'I need help',
+                    contentHtml: '<p>I need help!</p>',
+                    note: false,
+                    createdAt: 'Mon, 06 May 2014 00:15:17 +0300',
                 )
             ),
         ];

@@ -7,15 +7,17 @@ namespace Palach\Omnidesk\Clients;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\MessageData;
+use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Response as StoreMessageResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
 use Palach\Omnidesk\UseCases\V1\UpdateMessage\Response as UpdateMessageResponse;
-use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 
 final readonly class MessagesClient
 {
+    use ExtractsResponseData;
+
     private const string STORE_URL = '/api/cases/%s/messages.json';
 
     private const string UPDATE_URL = '/api/cases/%s/messages/%d.json';
@@ -30,8 +32,7 @@ final readonly class MessagesClient
      */
     public function store(StoreMessagePayload $payload): StoreMessageResponse
     {
-        $identifier = $payload->getCaseIdentifier();
-        $url = sprintf(self::STORE_URL, $identifier);
+        $url = sprintf(self::STORE_URL, $payload->caseId);
 
         $response = $payload->isAttachment()
             ? $this->transport->postMultipart($url, $payload->toMultipart())
@@ -50,11 +51,10 @@ final readonly class MessagesClient
      */
     public function update(UpdateMessagePayload $payload): UpdateMessageResponse
     {
-        $identifier = $payload->getCaseIdentifier();
         $url = sprintf(
             self::UPDATE_URL,
-            $identifier,
-            $payload->message->messageId
+            $payload->caseId,
+            $payload->messageId
         );
 
         $response = $this->transport->postJson($url, $payload->toArray());
@@ -64,17 +64,5 @@ final readonly class MessagesClient
         return new UpdateMessageResponse(
             message: MessageData::from($message),
         );
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function extract(string $key, mixed $response): array
-    {
-        if (! is_array($response) || ! isset($response[$key])) {
-            throw new UnexpectedResponseException("$key not found in response");
-        }
-
-        return $response[$key];
     }
 }

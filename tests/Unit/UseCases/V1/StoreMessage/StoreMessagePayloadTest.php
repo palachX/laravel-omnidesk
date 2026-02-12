@@ -14,12 +14,16 @@ final class StoreMessagePayloadTest extends AbstractTestCase
 {
     public static function dataArrayProvider(): iterable
     {
-        yield 'full data id' => [
+        yield 'full data' => [
             'data' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_id' => 123,
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
                     'user_id' => 321,
+                    'staff_id' => 456,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
+                    'send_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                     'attachment_urls' => [
                         'https://abcompany.ru/548899/contract.pdf',
                         'https://abcompany.ru/548899/invoice.pdf',
@@ -28,81 +32,48 @@ final class StoreMessagePayloadTest extends AbstractTestCase
             ],
 
             'expected' => new StoreMessagePayload(
+                caseId: 123,
                 message: new MessageStoreData(
-                    userId: 321,
                     content: 'I need help!',
-                    caseId: 123,
+                    contentHtml: '<p>I need help!</p>',
+                    staffId: 456,
+                    userId: 321,
+                    createdAt: 'Mon, 06 May 2014 00:15:17 +0300',
                     attachmentUrls: [
-                        'https://abcompany.ru/548899/contract.pdf',
-                        'https://abcompany.ru/548899/invoice.pdf',
-                    ]
-                )
-            ),
-        ];
-        yield 'full data number' => [
-            'data' => [
-                'message' => [
-                    'case_number' => '664-245651',
-                    'content' => 'I need help!',
-                    'user_id' => 321,
-                    'attachment_urls' => [
                         'https://abcompany.ru/548899/contract.pdf',
                         'https://abcompany.ru/548899/invoice.pdf',
                     ],
-                ],
-            ],
-
-            'expected' => new StoreMessagePayload(
-                message: new MessageStoreData(
-                    userId: 321,
-                    content: 'I need help!',
-                    caseNumber: '664-245651',
-                    attachmentUrls: [
-                        'https://abcompany.ru/548899/contract.pdf',
-                        'https://abcompany.ru/548899/invoice.pdf',
-                    ]
+                    sendAt: 'Mon, 06 May 2014 00:15:17 +0300'
                 )
             ),
         ];
-        yield 'required data id' => [
+
+        yield 'required data' => [
             'data' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_id' => 123,
                     'content' => 'I need help!',
                     'user_id' => 321,
+                    'content_html' => '<p>I need help!</p>',
                 ],
             ],
 
             'expected' => new StoreMessagePayload(
+                caseId: 123,
                 message: new MessageStoreData(
-                    userId: 321,
                     content: 'I need help!',
-                    caseId: 123,
+                    contentHtml: '<p>I need help!</p>',
+                    userId: 321,
                 )
             ),
         ];
-        yield 'required data number' => [
-            'data' => [
-                'message' => [
-                    'case_number' => '664-245651',
-                    'content' => 'I need help!',
-                    'user_id' => 321,
-                ],
-            ],
 
-            'expected' => new StoreMessagePayload(
-                message: new MessageStoreData(
-                    userId: 321,
-                    content: 'I need help!',
-                    caseNumber: '664-245651',
-                )
-            ),
-        ];
-        yield 'required data number with attachments' => [
+        yield 'required data with attachments' => [
             'data' => [
+                'case_id' => 123,
                 'message' => [
-                    'case_number' => '664-245651',
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
                     'user_id' => 321,
                     'attachments' => [
                         [
@@ -115,10 +86,11 @@ final class StoreMessagePayloadTest extends AbstractTestCase
             ],
 
             'expected' => new StoreMessagePayload(
+                caseId: 123,
                 message: new MessageStoreData(
-                    userId: 321,
                     content: 'I need help!',
-                    caseNumber: '664-245651',
+                    contentHtml: '<p>I need help!</p>',
+                    userId: 321,
                     attachments: [
                         new AttachmentData(
                             name: 'file.txt',
@@ -133,37 +105,39 @@ final class StoreMessagePayloadTest extends AbstractTestCase
 
     public static function dataMultipartProvider(): iterable
     {
-        yield 'without attachments case_id' => [
+        yield 'without attachments' => [
             'payload' => new StoreMessagePayload(
+                caseId: 123,
                 message: new MessageStoreData(
-                    userId: 321,
                     content: 'I need help!',
-                    caseId: 123,
+                    contentHtml: '<p>I need help!</p>',
+                    userId: 321,
                 )
             ),
 
             'expected' => [
                 [
-                    'name' => 'message[user_id]',
-                    'contents' => '321',
-                ],
-                [
                     'name' => 'message[content]',
                     'contents' => 'I need help!',
                 ],
                 [
-                    'name' => 'message[case_id]',
-                    'contents' => '123',
+                    'name' => 'message[content_html]',
+                    'contents' => '<p>I need help!</p>',
+                ],
+                [
+                    'name' => 'message[user_id]',
+                    'contents' => '321',
                 ],
             ],
         ];
 
-        yield 'with attachment and case_number' => [
+        yield 'with attachment' => [
             'payload' => new StoreMessagePayload(
+                caseId: 123,
                 message: new MessageStoreData(
-                    userId: 321,
                     content: 'I need help!',
-                    caseNumber: '664-245651',
+                    contentHtml: '<p>I need help!</p>',
+                    userId: 321,
                     attachments: [
                         new AttachmentData(
                             name: 'file.txt',
@@ -176,16 +150,16 @@ final class StoreMessagePayloadTest extends AbstractTestCase
 
             'expected' => [
                 [
-                    'name' => 'message[user_id]',
-                    'contents' => '321',
-                ],
-                [
                     'name' => 'message[content]',
                     'contents' => 'I need help!',
                 ],
                 [
-                    'name' => 'message[case_number]',
-                    'contents' => '664-245651',
+                    'name' => 'message[content_html]',
+                    'contents' => '<p>I need help!</p>',
+                ],
+                [
+                    'name' => 'message[user_id]',
+                    'contents' => '321',
                 ],
                 [
                     'name' => 'message[attachments][0]',

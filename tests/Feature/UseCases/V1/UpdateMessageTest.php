@@ -18,11 +18,11 @@ final class UpdateMessageTest extends AbstractTestCase
     {
         yield [
             'payload' => [
+                'case_id' => 123,
+                'message_id' => 2000,
                 'message' => [
-                    'case_id' => 123,
-                    'message_id' => 2000,
                     'content' => 'I need help',
-                    'user_id' => 321,
+                    'content_html' => '<p>I need help!</p>',
                 ],
             ],
             'response' => [
@@ -31,23 +31,9 @@ final class UpdateMessageTest extends AbstractTestCase
                     'user_id' => 123,
                     'staff_id' => 321,
                     'content' => 'I need help',
-                ],
-            ],
-        ];
-        yield [
-            'payload' => [
-                'message' => [
-                    'case_id' => 123,
-                    'message_id' => 911,
-                    'content' => 'I need help!',
-                ],
-            ],
-            'response' => [
-                'message' => [
-                    'message_id' => 911,
-                    'user_id' => 123,
-                    'staff_id' => 321,
-                    'content' => 'I need help!',
+                    'content_html' => '<p>I need help!</p>',
+                    'note' => false,
+                    'created_at' => 'Mon, 06 May 2014 00:15:17 +0300',
                 ],
             ],
         ];
@@ -57,8 +43,8 @@ final class UpdateMessageTest extends AbstractTestCase
     public function testHttp(array $payload, array $response): void
     {
         $payload = UpdateMessagePayload::from($payload);
-        $caseId = $payload->message->caseId;
-        $messageId = $payload->message->messageId;
+        $caseId = $payload->caseId;
+        $messageId = $payload->messageId;
 
         $url = "/api/cases/$caseId/messages/$messageId.json";
 

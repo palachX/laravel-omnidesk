@@ -15,36 +15,21 @@ final class UpdateMessagePayloadTest extends AbstractTestCase
     {
         yield 'full data id' => [
             'data' => [
+                'case_id' => 123,
+                'message_id' => 911,
                 'message' => [
-                    'case_id' => 123,
-                    'message_id' => 911,
                     'content' => 'I need help!',
+                    'content_html' => '<p>I need help</p>',
                 ],
             ],
 
             'expected' => new UpdateMessagePayload(
                 message: new MessageUpdateData(
-                    messageId: 911,
                     content: 'I need help!',
-                    caseId: 123,
-                )
-            ),
-        ];
-        yield 'full data number' => [
-            'data' => [
-                'message' => [
-                    'message_id' => 911,
-                    'case_number' => '664-245651',
-                    'content' => 'I need help!',
-                ],
-            ],
-
-            'expected' => new UpdateMessagePayload(
-                message: new MessageUpdateData(
-                    messageId: 911,
-                    content: 'I need help!',
-                    caseNumber: '664-245651',
-                )
+                    contentHtml: '<p>I need help</p>',
+                ),
+                caseId: 123,
+                messageId: 911
             ),
         ];
     }

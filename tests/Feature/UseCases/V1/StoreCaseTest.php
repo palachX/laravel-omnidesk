@@ -26,7 +26,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                 ],
             ],
@@ -54,7 +54,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                     'attachment_urls' => [
                         'https://abcompany.ru/548899/contract.pdf',
@@ -106,7 +106,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                     'attachments' => [
                         [

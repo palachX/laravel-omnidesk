@@ -7,15 +7,17 @@ namespace Palach\Omnidesk\Clients;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\CaseData;
+use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
-use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 
 final readonly class CasesClient
 {
+    use ExtractsResponseData;
+
     private const string API_URL = '/api/cases.json';
 
     public function __construct(
@@ -62,17 +64,5 @@ final readonly class CasesClient
             cases: $cases,
             total: $total,
         );
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function extract(string $key, mixed $response): array
-    {
-        if (! is_array($response) || ! isset($response[$key])) {
-            throw new UnexpectedResponseException("$key not found in response");
-        }
-
-        return $response[$key];
     }
 }
