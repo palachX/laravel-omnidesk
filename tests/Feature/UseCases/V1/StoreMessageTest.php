@@ -127,21 +127,19 @@ final class StoreMessageTest extends AbstractTestCase
         $payload = StoreMessagePayload::from($payload);
         $caseId = $payload->caseId;
 
-        $url = "/api/cases/$caseId/messages.json";
+        $url = $this->host."/api/cases/$caseId/messages.json";
 
         Http::fake([
-            "$this->host".$url => Http::response($response),
+            $url => Http::response($response),
         ]);
 
         $responseData = $this->makeHttpClient()->messages()->store(StoreMessagePayload::from($payload));
 
-        Http::assertSent(function (Request $request) use ($payload, $url) {
-
-            $this->assertEquals($payload->toArray(), $request->data());
-            $this->assertTrue($request->isJson());
-
-            return $request->url() === "{$this->host}".$url
-                && $request->method() === SymfonyRequest::METHOD_POST;
+        Http::assertSent(function (Request $request) use ($url, $payload) {
+            return $request->url() === $url
+                && $request->isJson()
+                && $request->method() === SymfonyRequest::METHOD_POST
+                && $request->body() === json_encode($payload->toArray());
         });
 
         $this->assertEquals(StoreMessageResponse::from($response), $responseData);
@@ -153,19 +151,18 @@ final class StoreMessageTest extends AbstractTestCase
         $payloadDto = StoreMessagePayload::from($payload);
         $caseId = $payloadDto->caseId;
 
-        $url = "/api/cases/$caseId/messages.json";
+        $url = $this->host."/api/cases/$caseId/messages.json";
 
         Http::fake([
-            "{$this->host}{$url}" => Http::response($response),
+            $url => Http::response($response),
         ]);
 
         $responseData = $this->makeHttpClient()->messages()->store($payloadDto);
 
         Http::assertSent(function (Request $request) use ($url) {
-            $this->assertSame("{$this->host}{$url}", $request->url());
-            $this->assertSame('POST', $request->method());
-
-            $this->assertFalse($request->isJson());
+            if ($request->url() !== $url || $request->method() !== SymfonyRequest::METHOD_POST || $request->isJson()) {
+                return false;
+            }
 
             $contentType = $request->header('Content-Type')[0] ?? '';
             $this->assertStringContainsString('multipart/form-data', $contentType);

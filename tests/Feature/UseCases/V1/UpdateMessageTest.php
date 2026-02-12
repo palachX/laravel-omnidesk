@@ -46,21 +46,19 @@ final class UpdateMessageTest extends AbstractTestCase
         $caseId = $payload->caseId;
         $messageId = $payload->messageId;
 
-        $url = "/api/cases/$caseId/messages/$messageId.json";
+        $url = $this->host."/api/cases/$caseId/messages/$messageId.json";
 
         Http::fake([
-            "$this->host".$url => Http::response($response),
+            $url => Http::response($response),
         ]);
 
         $responseData = $this->makeHttpClient()->messages()->update(UpdateMessagePayload::from($payload));
 
-        Http::assertSent(function (Request $request) use ($payload, $url) {
-
-            $this->assertEquals($payload->toArray(), $request->data());
-            $this->assertTrue($request->isJson());
-
-            return $request->url() === "{$this->host}".$url
-                && $request->method() === SymfonyRequest::METHOD_POST;
+        Http::assertSent(function (Request $request) use ($url, $payload) {
+            return $request->url() === $url
+                && $request->method() === SymfonyRequest::METHOD_POST
+                && $request->isJson()
+                && $request->body() === json_encode($payload->toArray());
         });
 
         $this->assertEquals(UpdateMessageResponse::from($response), $responseData);

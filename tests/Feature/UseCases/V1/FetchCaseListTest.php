@@ -91,20 +91,23 @@ final class FetchCaseListTest extends AbstractTestCase
     #[DataProvider('dataProvider')]
     public function testHttp(array $payload, array $response): void
     {
+        $payload = FetchCaseListPayload::from($payload);
+
+        $url = self::API_URL_CASES;
+        $query = http_build_query($payload->toQuery());
+        $fullUrl = $this->host.$url.'?'.$query;
+
         Http::fake([
-            "$this->host".self::API_URL_CASES.'*' => Http::response($response),
+            $fullUrl => Http::response($response),
         ]);
 
         $list = $this->makeHttpClient()->cases()->fetchList(FetchCaseListPayload::from($payload));
 
-        $payload = FetchCaseListPayload::from($payload);
-
-        Http::assertSent(function (Request $request) use ($payload) {
+        Http::assertSent(function (Request $request) use ($fullUrl) {
             $this->assertFalse($request->isJson());
             $this->assertFalse($request->isMultipart());
 
-            return $request->url() === $this->host.self::API_URL_CASES.'?'.http_build_query($payload->toQuery())
-                && $request->method() === SymfonyRequest::METHOD_GET;
+            return $request->url() === $fullUrl && $request->method() === SymfonyRequest::METHOD_GET;
         });
 
         $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
