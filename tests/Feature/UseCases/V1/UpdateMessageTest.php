@@ -56,7 +56,7 @@ final class UpdateMessageTest extends AbstractTestCase
 
         Http::assertSent(function (Request $request) use ($url, $payload) {
             return $request->url() === $url
-                && $request->method() === SymfonyRequest::METHOD_POST
+                && $request->method() === SymfonyRequest::METHOD_PUT
                 && $request->isJson()
                 && $request->body() === json_encode($payload->toArray());
         });

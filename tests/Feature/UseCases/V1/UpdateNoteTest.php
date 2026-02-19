@@ -57,7 +57,7 @@ final class UpdateNoteTest extends AbstractTestCase
         Http::assertSent(function (Request $request) use ($url, $payload) {
             return $request->url() === $url
                 && $request->isJson()
-                && $request->method() === SymfonyRequest::METHOD_POST
+                && $request->method() === SymfonyRequest::METHOD_PUT
                 && $request->body() === json_encode($payload->toArray());
         });
 
