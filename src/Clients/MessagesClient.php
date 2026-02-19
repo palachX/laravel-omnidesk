@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\MessageData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;
+use Palach\Omnidesk\UseCases\V1\RateMessage\Response as RateMessageResponse;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Response as StoreMessageResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
@@ -22,6 +24,8 @@ final readonly class MessagesClient
     private const string STORE_URL = '/api/cases/%s/messages.json';
 
     private const string UPDATE_URL = '/api/cases/%s/messages/%d.json';
+
+    private const string RATE_URL = '/api/cases/%s/rate/%s.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -63,6 +67,23 @@ final readonly class MessagesClient
         $message = $this->extract('message', $response);
 
         return new UpdateMessageResponse(
+            message: MessageData::from($message),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function rate(RateMessagePayload $payload): RateMessageResponse
+    {
+        $url = sprintf(self::RATE_URL, $payload->caseId, $payload->messageId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $message = $this->extract('message', $response);
+
+        return new RateMessageResponse(
             message: MessageData::from($message),
         );
     }
