@@ -13,6 +13,7 @@ use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CasesClient
 {
@@ -31,8 +32,8 @@ final readonly class CasesClient
     public function store(StoreCasePayload $payload): StoreCaseResponse
     {
         $response = $payload->isAttachment()
-            ? $this->transport->postMultipart(self::API_URL, $payload->toMultipart())
-            : $this->transport->postJson(self::API_URL, $payload->toArray());
+            ? $this->transport->sendMultipart(Request::METHOD_POST, self::API_URL, $payload->toMultipart())
+            : $this->transport->sendJson(Request::METHOD_POST, self::API_URL, $payload->toArray());
 
         $case = $this->extract('case', $response);
 

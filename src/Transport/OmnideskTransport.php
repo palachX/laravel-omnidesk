@@ -32,11 +32,10 @@ final readonly class OmnideskTransport
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function postJson(string $url, array $data): mixed
+    public function sendJson(string $method, string $url, array $data): mixed
     {
         return $this->base()
-            ->asJson()
-            ->post($url, $data)
+            ->send($method, $url, ['json' => $data])
             ->throw()
             ->json();
     }
@@ -47,11 +46,10 @@ final readonly class OmnideskTransport
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function postMultipart(string $url, array $data): mixed
+    public function sendMultipart(string $method, string $url, array $data): mixed
     {
         return $this->base()
-            ->asMultipart()
-            ->post($url, $data)
+            ->send($method, $url, ['multipart' => $data])
             ->throw()
             ->json();
     }

@@ -13,6 +13,7 @@ use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Response as StoreMessageResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
 use Palach\Omnidesk\UseCases\V1\UpdateMessage\Response as UpdateMessageResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 final readonly class MessagesClient
 {
@@ -35,8 +36,8 @@ final readonly class MessagesClient
         $url = sprintf(self::STORE_URL, $payload->caseId);
 
         $response = $payload->isAttachment()
-            ? $this->transport->postMultipart($url, $payload->toMultipart())
-            : $this->transport->postJson($url, $payload->toArray());
+            ? $this->transport->sendMultipart(Request::METHOD_POST, $url, $payload->toMultipart())
+            : $this->transport->sendJson(Request::METHOD_POST, $url, $payload->toArray());
 
         $message = $this->extract('message', $response);
 
@@ -57,7 +58,7 @@ final readonly class MessagesClient
             $payload->messageId
         );
 
-        $response = $this->transport->postJson($url, $payload->toArray());
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
         $message = $this->extract('message', $response);
 
