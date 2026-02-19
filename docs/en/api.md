@@ -36,8 +36,10 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 
 - **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — create a case.
 - **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — list cases with pagination and filters.
+- **CasesClient::rate(RateCasePayload $payload): RateCaseResponse** — rate a case.
 - **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — create a message in a case.
 - **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — update a message.
+- **MessagesClient::rate(RateMessagePayload $payload): RateMessageResponse** — rate a message.
 
 ---
 
@@ -256,6 +258,100 @@ $message = $response->message;
 
 ---
 
+## Rate Message (rate message)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RateMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RateMessage\Response` (field `message` — `MessageData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| message_id | int | yes | Message ID |
+| rate | RateMessageData | yes | Rating data |
+
+**RateMessageData** (payload `rate` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| rating | string | yes | Rating value (e.g., "positive", "negative") |
+| rating_comment | string|Optional | no | Optional rating comment |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\RateMessage\RateMessageData;
+use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new RateMessagePayload(
+    caseId: 98765,
+    messageId: 111222,
+    rate: new RateMessageData(
+        rating: 'positive',
+        ratingComment: 'Great support!',
+    )
+);
+$response = $messages->rate($payload);
+$message = $response->message; // MessageData
+```
+
+---
+
+## Rate Case (rate case)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RateCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RateCase\Response` (field `case` — `CaseData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| rate | RateData | yes | Rating data |
+
+**RateData** (payload `rate` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| rating | string | yes | Rating value (e.g., "positive", "negative") |
+| rating_comment | string|Optional | no | Optional rating comment |
+| rated_staff_id | int|Optional | no | Optional ID of rated staff member |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RateCase\RateData;
+use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RateCasePayload(
+    caseId: 98765,
+    rate: new RateData(
+        rating: 'positive',
+        ratingComment: 'Excellent support!',
+        ratedStaffId: 12345,
+    )
+);
+$response = $cases->rate($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
 ## Response DTOs
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — case structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
@@ -271,7 +367,9 @@ The client uses these paths relative to `host`:
 
 - `POST /api/cases.json` — create case.
 - `GET /api/cases.json` — list cases (query from `FetchCaseListPayload::toQuery()`).
+- `POST /api/cases/{caseId}/rate.json` — rate case.
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — create message.
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — update message.
+- `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — rate message.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).

@@ -36,8 +36,10 @@ $messages = $http->messages();
 
 - **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — создание обращения (case).
 - **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — список обращений с пагинацией и фильтрами.
+- **CasesClient::rate(RateCasePayload $payload): RateCaseResponse** — оценка обращения.
 - **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — создание сообщения в обращении.
 - **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — обновление сообщения.
+- **MessagesClient::rate(RateMessagePayload $payload): RateMessageResponse** — оценка сообщения.
 
 ---
 
@@ -259,6 +261,100 @@ $message = $response->message;
 
 ---
 
+## Rate Message (оценка сообщения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RateMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RateMessage\Response` (поле `message` — `MessageData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| message_id | int | да | ID сообщения |
+| rate | RateMessageData | да | Данные оценки |
+
+**RateMessageData** (поле `rate` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| rating | string | да | Значение оценки (например, "positive", "negative") |
+| rating_comment | string|Optional | нет | Опциональный комментарий к оценке |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\RateMessage\RateMessageData;
+use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new RateMessagePayload(
+    caseId: 98765,
+    messageId: 111222,
+    rate: new RateMessageData(
+        rating: 'positive',
+        ratingComment: 'Отличная поддержка!',
+    )
+);
+$response = $messages->rate($payload);
+$message = $response->message; // MessageData
+```
+
+---
+
+## Rate Case (оценка обращения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RateCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RateCase\Response` (поле `case` — `CaseData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| rate | RateData | да | Данные оценки |
+
+**RateData** (поле `rate` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| rating | string | да | Значение оценки (например, "positive", "negative") |
+| rating_comment | string|Optional | нет | Опциональный комментарий к оценке |
+| rated_staff_id | int|Optional | нет | Опциональный ID оцененного сотрудника |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RateCase\RateData;
+use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RateCasePayload(
+    caseId: 98765,
+    rate: new RateData(
+        rating: 'positive',
+        ratingComment: 'Отличная поддержка!',
+        ratedStaffId: 12345,
+    )
+);
+$response = $cases->rate($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
 ## DTO ответов
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — структура обращения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
@@ -274,7 +370,9 @@ $message = $response->message;
 
 - `POST /api/cases.json` — создание обращения.
 - `GET /api/cases.json` — список обращений (query-параметры из `FetchCaseListPayload::toQuery()`).
+- `POST /api/cases/{caseId}/rate.json` — оценка обращения.
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — создание сообщения.
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — обновление сообщения.
+- `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — оценка сообщения.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).
