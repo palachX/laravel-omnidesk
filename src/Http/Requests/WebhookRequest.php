@@ -11,8 +11,11 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapName(SnakeCaseMapper::class)]
 final class WebhookRequest extends Data
 {
+    /**
+     * @param  array<mixed>  $object
+     */
     public function __construct(
         public readonly string $type,
-        public readonly mixed $object,
+        public readonly array $object,
     ) {}
 }
