@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\Facade;
+namespace Palach\Omnidesk;
 
 use Palach\Omnidesk\Clients\CasesClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 
-final readonly class HttpClient
+final readonly class Omnidesk
 {
     public function __construct(
         private CasesClient $cases,

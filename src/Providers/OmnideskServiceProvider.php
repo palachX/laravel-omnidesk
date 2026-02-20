@@ -10,9 +10,9 @@ use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Commands\CreateWebhookCommand;
 use Palach\Omnidesk\Commands\ListWebhooksCommand;
 use Palach\Omnidesk\DTO\OmnideskConfig;
-use Palach\Omnidesk\Facade\HttpClient;
 use Palach\Omnidesk\Factories\WebhookHandlerDataInputFactory;
 use Palach\Omnidesk\Factories\WebhookHandlerFactory;
+use Palach\Omnidesk\Omnidesk;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -52,13 +52,18 @@ class OmnideskServiceProvider extends PackageServiceProvider
         $this->app->singleton(NotesClient::class, function ($app) {
             return new NotesClient($app->make(OmnideskTransport::class));
         });
-        $this->app->singleton(HttpClient::class, function ($app) {
-            return new HttpClient(
+
+        $this->app->singleton('omnidesk', function ($app) {
+            return new Omnidesk(
                 $app->make(CasesClient::class),
                 $app->make(MessagesClient::class),
                 $app->make(NotesClient::class),
             );
         });
+
+        /**
+         * Registration handlers factory
+         */
         $this->app->singleton(WebhookHandlerFactory::class, fn () => new WebhookHandlerFactory($this->getConfig()));
         $this->app->singleton(WebhookHandlerDataInputFactory::class, fn () => new WebhookHandlerDataInputFactory($this->getConfig()));
     }
