@@ -37,9 +37,14 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — create a case.
 - **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — list cases with pagination and filters.
 - **CasesClient::rate(RateCasePayload $payload): RateCaseResponse** — rate a case.
+- **CasesClient::trashCase(TrashCasePayload $payload): TrashCaseResponse** — move a case to trash.
+- **CasesClient::trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse** — move multiple cases to trash.
+- **CasesClient::restoreCase(RestoreCasePayload $payload): RestoreCaseResponse** — restore a case from trash.
+- **CasesClient::restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse** — restore multiple cases from trash.
 - **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — create a message in a case.
 - **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — update a message.
 - **MessagesClient::rate(RateMessagePayload $payload): RateMessageResponse** — rate a message.
+- **MessagesClient::deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse** — delete a message.
 
 ---
 
@@ -305,6 +310,168 @@ $message = $response->message; // MessageData
 
 ---
 
+## Delete Message (delete message)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteMessage\Response` (field `success` — boolean).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| message_id | int | yes | Message ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload as DeleteMessagePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new DeleteMessagePayload(
+    caseId: 98765,
+    messageId: 111222,
+);
+$response = $messages->deleteMessage($payload);
+$success = $response->success; // true
+```
+
+---
+
+## Trash Case (move case to trash)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\TrashCase\Response` (field `case` — `CaseData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new TrashCasePayload(
+    caseId: 98765,
+);
+$response = $cases->trashCase($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
+## Trash Case Bulk (move multiple cases to trash)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\TrashCase\BulkResponse` (field `caseSuccessId` — array of successfully processed case IDs).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_ids | int[] | yes | Array of case IDs (max 10 per request) |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new TrashCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->trashBulk($payload);
+$successIds = $response->caseSuccessId; // array of successful case IDs
+```
+
+---
+
+## Restore Case (restore case from trash)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RestoreCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RestoreCase\Response` (field `case` — `CaseData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RestoreCasePayload(
+    caseId: 98765,
+);
+$response = $cases->restoreCase($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
+## Restore Case Bulk (restore multiple cases from trash)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RestoreCase\BulkResponse` (field `caseSuccessId` — array of successfully processed case IDs).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_ids | int[] | yes | Array of case IDs (max 10 per request) |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RestoreCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->restoreBulk($payload);
+$successIds = $response->caseSuccessId; // array of successful case IDs
+```
+
+---
+
 ## Rate Case (rate case)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\RateCase\Payload`  
@@ -371,5 +538,9 @@ The client uses these paths relative to `host`:
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — create message.
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — update message.
 - `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — rate message.
+- `PUT /api/cases/{caseId}/trash.json` — move case to trash.
+- `PUT /api/cases/{caseIds}/trash.json` — move multiple cases to trash.
+- `PUT /api/cases/{caseId}/restore.json` — restore case from trash.
+- `PUT /api/cases/{caseIds}/restore.json` — restore multiple cases from trash.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).

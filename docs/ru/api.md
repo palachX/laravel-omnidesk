@@ -37,9 +37,14 @@ $messages = $http->messages();
 - **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — создание обращения (case).
 - **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — список обращений с пагинацией и фильтрами.
 - **CasesClient::rate(RateCasePayload $payload): RateCaseResponse** — оценка обращения.
+- **CasesClient::trashCase(TrashCasePayload $payload): TrashCaseResponse** — перемещение обращения в корзину.
+- **CasesClient::trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse** — перемещение нескольких обращений в корзину.
+- **CasesClient::restoreCase(RestoreCasePayload $payload): RestoreCaseResponse** — восстановление обращения из корзины.
+- **CasesClient::restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse** — восстановление нескольких обращений из корзины.
 - **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — создание сообщения в обращении.
 - **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — обновление сообщения.
 - **MessagesClient::rate(RateMessagePayload $payload): RateMessageResponse** — оценка сообщения.
+- **MessagesClient::deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse** — удаление сообщения.
 
 ---
 
@@ -308,6 +313,168 @@ $message = $response->message; // MessageData
 
 ---
 
+## Delete Message (удаление сообщения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteMessage\Response` (поле `success` — boolean).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| message_id | int | да | ID сообщения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload as DeleteMessagePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new DeleteMessagePayload(
+    caseId: 98765,
+    messageId: 111222,
+);
+$response = $messages->deleteMessage($payload);
+$success = $response->success; // true
+```
+
+---
+
+## Trash Case (перемещение обращения в корзину)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\TrashCase\Response` (поле `case` — `CaseData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new TrashCasePayload(
+    caseId: 98765,
+);
+$response = $cases->trashCase($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
+## Trash Case Bulk (перемещение нескольких обращений в корзину)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\TrashCase\BulkResponse` (поле `caseSuccessId` — массив успешно обработанных ID обращений).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_ids | int[] | да | Массив ID обращений (максимум 10 за запрос) |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new TrashCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->trashBulk($payload);
+$successIds = $response->caseSuccessId; // массив успешных ID обращений
+```
+
+---
+
+## Restore Case (восстановление обращения из корзины)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RestoreCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RestoreCase\Response` (поле `case` — `CaseData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RestoreCasePayload(
+    caseId: 98765,
+);
+$response = $cases->restoreCase($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
+## Restore Case Bulk (восстановление нескольких обращений из корзины)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\RestoreCase\BulkResponse` (поле `caseSuccessId` — массив успешно обработанных ID обращений).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_ids | int[] | да | Массив ID обращений (максимум 10 за запрос) |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayload;
+
+/** @var HttpClient $http */
+$http = app(HttpClient::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new RestoreCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->restoreBulk($payload);
+$successIds = $response->caseSuccessId; // массив успешных ID обращений
+```
+
+---
+
 ## Rate Case (оценка обращения)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\RateCase\Payload`  
@@ -374,5 +541,9 @@ $case = $response->case; // CaseData
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — создание сообщения.
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — обновление сообщения.
 - `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — оценка сообщения.
+- `PUT /api/cases/{caseId}/trash.json` — перемещение обращения в корзину.
+- `PUT /api/cases/{caseIds}/trash.json` — перемещение нескольких обращений в корзину.
+- `PUT /api/cases/{caseId}/restore.json` — восстановление обращения из корзины.
+- `PUT /api/cases/{caseIds}/restore.json` — восстановление нескольких обращений из корзины.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).
