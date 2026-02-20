@@ -13,6 +13,10 @@ use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
 use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
 use Palach\Omnidesk\UseCases\V1\RateCase\Response as RateCaseResponse;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayload;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkResponse as RestoreCaseBulkResponse;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
+use Palach\Omnidesk\UseCases\V1\RestoreCase\Response as RestoreCaseResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
 use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
@@ -30,6 +34,8 @@ final readonly class CasesClient
     private const string RATE_URL = '/api/cases/%s/rate.json';
 
     private const string TRASH_URL = '/api/cases/%s/trash.json';
+
+    private const string RESTORE_URL = '/api/cases/%s/restore.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -125,6 +131,41 @@ final readonly class CasesClient
         $caseSuccessId = $this->extract('case_success_id', $response);
 
         return new TrashCaseBulkResponse(
+            caseSuccessId: $caseSuccessId,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function restoreCase(RestoreCasePayload $payload): RestoreCaseResponse
+    {
+        $url = sprintf(self::RESTORE_URL, $payload->caseId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        $case = $this->extract('case', $response);
+
+        return new RestoreCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse
+    {
+        $url = sprintf(self::RESTORE_URL, implode(',', $payload->caseIds));
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        /** @var int[] $caseSuccessId */
+        $caseSuccessId = $this->extract('case_success_id', $response);
+
+        return new RestoreCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
         );
     }
