@@ -32,7 +32,7 @@ final readonly class OmnideskTransport
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function sendJson(string $method, string $url, array $data): mixed
+    public function sendJson(string $method, string $url, array $data = []): mixed
     {
         return $this->base()
             ->send($method, $url, ['json' => $data])

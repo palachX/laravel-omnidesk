@@ -15,6 +15,10 @@ use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
 use Palach\Omnidesk\UseCases\V1\RateCase\Response as RateCaseResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
+use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
+use Palach\Omnidesk\UseCases\V1\TrashCase\BulkResponse as TrashCaseBulkResponse;
+use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
+use Palach\Omnidesk\UseCases\V1\TrashCase\Response as TrashCaseResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CasesClient
@@ -24,6 +28,8 @@ final readonly class CasesClient
     private const string API_URL = '/api/cases.json';
 
     private const string RATE_URL = '/api/cases/%s/rate.json';
+
+    private const string TRASH_URL = '/api/cases/%s/trash.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -85,6 +91,41 @@ final readonly class CasesClient
         return new FetchCaseListResponse(
             cases: $cases,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function trashCase(TrashCasePayload $payload): TrashCaseResponse
+    {
+        $url = sprintf(self::TRASH_URL, $payload->caseId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        $case = $this->extract('case', $response);
+
+        return new TrashCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse
+    {
+        $url = sprintf(self::TRASH_URL, implode(',', $payload->caseIds));
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        /** @var int[] $caseSuccessId */
+        $caseSuccessId = $this->extract('case_success_id', $response);
+
+        return new TrashCaseBulkResponse(
+            caseSuccessId: $caseSuccessId,
         );
     }
 }
