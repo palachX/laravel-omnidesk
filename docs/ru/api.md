@@ -1,30 +1,37 @@
-# API Omnidesk (HttpClient, клиенты и Use Cases)
+# API Omnidesk (клиенты и Use Cases)
 
-Пакет предоставляет фасад HTTP‑клиента для работы с API Omnidesk, транспортный слой и типизированные use cases для типовых операций.
+Пакет предоставляет основной класс `Palach\Omnidesk\Omnidesk` для работы с API Omnidesk, транспортный слой и типизированные use cases для типовых операций.
 
-## HttpClient и клиенты
+## Omnidesk и клиенты
 
-Класс `Palach\Omnidesk\Facade\HttpClient` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
-Он предоставляет два типизированных клиента:
+Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
+Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
+
+Основной класс предоставляет доступ к трем типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
+- `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
 
-Использование в коде (внедрение через конструктор или `app(HttpClient::class)`):
+Использование в коде (внедрение через конструктор или `app()`):
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\Clients\MessagesClient;
-
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+// Рекомендуется: Использование фасада Omnidesk
+use Palach\Omnidesk\Facades\Omnidesk;
 
 /** @var CasesClient $cases */
-$cases = $http->cases();
+$cases = Omnidesk::cases();
 
 /** @var MessagesClient $messages */
-$messages = $http->messages();
+$messages = Omnidesk::messages();
+
+// Альтернативно: Прямое внедрение класса
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $omnidesk */
+$omnidesk = app(Omnidesk::class);
+$cases = $omnidesk->cases();
+$messages = $omnidesk->messages();
 ```
 
 ### Транспорт и аутентификация
@@ -34,17 +41,17 @@ $messages = $http->messages();
 
 ### Методы
 
-- **CasesClient::store(StoreCasePayload $payload): StoreCaseResponse** — создание обращения (case).
-- **CasesClient::fetchList(FetchCaseListPayload $payload): FetchCaseListResponse** — список обращений с пагинацией и фильтрами.
-- **CasesClient::rate(RateCasePayload $payload): RateCaseResponse** — оценка обращения.
-- **CasesClient::trashCase(TrashCasePayload $payload): TrashCaseResponse** — перемещение обращения в корзину.
-- **CasesClient::trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse** — перемещение нескольких обращений в корзину.
-- **CasesClient::restoreCase(RestoreCasePayload $payload): RestoreCaseResponse** — восстановление обращения из корзины.
-- **CasesClient::restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse** — восстановление нескольких обращений из корзины.
-- **MessagesClient::store(StoreMessagePayload $payload): StoreMessageResponse** — создание сообщения в обращении.
-- **MessagesClient::update(UpdateMessagePayload $payload): UpdateMessageResponse** — обновление сообщения.
-- **MessagesClient::rate(RateMessagePayload $payload): RateMessageResponse** — оценка сообщения.
-- **MessagesClient::deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse** — удаление сообщения.
+- **`$casesClient->store(StoreCasePayload $payload): StoreCaseResponse`** — создание обращения (case).
+- **`$casesClient->fetchList(FetchCaseListPayload $payload): FetchCaseListResponse`** — список обращений с пагинацией и фильтрами.
+- **`$casesClient->rate(RateCasePayload $payload): RateCaseResponse`** — оценка обращения.
+- **`$casesClient->trashCase(TrashCasePayload $payload): TrashCaseResponse`** — перемещение обращения в корзину.
+- **`$casesClient->trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse`** — перемещение нескольких обращений в корзину.
+- **`$casesClient->restoreCase(RestoreCasePayload $payload): RestoreCaseResponse`** — восстановление обращения из корзины.
+- **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — восстановление нескольких обращений из корзины.
+- **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
+- **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
+- **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
+- **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 
 ---
 
@@ -72,17 +79,14 @@ $messages = $http->messages();
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
+use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\CasesClient;
 use Palach\Omnidesk\UseCases\V1\StoreCase\CaseStoreData;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\DTO\AttachmentData;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
-
 /** @var CasesClient $cases */
-$cases = $http->cases();
+$cases = Omnidesk::cases();
 $payload = new StoreCasePayload(
     case: new CaseStoreData(
         userCustomId: 'ext-123',
@@ -148,12 +152,10 @@ $case = $response->case; // CaseData
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
@@ -190,14 +192,10 @@ $total = $response->total;
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\MessagesClient;
-use Palach\Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;
-use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
-use Palach\Omnidesk\DTO\AttachmentData;
+use Palach\Omnidesk\Clients\MessagesClient;use Palach\Omnidesk\DTO\AttachmentData;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\StoreMessage\MessageStoreData;use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var MessagesClient $messages */
 $messages = $http->messages();
@@ -243,13 +241,10 @@ $message = $response->message; // MessageData
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\MessagesClient;
-use Palach\Omnidesk\UseCases\V1\UpdateMessage\MessageUpdateData;
-use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
+use Palach\Omnidesk\Clients\MessagesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\UpdateMessage\MessageUpdateData;use Palach\Omnidesk\UseCases\V1\UpdateMessage\Payload as UpdateMessagePayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var MessagesClient $messages */
 $messages = $http->messages();
@@ -289,13 +284,10 @@ $message = $response->message;
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\MessagesClient;
-use Palach\Omnidesk\UseCases\V1\RateMessage\RateMessageData;
-use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;
+use Palach\Omnidesk\Clients\MessagesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;use Palach\Omnidesk\UseCases\V1\RateMessage\RateMessageData;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var MessagesClient $messages */
 $messages = $http->messages();
@@ -328,12 +320,10 @@ $message = $response->message; // MessageData
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\MessagesClient;
-use Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload as DeleteMessagePayload;
+use Palach\Omnidesk\Clients\MessagesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload as DeleteMessagePayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var MessagesClient $messages */
 $messages = $http->messages();
@@ -361,12 +351,10 @@ $success = $response->success; // true
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
@@ -393,12 +381,10 @@ $case = $response->case; // CaseData
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
@@ -425,12 +411,10 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
@@ -457,12 +441,10 @@ $case = $response->case; // CaseData
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayload;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
@@ -498,13 +480,10 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 Пример:
 
 ```php
-use Palach\Omnidesk\Facade\HttpClient;
-use Palach\Omnidesk\Clients\CasesClient;
-use Palach\Omnidesk\UseCases\V1\RateCase\RateData;
-use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
+use Palach\Omnidesk\Clients\CasesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;use Palach\Omnidesk\UseCases\V1\RateCase\RateData;
 
-/** @var HttpClient $http */
-$http = app(HttpClient::class);
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
 
 /** @var CasesClient $cases */
 $cases = $http->cases();
