@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\MessageData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteMessage\Payload as DeleteMessagePayload;
 use Palach\Omnidesk\UseCases\V1\RateMessage\Payload as RateMessagePayload;
 use Palach\Omnidesk\UseCases\V1\RateMessage\Response as RateMessageResponse;
 use Palach\Omnidesk\UseCases\V1\StoreMessage\Payload as StoreMessagePayload;
@@ -26,6 +27,8 @@ final readonly class MessagesClient
     private const string UPDATE_URL = '/api/cases/%s/messages/%d.json';
 
     private const string RATE_URL = '/api/cases/%s/rate/%s.json';
+
+    private const string DELETE_URL = '/api/cases/%s/messages/%d.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -86,5 +89,16 @@ final readonly class MessagesClient
         return new RateMessageResponse(
             message: MessageData::from($message),
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteMessage(DeleteMessagePayload $payload): void
+    {
+        $url = sprintf(self::DELETE_URL, $payload->caseId, $payload->messageId);
+
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 }
