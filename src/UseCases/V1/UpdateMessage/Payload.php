@@ -12,6 +12,8 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class Payload extends Data
 {
     public function __construct(
-        public readonly MessageUpdateData $message
+        public readonly int $caseId,
+        public readonly int $messageId,
+        public readonly MessageUpdateData $message,
     ) {}
 }

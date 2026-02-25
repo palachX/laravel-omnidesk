@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Palach\Omnidesk\Providers;
 
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Clients\FiltersClient;
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Commands\CreateWebhookCommand;
 use Palach\Omnidesk\Commands\ListWebhooksCommand;
 use Palach\Omnidesk\DTO\OmnideskConfig;
 use Palach\Omnidesk\Factories\WebhookHandlerDataInputFactory;
 use Palach\Omnidesk\Factories\WebhookHandlerFactory;
-use Palach\Omnidesk\Services\HttpClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\Transport\OmnideskTransport;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -38,7 +43,32 @@ class OmnideskServiceProvider extends PackageServiceProvider
             ])
             ->hasTranslations();
 
-        $this->app->singleton(HttpClient::class, fn () => new HttpClient($this->getConfig()));
+        $this->app->singleton(OmnideskTransport::class, fn () => new OmnideskTransport($this->getConfig()));
+        $this->app->singleton(CasesClient::class, function ($app) {
+            return new CasesClient($app->make(OmnideskTransport::class));
+        });
+        $this->app->singleton(FiltersClient::class, function ($app) {
+            return new FiltersClient($app->make(OmnideskTransport::class));
+        });
+        $this->app->singleton(MessagesClient::class, function ($app) {
+            return new MessagesClient($app->make(OmnideskTransport::class));
+        });
+        $this->app->singleton(NotesClient::class, function ($app) {
+            return new NotesClient($app->make(OmnideskTransport::class));
+        });
+
+        $this->app->singleton('omnidesk', function ($app) {
+            return new Omnidesk(
+                $app->make(CasesClient::class),
+                $app->make(FiltersClient::class),
+                $app->make(MessagesClient::class),
+                $app->make(NotesClient::class),
+            );
+        });
+
+        /**
+         * Registration handlers factory
+         */
         $this->app->singleton(WebhookHandlerFactory::class, fn () => new WebhookHandlerFactory($this->getConfig()));
         $this->app->singleton(WebhookHandlerDataInputFactory::class, fn () => new WebhookHandlerDataInputFactory($this->getConfig()));
     }

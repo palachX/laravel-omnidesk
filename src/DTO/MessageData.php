@@ -20,6 +20,12 @@ final class MessageData extends Data
         public readonly int $userId,
         public readonly int $staffId,
         public readonly string $content,
-        public readonly array|Optional $attachments = new Optional
+        public bool $note,
+        public string $createdAt,
+        public readonly string|Optional $contentHtml = new Optional,
+        public readonly array|Optional $attachments = new Optional,
+        public readonly string|Optional $rating = new Optional,
+        public readonly string|Optional $ratingComment = new Optional,
+        public readonly int|Optional $ratedStaffId = new Optional,
     ) {}
 }

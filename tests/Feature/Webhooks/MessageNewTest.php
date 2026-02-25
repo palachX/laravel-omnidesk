@@ -33,7 +33,7 @@ final class MessageNewTest extends ApiTestCase
         ];
     }
 
-    public static function dataErrorProvider(): iterable
+    public static function dataErrorObjectProvider(): iterable
     {
         yield 'not found case_id' => [
             'data' => [
@@ -49,6 +49,10 @@ final class MessageNewTest extends ApiTestCase
                 ],
             ],
         ];
+    }
+
+    public static function dataErrorTypeProvider(): iterable
+    {
         yield 'not found type' => [
             'data' => [
                 'type' => 'message_new_test',
@@ -86,8 +90,16 @@ final class MessageNewTest extends ApiTestCase
         $this->postJson(sprintf(self::URL_WEBHOOK, $omniWebhook->id), $data)->assertOk();
     }
 
-    #[DataProvider('dataErrorProvider')]
-    public function testError(array $data): void
+    #[DataProvider('dataErrorObjectProvider')]
+    public function testObjectError(array $data): void
+    {
+        $omniWebhook = OmniWebhook::factory()->create();
+
+        $this->postJson(sprintf(self::URL_WEBHOOK, $omniWebhook->id), $data)->assertUnprocessable();
+    }
+
+    #[DataProvider('dataErrorTypeProvider')]
+    public function testTypeError(array $data): void
     {
         $omniWebhook = OmniWebhook::factory()->create();
 

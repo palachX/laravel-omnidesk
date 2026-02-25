@@ -8,7 +8,7 @@ use Faker\Factory;
 use Faker\Generator;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
-use Palach\Omnidesk\Services\HttpClient;
+use Palach\Omnidesk\Omnidesk;
 
 abstract class AbstractTestCase extends TestCase
 {
@@ -68,9 +68,9 @@ abstract class AbstractTestCase extends TestCase
         return $diff;
     }
 
-    protected function makeHttpClient(): HttpClient
+    protected function makeHttpClient(): Omnidesk
     {
-        return $this->app->make(HttpClient::class);
+        return $this->app->make(Omnidesk::class);
     }
 
     protected function faker(): Generator

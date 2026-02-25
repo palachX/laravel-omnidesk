@@ -26,7 +26,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                 ],
             ],
@@ -54,7 +54,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                     'attachment_urls' => [
                         'https://abcompany.ru/548899/contract.pdf',
@@ -106,7 +106,7 @@ final class StoreCaseTest extends AbstractTestCase
                     'user_custom_id' => '8e334869-a6ca-41da-b5cd-a8a51f99a529',
                     'subject' => 'Subject case',
                     'content' => 'I need help',
-                    'content_html' => 'I need help',
+                    'content_html' => '<p>I need help</p>',
                     'channel' => 'chh200',
                     'attachments' => [
                         [
@@ -147,23 +147,21 @@ final class StoreCaseTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testHttp(array $payload, array $response): void
     {
-        $url = self::API_URL_CASES;
+        $url = $this->host.self::API_URL_CASES;
 
         Http::fake([
-            "$this->host".$url => Http::response($response),
+            $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->storeCase(StoreCasePayload::from($payload));
+        $responseData = $this->makeHttpClient()->cases()->store(StoreCasePayload::from($payload));
 
         $payload = StoreCasePayload::from($payload);
 
-        Http::assertSent(function (Request $request) use ($payload, $url) {
-
-            $this->assertEquals($payload->toArray(), $request->data());
-            $this->assertTrue($request->isJson());
-
-            return $request->url() === "{$this->host}".$url
-                && $request->method() === SymfonyRequest::METHOD_POST;
+        Http::assertSent(function (Request $request) use ($url, $payload) {
+            return $request->url() === $url
+                && $request->isJson()
+                && $request->method() === SymfonyRequest::METHOD_POST
+                && $request->body() === json_encode($payload->toArray());
         });
 
         $this->assertEquals(StoreCaseResponse::from($response), $responseData);
@@ -174,19 +172,18 @@ final class StoreCaseTest extends AbstractTestCase
     {
         $payloadDto = StoreCasePayload::from($payload);
 
-        $url = self::API_URL_CASES;
+        $url = $this->host.self::API_URL_CASES;
 
         Http::fake([
-            "{$this->host}{$url}" => Http::response($response),
+            $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->storeCase($payloadDto);
+        $responseData = $this->makeHttpClient()->cases()->store($payloadDto);
 
         Http::assertSent(function (Request $request) use ($url) {
-            $this->assertSame("{$this->host}{$url}", $request->url());
-            $this->assertSame(SymfonyRequest::METHOD_POST, $request->method());
-
-            $this->assertFalse($request->isJson());
+            if ($request->url() !== $url || $request->method() !== SymfonyRequest::METHOD_POST || $request->isJson()) {
+                return false;
+            }
 
             $contentType = $request->header('Content-Type')[0] ?? '';
             $this->assertStringContainsString('multipart/form-data', $contentType);

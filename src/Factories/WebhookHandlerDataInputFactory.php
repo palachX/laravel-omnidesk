@@ -14,7 +14,10 @@ final readonly class WebhookHandlerDataInputFactory
         private OmnideskConfig $config
     ) {}
 
-    public function make(string $type, mixed $object): Data
+    /**
+     * @param  array<mixed>  $object
+     */
+    public function make(string $type, array $object): Data
     {
         $webhooksConfig = $this->config->webhooks;
         $webhook = $webhooksConfig->where('type', $type)->first();
@@ -35,6 +38,9 @@ final readonly class WebhookHandlerDataInputFactory
         }
 
         /** @var Data */
-        return $data::from($object);
+        return $data::validateAndCreate(array_filter(
+            $object,
+            static fn ($value) => $value !== null
+        ));
     }
 }
