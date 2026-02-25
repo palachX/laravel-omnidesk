@@ -1,0 +1,47 @@
+# Export settings for distribution packages
+* export-ignore
+!src/ export-ignore
+!config/ export-ignore
+!composer.json export-ignore
+!LICENSE.md export-ignore
+!README.md export-ignore
+!CHANGELOG.md export-ignore
+
+# Development files to exclude from exports
+/docker/ export-ignore
+/docs/ export-ignore
+/tests/ export-ignore
+.github/ export-ignore
+.gitignore export-ignore
+.editorconfig export-ignore
+phpstan.neon export-ignore
+pint.json export-ignore
+rector.php export-ignore
+Taskfile.yml export-ignore
+compose.dev.yaml export-ignore
+testbench.yaml export-ignore
+CONTRIBUTING.md export-ignore
+
+# Line ending normalization
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+
+# Language-specific handling
+*.php text diff=php
+*.json text
+*.md text
+*.yml text
+*.yaml text
+
+# Lock files (keep as-is)
+*.lock -text
+
+# Generated files
+composer.lock text eol=crlf
