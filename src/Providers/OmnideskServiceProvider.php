@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Palach\Omnidesk\Providers;
 
 use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Commands\CreateWebhookCommand;
@@ -46,6 +47,9 @@ class OmnideskServiceProvider extends PackageServiceProvider
         $this->app->singleton(CasesClient::class, function ($app) {
             return new CasesClient($app->make(OmnideskTransport::class));
         });
+        $this->app->singleton(FiltersClient::class, function ($app) {
+            return new FiltersClient($app->make(OmnideskTransport::class));
+        });
         $this->app->singleton(MessagesClient::class, function ($app) {
             return new MessagesClient($app->make(OmnideskTransport::class));
         });
@@ -56,6 +60,7 @@ class OmnideskServiceProvider extends PackageServiceProvider
         $this->app->singleton('omnidesk', function ($app) {
             return new Omnidesk(
                 $app->make(CasesClient::class),
+                $app->make(FiltersClient::class),
                 $app->make(MessagesClient::class),
                 $app->make(NotesClient::class),
             );

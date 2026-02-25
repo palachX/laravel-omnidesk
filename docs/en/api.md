@@ -7,9 +7,10 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes three typed clients:
+The main class exposes four typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
+- `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
 
@@ -22,6 +23,9 @@ use Palach\Omnidesk\Facades\Omnidesk;
 /** @var CasesClient $cases */
 $cases = Omnidesk::cases();
 
+/** @var FiltersClient $filters */
+$filters = Omnidesk::filters();
+
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
@@ -31,6 +35,7 @@ use Palach\Omnidesk\Omnidesk;
 /** @var Omnidesk $omnidesk */
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
+$filters = $omnidesk->filters();
 $messages = $omnidesk->messages();
 ```
 
@@ -48,6 +53,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse`** — move multiple cases to trash.
 - **`$casesClient->restoreCase(RestoreCasePayload $payload): RestoreCaseResponse`** — restore a case from trash.
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — restore multiple cases from trash.
+- **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
@@ -150,6 +156,62 @@ $response = $cases->fetchList($payload);
 $cases = $response->cases;
 $total = $response->total;
 ```
+
+---
+
+## Fetch Filter List (list filters)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchFilterList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchFilterList\Response` (fields: `filters` — collection of `FilterData`, `totalCount` — total count).
+
+Retrieves all filters for the authenticated employee.
+
+Query parameters (all optional):
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int\|Optional | 1–500 | Page (default in Omnidesk API: 1) |
+| limit | int\|Optional | 1–100 | Page size (default in API: 100) |
+
+GET request uses `Payload::toQuery()`.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\FiltersClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchFilterList\Payload as FetchFilterListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var FiltersClient $filters */
+$filters = $http->filters();
+$payload = new FetchFilterListPayload(
+    page: 1,
+    limit: 20,
+);
+$response = $filters->fetchList($payload);
+$filters = $response->filters;
+$totalCount = $response->totalCount;
+
+// Iterate through filters
+foreach ($filters as $filter) {
+    echo "Filter ID: " . $filter->filterId . "\n";
+    echo "Filter Name: " . $filter->filterName . "\n";
+    echo "Is Selected: " . ($filter->isSelected ? 'Yes' : 'No') . "\n";
+    echo "Is Custom: " . ($filter->isCustom ? 'Yes' : 'No') . "\n";
+}
+```
+
+**FilterData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| filterId | int\|null | Filter identifier (numeric ID or null) |
+| filterName | string | Filter name |
+| isSelected | bool | Whether the filter is currently selected |
+| isCustom | bool | Whether this is a custom filter |
 
 ---
 

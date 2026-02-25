@@ -60,7 +60,7 @@ final readonly class OmnideskTransport
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function get(string $url, array $query): mixed
+    public function get(string $url, array $query = []): mixed
     {
         return $this->base()
             ->withQueryParameters($query)
