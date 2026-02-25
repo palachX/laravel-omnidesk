@@ -37,7 +37,7 @@ final class CaseData extends Data
         public readonly string|Optional $closedAt = new Optional,
         public readonly string|Optional $updatedAt = new Optional,
         public readonly string|Optional $lastResponseAt = new Optional,
-        public readonly int|string|Optional $closingSpeed = new Optional,
+        public readonly string|Optional $closingSpeed = new Optional,
         public readonly int|Optional $languageId = new Optional,
         public readonly array|Optional $customFields = new Optional,
         public readonly array|Optional $labels = new Optional,
