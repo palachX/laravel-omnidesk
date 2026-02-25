@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 final class FetchCaseTest extends AbstractTestCase
 {
-    private const string API_URL_CASE = '/api/cases/2000.json';
+    private const string API_URL_CASE = '/api/cases/%d.json';
 
     public static function dataProvider(): iterable
     {
@@ -80,7 +80,7 @@ final class FetchCaseTest extends AbstractTestCase
     {
         $payload = new FetchCasePayload($caseId);
 
-        $url = sprintf('/api/cases/%d.json', $caseId);
+        $url = sprintf(self::API_URL_CASE, $caseId);
         $fullUrl = $this->host.$url;
 
         Http::fake([

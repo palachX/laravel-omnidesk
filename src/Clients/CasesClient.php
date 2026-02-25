@@ -7,10 +7,13 @@ namespace Palach\Omnidesk\Clients;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\CaseData;
+use Palach\Omnidesk\DTO\ChangelogData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Payload as FetchCasePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Response as FetchCaseResponse;
+use Palach\Omnidesk\UseCases\V1\FetchCaseChangelog\Payload as FetchCaseChangelogPayload;
+use Palach\Omnidesk\UseCases\V1\FetchCaseChangelog\Response as FetchCaseChangelogResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
 use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
@@ -41,6 +44,8 @@ final readonly class CasesClient
 
     private const string CASE_URL = '/api/cases/%s.json';
 
+    private const string CHANGELOG_URL = '/api/cases/%s/changelog.json';
+
     public function __construct(
         private OmnideskTransport $transport,
     ) {}
@@ -59,6 +64,26 @@ final readonly class CasesClient
 
         return new FetchCaseResponse(
             case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getChangelog(FetchCaseChangelogPayload $payload): FetchCaseChangelogResponse
+    {
+        $url = sprintf(self::CHANGELOG_URL, $payload->caseId);
+
+        $response = $this->transport->get($url, $payload->toQuery());
+
+        $changelog = $this->extract('changelog', $response);
+
+        $changelogItems = collect($changelog)
+            ->map(fn ($item) => ChangelogData::from($item));
+
+        return new FetchCaseChangelogResponse(
+            changelog: $changelogItems,
         );
     }
 

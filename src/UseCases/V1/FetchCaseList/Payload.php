@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Palach\Omnidesk\UseCases\V1\FetchCaseList;
 
+use Palach\Omnidesk\Traits\HasQueryConversion;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
@@ -14,6 +15,8 @@ use Spatie\LaravelData\Optional;
 #[MapName(SnakeCaseMapper::class)]
 final class Payload extends Data
 {
+    use HasQueryConversion;
+
     /**
      * @param  array<string>|Optional  $status
      * @param  array<string>|Optional  $channel
@@ -67,24 +70,5 @@ final class Payload extends Data
         }
 
         return $query;
-    }
-
-    /**
-     * @param  array<string, mixed>  $query
-     * @param  array<string>|Optional  $value
-     */
-    private function serializeList(array &$query, string $key, array|Optional $value): void
-    {
-        if ($value instanceof Optional) {
-            return;
-        }
-
-        if (count($value) === 1) {
-            $query[$key] = $value[0];
-
-            return;
-        }
-
-        $query[$key] = $value;
     }
 }
