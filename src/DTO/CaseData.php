@@ -15,6 +15,7 @@ final class CaseData extends Data
     /**
      * @param  array<string, string|int>|Optional  $customFields
      * @param  array<int>|Optional  $labels
+     * @param  array<int>|Optional  $lockedLabels
      * @param  FileData[]|Optional  $attachments
      */
     public function __construct(
@@ -33,10 +34,14 @@ final class CaseData extends Data
         public readonly bool $deleted = false,
         public readonly bool $spam = false,
         public readonly string|Optional $createdAt = new Optional,
+        public readonly string|Optional $closedAt = new Optional,
         public readonly string|Optional $updatedAt = new Optional,
+        public readonly string|Optional $lastResponseAt = new Optional,
+        public readonly int|string|Optional $closingSpeed = new Optional,
         public readonly int|Optional $languageId = new Optional,
         public readonly array|Optional $customFields = new Optional,
         public readonly array|Optional $labels = new Optional,
+        public readonly array|Optional $lockedLabels = new Optional,
         public readonly string|Optional $rating = new Optional,
         public readonly string|Optional $ratingComment = new Optional,
         public readonly int|Optional $ratedStaffId = new Optional,

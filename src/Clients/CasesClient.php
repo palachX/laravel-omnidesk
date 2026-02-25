@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\CaseData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchCase\Payload as FetchCasePayload;
+use Palach\Omnidesk\UseCases\V1\FetchCase\Response as FetchCaseResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Payload as FetchCaseListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCaseList\Response as FetchCaseListResponse;
 use Palach\Omnidesk\UseCases\V1\RateCase\Payload as RateCasePayload;
@@ -37,9 +39,28 @@ final readonly class CasesClient
 
     private const string RESTORE_URL = '/api/cases/%s/restore.json';
 
+    private const string CASE_URL = '/api/cases/%s.json';
+
     public function __construct(
         private OmnideskTransport $transport,
     ) {}
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getCase(FetchCasePayload $payload): FetchCaseResponse
+    {
+        $url = sprintf(self::CASE_URL, $payload->caseId);
+
+        $response = $this->transport->get($url);
+
+        $case = $this->extract('case', $response);
+
+        return new FetchCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
 
     /**
      * @throws RequestException
