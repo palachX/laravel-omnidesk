@@ -36,6 +36,8 @@ use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
 use Palach\Omnidesk\UseCases\V1\TrashCase\BulkResponse as TrashCaseBulkResponse;
 use Palach\Omnidesk\UseCases\V1\TrashCase\Payload as TrashCasePayload;
 use Palach\Omnidesk\UseCases\V1\TrashCase\Response as TrashCaseResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\Payload as UpdateIdeaPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\Response as UpdateIdeaResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CasesClient
@@ -57,6 +59,8 @@ final readonly class CasesClient
     private const string CASE_URL = '/api/cases/%s.json';
 
     private const string CHANGELOG_URL = '/api/cases/%s/changelog.json';
+
+    private const string IDEA_URL = '/api/cases/%s/idea.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -295,6 +299,23 @@ final readonly class CasesClient
 
         return new SpamCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse
+    {
+        $url = sprintf(self::IDEA_URL, $payload->caseId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $case = $this->extract('case', $response);
+
+        return new UpdateIdeaResponse(
+            case: CaseData::from($case),
         );
     }
 }

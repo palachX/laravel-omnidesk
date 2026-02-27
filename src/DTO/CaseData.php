@@ -45,6 +45,7 @@ final class CaseData extends Data
         public readonly string|Optional $rating = new Optional,
         public readonly string|Optional $ratingComment = new Optional,
         public readonly int|Optional $ratedStaffId = new Optional,
-        public readonly array|Optional $attachments = new Optional
+        public readonly array|Optional $attachments = new Optional,
+        public readonly IdeaData|Optional $idea = new Optional
     ) {}
 }
