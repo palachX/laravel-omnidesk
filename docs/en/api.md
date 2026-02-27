@@ -57,6 +57,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->trashBulk(TrashCaseBulkPayload $payload): TrashCaseBulkResponse`** — move multiple cases to trash.
 - **`$casesClient->restoreCase(RestoreCasePayload $payload): RestoreCaseResponse`** — restore a case from trash.
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — restore multiple cases from trash.
+- **`$casesClient->spamCase(SpamCasePayload $payload): SpamCaseResponse`** — mark a case as spam.
+- **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — mark multiple cases as spam.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
@@ -647,6 +649,70 @@ $case = $response->case; // CaseData
 
 ---
 
+## Spam Case (mark case as spam)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\SpamCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\SpamCase\Response` (field `case` — `CaseData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\SpamCase\Payload as SpamCasePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new SpamCasePayload(
+    caseId: 98765,
+);
+$response = $cases->spamCase($payload);
+$case = $response->case; // CaseData with spam: true
+```
+
+---
+
+## Spam Case Bulk (mark multiple cases as spam)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\SpamCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\SpamCase\BulkResponse` (field `caseSuccessId` — array of successfully processed case IDs).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_ids | int[] | yes | Array of case IDs (max 10 per request) |
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\SpamCase\BulkPayload as SpamCaseBulkPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new SpamCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->spamBulk($payload);
+$successIds = $response->caseSuccessId; // array of successful case IDs
+```
+
+---
+
 ## Response DTOs
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — case structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
@@ -671,6 +737,8 @@ The client uses these paths relative to `host`:
 - `PUT /api/cases/{caseIds}/trash.json` — move multiple cases to trash.
 - `PUT /api/cases/{caseId}/restore.json` — restore case from trash.
 - `PUT /api/cases/{caseIds}/restore.json` — restore multiple cases from trash.
+- `PUT /api/cases/{caseId}/spam.json` — mark case as spam.
+- `PUT /api/cases/{caseIds}/spam.json` — mark multiple cases as spam.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).

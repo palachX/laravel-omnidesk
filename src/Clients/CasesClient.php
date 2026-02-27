@@ -22,6 +22,10 @@ use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkPayload as RestoreCaseBulkPayloa
 use Palach\Omnidesk\UseCases\V1\RestoreCase\BulkResponse as RestoreCaseBulkResponse;
 use Palach\Omnidesk\UseCases\V1\RestoreCase\Payload as RestoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\RestoreCase\Response as RestoreCaseResponse;
+use Palach\Omnidesk\UseCases\V1\SpamCase\BulkPayload as SpamCaseBulkPayload;
+use Palach\Omnidesk\UseCases\V1\SpamCase\BulkResponse as SpamCaseBulkResponse;
+use Palach\Omnidesk\UseCases\V1\SpamCase\Payload as SpamCasePayload;
+use Palach\Omnidesk\UseCases\V1\SpamCase\Response as SpamCaseResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Payload as StoreCasePayload;
 use Palach\Omnidesk\UseCases\V1\StoreCase\Response as StoreCaseResponse;
 use Palach\Omnidesk\UseCases\V1\TrashCase\BulkPayload as TrashCaseBulkPayload;
@@ -41,6 +45,8 @@ final readonly class CasesClient
     private const string TRASH_URL = '/api/cases/%s/trash.json';
 
     private const string RESTORE_URL = '/api/cases/%s/restore.json';
+
+    private const string SPAM_URL = '/api/cases/%s/spam.json';
 
     private const string CASE_URL = '/api/cases/%s.json';
 
@@ -212,6 +218,41 @@ final readonly class CasesClient
         $caseSuccessId = $this->extract('case_success_id', $response);
 
         return new RestoreCaseBulkResponse(
+            caseSuccessId: $caseSuccessId,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function spamCase(SpamCasePayload $payload): SpamCaseResponse
+    {
+        $url = sprintf(self::SPAM_URL, $payload->caseId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        $case = $this->extract('case', $response);
+
+        return new SpamCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse
+    {
+        $url = sprintf(self::SPAM_URL, implode(',', $payload->caseIds));
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        /** @var int[] $caseSuccessId */
+        $caseSuccessId = $this->extract('case_success_id', $response);
+
+        return new SpamCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
         );
     }
