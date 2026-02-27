@@ -29,6 +29,9 @@ $filters = Omnidesk::filters();
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
+/** @var NotesClient $notes */
+$notes = Omnidesk::notes();
+
 // Alternative: Direct class injection
 use Palach\Omnidesk\Omnidesk;
 
@@ -37,6 +40,7 @@ $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $filters = $omnidesk->filters();
 $messages = $omnidesk->messages();
+$notes = $omnidesk->notes();
 ```
 
 ### Transport and authentication
@@ -59,6 +63,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
+- **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 
 ---
 
@@ -447,6 +452,37 @@ $success = $response->success; // true
 
 ---
 
+## Delete Note (delete note)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteNote\Payload`  
+**Response:** void (no response body).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| message_id | int | yes | Message ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\NotesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\DeleteNote\Payload as DeleteNotePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var NotesClient $notes */
+$notes = $http->notes();
+$payload = new DeleteNotePayload(
+    caseId: 98765,
+    messageId: 111222,
+);
+$notes->deleteNote($payload);
+```
+
+---
+
 ## Trash Case (move case to trash)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\Payload`  
@@ -635,5 +671,6 @@ The client uses these paths relative to `host`:
 - `PUT /api/cases/{caseIds}/trash.json` — move multiple cases to trash.
 - `PUT /api/cases/{caseId}/restore.json` — restore case from trash.
 - `PUT /api/cases/{caseIds}/restore.json` — restore multiple cases from trash.
+- `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).

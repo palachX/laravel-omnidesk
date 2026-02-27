@@ -29,6 +29,9 @@ $filters = Omnidesk::filters();
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
+/** @var NotesClient $notes */
+$notes = Omnidesk::notes();
+
 // Альтернативно: Прямое внедрение класса
 use Palach\Omnidesk\Omnidesk;
 
@@ -37,6 +40,7 @@ $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $filters = $omnidesk->filters();
 $messages = $omnidesk->messages();
+$notes = $omnidesk->notes();
 ```
 
 ### Транспорт и аутентификация
@@ -59,6 +63,7 @@ $messages = $omnidesk->messages();
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
+- **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 
 ---
 
@@ -450,6 +455,37 @@ $success = $response->success; // true
 
 ---
 
+## Delete Note (удаление заметки)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteNote\Payload`  
+**Response:** void (без тела ответа).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| message_id | int | да | ID сообщения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\NotesClient;use Palach\Omnidesk\Omnidesk;use Palach\Omnidesk\UseCases\V1\DeleteNote\Payload as DeleteNotePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var NotesClient $notes */
+$notes = $http->notes();
+$payload = new DeleteNotePayload(
+    caseId: 98765,
+    messageId: 111222,
+);
+$notes->deleteNote($payload);
+```
+
+---
+
 ## Trash Case (перемещение обращения в корзину)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\TrashCase\Payload`  
@@ -638,5 +674,6 @@ $case = $response->case; // CaseData
 - `PUT /api/cases/{caseIds}/trash.json` — перемещение нескольких обращений в корзину.
 - `PUT /api/cases/{caseId}/restore.json` — восстановление обращения из корзины.
 - `PUT /api/cases/{caseIds}/restore.json` — восстановление нескольких обращений из корзины.
+- `DELETE /api/cases/{caseId}/note/{messageId}.json` — удаление заметки.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).
