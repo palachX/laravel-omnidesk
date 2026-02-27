@@ -61,6 +61,8 @@ $notes = $omnidesk->notes();
 - **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — пометить несколько обращений как спам.
 - **`$casesClient->deleteCase(DeleteCasePayload $payload): DeleteCaseResponse`** — полное удаление обращения.
 - **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — полное удаление нескольких обращений.
+- **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — редактирование предложения.
+- **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
@@ -718,6 +720,90 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 
 ---
 
+## Update Idea (редактирование предложения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdea\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdea\Response` (содержит `CaseData`).
+
+**IdeaUpdateData** (поле `message` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| content | string | нет | Содержимое предложения |
+| stage | string | нет | Этап реализации (waiting, planned, in_progress, finished) |
+| category_id | int | нет | ID категории |
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| message | IdeaUpdateData | да | Данные для обновления предложения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\IdeaUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\Payload as UpdateIdeaPayload;
+
+/** @var CasesClient $cases */
+$cases = Omnidesk::cases();
+$payload = new UpdateIdeaPayload(
+    caseId: 123,
+    message: new IdeaUpdateData(
+        content: 'Новое содержимое',
+        stage: 'planned',
+        categoryId: 319,
+    )
+);
+$response = $cases->updateIdea($payload);
+$case = $response->case; // CaseData с обновленным предложением
+```
+
+---
+
+## Update Idea Official Response (обновление официального ответа предложения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Response` (содержит `CaseData`).
+
+**IdeaOfficialResponseUpdateData** (поле `message` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| content | string | да | Содержание официального ответа |
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+| message | IdeaOfficialResponseUpdateData | да | Данные для обновления официального ответа |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\IdeaOfficialResponseUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Payload as UpdateIdeaOfficialResponsePayload;
+
+/** @var CasesClient $cases */
+$cases = Omnidesk::cases();
+$payload = new UpdateIdeaOfficialResponsePayload(
+    caseId: 123,
+    message: new IdeaOfficialResponseUpdateData(
+        content: 'Новый официальный ответ',
+    )
+);
+$response = $cases->updateIdeaOfficialResponse($payload);
+$case = $response->case; // CaseData с обновленным официальным ответом
+```
+
+---
+
 ## Delete Case (полное удаление обращения)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
@@ -808,6 +894,8 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 - `PUT /api/cases/{caseIds}/restore.json` — восстановление нескольких обращений из корзины.
 - `PUT /api/cases/{caseId}/spam.json` — пометить обращение как спам.
 - `PUT /api/cases/{caseIds}/spam.json` — пометить несколько обращений как спам.
+- `PUT /api/cases/{caseId}/idea.json` — редактирование предложения.
+- `PUT /api/cases/{caseId}/idea_official_response.json` — обновление официального ответа предложения.
 - `DELETE /api/cases/{caseId}.json` — полное удаление обращения.
 - `DELETE /api/cases/{caseIds}.json` — полное удаление нескольких обращений.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — удаление заметки.

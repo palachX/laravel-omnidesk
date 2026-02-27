@@ -61,6 +61,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — mark multiple cases as spam.
 - **`$casesClient->deleteCase(DeleteCasePayload $payload): DeleteCaseResponse`** — permanently delete a case.
 - **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — permanently delete multiple cases.
+- **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — update an idea (proposal).
+- **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
@@ -715,6 +717,90 @@ $successIds = $response->caseSuccessId; // array of successful case IDs
 
 ---
 
+## Update Idea (update idea/proposal)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdea\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdea\Response` (contains `CaseData`).
+
+**IdeaUpdateData** (payload `message` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| content | string | no | Idea content |
+| stage | string | no | Implementation stage (waiting, planned, in_progress, finished) |
+| category_id | int | no | Category ID |
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| message | IdeaUpdateData | yes | Idea update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\IdeaUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdea\Payload as UpdateIdeaPayload;
+
+/** @var CasesClient $cases */
+$cases = Omnidesk::cases();
+$payload = new UpdateIdeaPayload(
+    caseId: 123,
+    message: new IdeaUpdateData(
+        content: 'New content',
+        stage: 'planned',
+        categoryId: 319,
+    )
+);
+$response = $cases->updateIdea($payload);
+$case = $response->case; // CaseData with updated idea
+```
+
+---
+
+## Update Idea Official Response (update idea official response)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Response` (contains `CaseData`).
+
+**IdeaOfficialResponseUpdateData** (payload `message` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| content | string | yes | Official response content |
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+| message | IdeaOfficialResponseUpdateData | yes | Official response update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\IdeaOfficialResponseUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaOfficialResponse\Payload as UpdateIdeaOfficialResponsePayload;
+
+/** @var CasesClient $cases */
+$cases = Omnidesk::cases();
+$payload = new UpdateIdeaOfficialResponsePayload(
+    caseId: 123,
+    message: new IdeaOfficialResponseUpdateData(
+        content: 'New official response',
+    )
+);
+$response = $cases->updateIdeaOfficialResponse($payload);
+$case = $response->case; // CaseData with updated official response
+```
+
+---
+
 ## Delete Case (permanently delete case)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
@@ -805,6 +891,8 @@ The client uses these paths relative to `host`:
 - `PUT /api/cases/{caseIds}/restore.json` — restore multiple cases from trash.
 - `PUT /api/cases/{caseId}/spam.json` — mark case as spam.
 - `PUT /api/cases/{caseIds}/spam.json` — mark multiple cases as spam.
+- `PUT /api/cases/{caseId}/idea.json` — update idea/proposal.
+- `PUT /api/cases/{caseId}/idea_official_response.json` — update idea official response.
 - `DELETE /api/cases/{caseId}.json` — permanently delete case.
 - `DELETE /api/cases/{caseIds}.json` — permanently delete multiple cases.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.

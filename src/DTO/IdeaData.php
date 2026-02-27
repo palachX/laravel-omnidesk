@@ -16,5 +16,7 @@ final class IdeaData extends Data
         public readonly string|Optional $content = new Optional,
         public readonly string|Optional $stage = new Optional,
         public readonly int|Optional $category = new Optional,
+        public readonly string|Optional $officialResponse = new Optional,
+        public readonly int|Optional $officialResponseTstamp = new Optional,
     ) {}
 }
