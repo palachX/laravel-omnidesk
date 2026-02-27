@@ -55,6 +55,7 @@ $messages = $omnidesk->messages();
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — восстановление нескольких обращений из корзины.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
+- **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
@@ -280,6 +281,56 @@ $payload = new StoreMessagePayload(
 );
 $response = $messages->store($payload);
 $message = $response->message; // MessageData
+```
+
+---
+
+## Fetch Case Messages (получение сообщений обращения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Response` (поля: `messages` — коллекция `MessageData`, `totalCount` — общее количество).
+
+Получает сообщения для конкретного обращения с опциями пагинации и сортировки.
+
+Параметры запроса:
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| case_id | int | да | ID обращения (обязательный) |
+| page | int\|Optional | 1+ | Номер страницы (по умолчанию в API Omnidesk: показывает последние 100 сообщений, если нет page/limit) |
+| limit | int\|Optional | 1–100 | Сообщений на странице (по умолчанию в API: 100) |
+| order | string\|Optional | "asc", "desc" | Порядок сортировки (по умолчанию в API: "asc" - от старых к новым) |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Payload as FetchCaseMessagesPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new FetchCaseMessagesPayload(
+    caseId: 2000,
+    page: 1,
+    limit: 50,
+    order: 'asc',
+);
+$response = $messages->fetchMessages($payload);
+$messages = $response->messages;
+$totalCount = $response->totalCount;
+
+// Перебор сообщений
+foreach ($messages as $message) {
+    echo "ID сообщения: " . $message->messageId . "\n";
+    echo "Содержимое: " . $message->content . "\n";
+    echo "Создано: " . $message->createdAt . "\n";
+}
 ```
 
 ---
@@ -580,6 +631,7 @@ $case = $response->case; // CaseData
 - `GET /api/cases.json` — список обращений (query-параметры из `FetchCaseListPayload::toQuery()`).
 - `POST /api/cases/{caseId}/rate.json` — оценка обращения.
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — создание сообщения.
+- `GET /api/cases/{caseId}/messages.json` — получение сообщений обращения (query-параметры из `FetchCaseMessagesPayload::toQuery()`).
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — обновление сообщения.
 - `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — оценка сообщения.
 - `PUT /api/cases/{caseId}/trash.json` — перемещение обращения в корзину.

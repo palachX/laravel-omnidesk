@@ -55,6 +55,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — restore multiple cases from trash.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
+- **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
@@ -277,6 +278,56 @@ $payload = new StoreMessagePayload(
 );
 $response = $messages->store($payload);
 $message = $response->message; // MessageData
+```
+
+---
+
+## Fetch Case Messages (list messages for a case)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Response` (fields: `messages` — collection of `MessageData`, `totalCount` — total count).
+
+Retrieves messages for a specific case with pagination and sorting options.
+
+Query parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| case_id | int | yes | Case ID (required) |
+| page | int\|Optional | 1+ | Page number (default in Omnidesk API: shows last 100 messages if no page/limit) |
+| limit | int\|Optional | 1–100 | Messages per page (default in API: 100) |
+| order | string\|Optional | "asc", "desc" | Sort order (default in API: "asc" - from old to new) |
+
+GET request uses `Payload::toQuery()`.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\MessagesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchCaseMessages\Payload as FetchCaseMessagesPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var MessagesClient $messages */
+$messages = $http->messages();
+$payload = new FetchCaseMessagesPayload(
+    caseId: 2000,
+    page: 1,
+    limit: 50,
+    order: 'asc',
+);
+$response = $messages->fetchMessages($payload);
+$messages = $response->messages;
+$totalCount = $response->totalCount;
+
+// Iterate through messages
+foreach ($messages as $message) {
+    echo "Message ID: " . $message->messageId . "\n";
+    echo "Content: " . $message->content . "\n";
+    echo "Created At: " . $message->createdAt . "\n";
+}
 ```
 
 ---
@@ -577,6 +628,7 @@ The client uses these paths relative to `host`:
 - `GET /api/cases.json` — list cases (query from `FetchCaseListPayload::toQuery()`).
 - `POST /api/cases/{caseId}/rate.json` — rate case.
 - `POST /api/cases/{caseIdOrNumber}/messages.json` — create message.
+- `GET /api/cases/{caseId}/messages.json` — list case messages (query from `FetchCaseMessagesPayload::toQuery()`).
 - `POST /api/cases/{caseIdOrNumber}/messages/{messageId}.json` — update message.
 - `POST /api/cases/{caseId}/messages/{messageId}/rate.json` — rate message.
 - `PUT /api/cases/{caseId}/trash.json` — move case to trash.
