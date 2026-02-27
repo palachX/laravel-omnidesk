@@ -14,6 +14,7 @@ use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload as DeleteCaseBulkPayload;
 use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse as DeleteCaseBulkResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteCase\Payload as DeleteCasePayload;
 use Palach\Omnidesk\UseCases\V1\DeleteCase\Response as DeleteCaseResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteIdeaOfficialResponse\Payload as DeleteIdeaOfficialResponsePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Payload as FetchCasePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Response as FetchCaseResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCaseChangelog\Payload as FetchCaseChangelogPayload;
@@ -338,5 +339,16 @@ final readonly class CasesClient
         return new UpdateIdeaOfficialResponseResponse(
             case: CaseData::from($case),
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void
+    {
+        $url = sprintf(self::IDEA_OFFICIAL_RESPONSE_URL, $payload->caseId);
+
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 }

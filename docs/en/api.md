@@ -63,6 +63,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — permanently delete multiple cases.
 - **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — update an idea (proposal).
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
+- **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
@@ -801,6 +802,34 @@ $case = $response->case; // CaseData with updated official response
 
 ---
 
+## Delete Idea Official Response (delete idea official response)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteIdeaOfficialResponse\Payload`  
+**Response:** void (no response body).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| case_id | int | yes | Case ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteIdeaOfficialResponse\Payload as DeleteIdeaOfficialResponsePayload;
+
+/** @var CasesClient $cases */
+$cases = Omnidesk::cases();
+$payload = new DeleteIdeaOfficialResponsePayload(
+    caseId: 123,
+);
+$cases->deleteIdeaOfficialResponse($payload);
+```
+
+---
+
 ## Delete Case (permanently delete case)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
@@ -893,6 +922,7 @@ The client uses these paths relative to `host`:
 - `PUT /api/cases/{caseIds}/spam.json` — mark multiple cases as spam.
 - `PUT /api/cases/{caseId}/idea.json` — update idea/proposal.
 - `PUT /api/cases/{caseId}/idea_official_response.json` — update idea official response.
+- `DELETE /api/cases/{caseId}/idea_official_response.json` — delete idea official response.
 - `DELETE /api/cases/{caseId}.json` — permanently delete case.
 - `DELETE /api/cases/{caseIds}.json` — permanently delete multiple cases.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.
