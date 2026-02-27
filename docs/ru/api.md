@@ -59,6 +59,8 @@ $notes = $omnidesk->notes();
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — восстановление нескольких обращений из корзины.
 - **`$casesClient->spamCase(SpamCasePayload $payload): SpamCaseResponse`** — пометить обращение как спам.
 - **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — пометить несколько обращений как спам.
+- **`$casesClient->deleteCase(DeleteCasePayload $payload): DeleteCaseResponse`** — полное удаление обращения.
+- **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — полное удаление нескольких обращений.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
@@ -716,6 +718,70 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 
 ---
 
+## Delete Case (полное удаление обращения)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Response` (поле `case` — `CaseData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_id | int | да | ID обращения |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\Payload as DeleteCasePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new DeleteCasePayload(
+    caseId: 98765,
+);
+$response = $cases->deleteCase($payload);
+$case = $response->case; // CaseData
+```
+
+---
+
+## Delete Case Bulk (полное удаление нескольких обращений)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse` (поле `caseSuccessId` — массив успешно обработанных ID обращений).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| case_ids | int[] | да | Массив ID обращений (максимум 10 за запрос) |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload as DeleteCaseBulkPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CasesClient $cases */
+$cases = $http->cases();
+$payload = new DeleteCaseBulkPayload(
+    caseIds: [98765, 98766, 98767],
+);
+$response = $cases->deleteBulk($payload);
+$successIds = $response->caseSuccessId; // массив успешных ID обращений
+```
+
+---
+
 ## DTO ответов
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — структура обращения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
@@ -742,6 +808,8 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 - `PUT /api/cases/{caseIds}/restore.json` — восстановление нескольких обращений из корзины.
 - `PUT /api/cases/{caseId}/spam.json` — пометить обращение как спам.
 - `PUT /api/cases/{caseIds}/spam.json` — пометить несколько обращений как спам.
+- `DELETE /api/cases/{caseId}.json` — полное удаление обращения.
+- `DELETE /api/cases/{caseIds}.json` — полное удаление нескольких обращений.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — удаление заметки.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).

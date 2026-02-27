@@ -10,6 +10,10 @@ use Palach\Omnidesk\DTO\CaseData;
 use Palach\Omnidesk\DTO\ChangelogData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload as DeleteCaseBulkPayload;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse as DeleteCaseBulkResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\Payload as DeleteCasePayload;
+use Palach\Omnidesk\UseCases\V1\DeleteCase\Response as DeleteCaseResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Payload as FetchCasePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Response as FetchCaseResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCaseChangelog\Payload as FetchCaseChangelogPayload;
@@ -45,6 +49,8 @@ final readonly class CasesClient
     private const string TRASH_URL = '/api/cases/%s/trash.json';
 
     private const string RESTORE_URL = '/api/cases/%s/restore.json';
+
+    private const string DELETE_URL = '/api/cases/%s.json';
 
     private const string SPAM_URL = '/api/cases/%s/spam.json';
 
@@ -218,6 +224,41 @@ final readonly class CasesClient
         $caseSuccessId = $this->extract('case_success_id', $response);
 
         return new RestoreCaseBulkResponse(
+            caseSuccessId: $caseSuccessId,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteCase(DeleteCasePayload $payload): DeleteCaseResponse
+    {
+        $url = sprintf(self::DELETE_URL, $payload->caseId);
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
+
+        $case = $this->extract('case', $response);
+
+        return new DeleteCaseResponse(
+            case: CaseData::from($case),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse
+    {
+        $url = sprintf(self::DELETE_URL, implode(',', $payload->caseIds));
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
+
+        /** @var int[] $caseSuccessId */
+        $caseSuccessId = $this->extract('case_success_id', $response);
+
+        return new DeleteCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
         );
     }
