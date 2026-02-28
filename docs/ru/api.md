@@ -7,10 +7,11 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к четырем типизированным клиентам:
+Основной класс предоставляет доступ к пяти типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
+- `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
 
@@ -26,6 +27,9 @@ $cases = Omnidesk::cases();
 /** @var FiltersClient $filters */
 $filters = Omnidesk::filters();
 
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
@@ -39,6 +43,7 @@ use Palach\Omnidesk\Omnidesk;
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $filters = $omnidesk->filters();
+$labels = $omnidesk->labels();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 ```
@@ -65,6 +70,7 @@ $notes = $omnidesk->notes();
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
+- **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
@@ -146,6 +152,38 @@ $payload = new StoreCasePayload(
 );
 $response = $cases->store($payload);
 $case = $response->case; // CaseData
+```
+
+---
+
+## Store Label (создание метки)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreLabel\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreLabel\Response` (содержит `LabelData`).
+
+**LabelStoreData** (поле `label` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| label_title | string | да | Название метки |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\StoreLabel\LabelStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreLabel\Payload as StoreLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new StoreLabelPayload(
+    label: new LabelStoreData(
+        labelTitle: 'Test title'
+    )
+);
+$response = $labels->store($payload);
+$label = $response->label; // LabelData
 ```
 
 ---
@@ -900,6 +938,7 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 ## DTO ответов
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — структура обращения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
+- **LabelData** (`Omnidesk\DTO\LabelData`) — структура метки из ответов API.
 - **MessageData** (`Omnidesk\DTO\MessageData`) — структура сообщения из ответов API. Содержит опциональное поле `$attachments` с массивом объектов `FileData`.
 - **AttachmentData** (`Omnidesk\DTO\AttachmentData`) — DTO для исходящих вложений в payload Store Case/Store Message: `name`, `mimeType`, `content` (двоичное тело файла в base64).
 - **FileData** (`Omnidesk\DTO\FileData`) — DTO вложения в ответах: `fileId`, `fileName`, `fileSize`, `mimeType`, `url`.
@@ -929,5 +968,6 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 - `DELETE /api/cases/{caseId}.json` — полное удаление обращения.
 - `DELETE /api/cases/{caseIds}.json` — полное удаление нескольких обращений.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — удаление заметки.
+- `POST /api/labels.json` — создание метки.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).

@@ -7,10 +7,11 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes four typed clients:
+The main class exposes five typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
+- `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
 
@@ -26,6 +27,9 @@ $cases = Omnidesk::cases();
 /** @var FiltersClient $filters */
 $filters = Omnidesk::filters();
 
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
@@ -39,6 +43,7 @@ use Palach\Omnidesk\Omnidesk;
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $filters = $omnidesk->filters();
+$labels = $omnidesk->labels();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 ```
@@ -65,6 +70,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
+- **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
@@ -128,6 +134,38 @@ $payload = new StoreCasePayload(
 );
 $response = $cases->store($payload);
 $case = $response->case; // CaseData
+```
+
+---
+
+## Store Label (create label)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreLabel\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreLabel\Response` (contains `LabelData`).
+
+**LabelStoreData** (payload `label` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| label_title | string | yes | Label title |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\StoreLabel\LabelStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreLabel\Payload as StoreLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new StoreLabelPayload(
+    label: new LabelStoreData(
+        labelTitle: 'Test title'
+    )
+);
+$response = $labels->store($payload);
+$label = $response->label; // LabelData
 ```
 
 ---
@@ -897,6 +935,7 @@ $successIds = $response->caseSuccessId; // array of successful case IDs
 ## Response DTOs
 
 - **CaseData** (`Omnidesk\DTO\CaseData`) — case structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
+- **LabelData** (`Omnidesk\DTO\LabelData`) — label structure from API responses.
 - **MessageData** (`Omnidesk\DTO\MessageData`) — message structure from API responses. Contains optional `$attachments` field with an array of `FileData` objects.
 - **AttachmentData** (`Omnidesk\DTO\AttachmentData`) — outgoing attachment DTO used in Store Case/Store Message payloads: `name`, `mimeType`, `content` (base64-encoded file body).
 - **FileData** (`Omnidesk\DTO\FileData`) — attachment DTO in responses: `fileId`, `fileName`, `fileSize`, `mimeType`, `url`.
@@ -926,5 +965,6 @@ The client uses these paths relative to `host`:
 - `DELETE /api/cases/{caseId}.json` — permanently delete case.
 - `DELETE /api/cases/{caseIds}.json` — permanently delete multiple cases.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.
+- `POST /api/labels.json` — create label.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).
