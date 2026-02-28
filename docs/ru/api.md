@@ -71,6 +71,7 @@ $notes = $omnidesk->notes();
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
+- **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — получение списка меток с пагинацией.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
@@ -184,6 +185,53 @@ $payload = new StoreLabelPayload(
 );
 $response = $labels->store($payload);
 $label = $response->label; // LabelData
+```
+
+---
+
+## Fetch Label List (получение списка меток)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchLabelList\Response` (поля: `labels` — коллекция `LabelData`, `total` — общее количество).
+
+Получение списка меток.
+
+Параметры запроса:
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит меток на странице (по умолчанию: 100) |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload as FetchLabelListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var LabelsClient $labels */
+$labels = $http->labels();
+$payload = new FetchLabelListPayload(
+    page: 1,
+    limit: 20,
+);
+// Или с параметрами по умолчанию:
+// $payload = new FetchLabelListPayload();
+$response = $labels->fetchList($payload);
+$labels = $response->labels;
+$total = $response->total;
+
+// Перебор меток
+foreach ($labels as $label) {
+    echo "ID метки: " . $label->labelId . "\n";
+    echo "Название метки: " . $label->labelTitle . "\n";
+}
 ```
 
 ---

@@ -71,6 +71,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
+- **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — list labels with pagination.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
@@ -166,6 +167,53 @@ $payload = new StoreLabelPayload(
 );
 $response = $labels->store($payload);
 $label = $response->label; // LabelData
+```
+
+---
+
+## Fetch Label List (list labels)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchLabelList\Response` (fields: `labels` — collection of `LabelData`, `total` — total count).
+
+Get a list of labels.
+
+Request parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Labels per page (default: 100) |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload as FetchLabelListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var LabelsClient $labels */
+$labels = $http->labels();
+$payload = new FetchLabelListPayload(
+    page: 1,
+    limit: 20,
+);
+// Or with default parameters:
+// $payload = new FetchLabelListPayload();
+$response = $labels->fetchList($payload);
+$labels = $response->labels;
+$total = $response->total;
+
+// Iterate over labels
+foreach ($labels as $label) {
+    echo "Label ID: " . $label->labelId . "\n";
+    echo "Label title: " . $label->labelTitle . "\n";
+}
 ```
 
 ---

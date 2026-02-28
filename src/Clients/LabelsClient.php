@@ -8,6 +8,8 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload as FetchLabelListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchLabelList\Response as FetchLabelListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreLabel\Payload as StoreLabelPayload;
 use Palach\Omnidesk\UseCases\V1\StoreLabel\Response as StoreLabelResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,5 +37,30 @@ final readonly class LabelsClient
         );
 
         return StoreLabelResponse::from($response);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchList(FetchLabelListPayload $payload): FetchLabelListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $labels = collect($response)
+            ->map(fn ($item) => \Palach\Omnidesk\DTO\LabelData::from($item['label']));
+
+        return new FetchLabelListResponse(
+            labels: $labels,
+            total: $total,
+        );
     }
 }
