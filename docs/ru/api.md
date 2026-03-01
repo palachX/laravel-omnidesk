@@ -7,13 +7,14 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к пяти типизированным клиентам:
+Основной класс предоставляет доступ к шести типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
+- `Palach\Omnidesk\Clients\UsersClient` — операции с пользователями
 
 Использование в коде (внедрение через конструктор или `app()`):
 
@@ -36,6 +37,9 @@ $messages = Omnidesk::messages();
 /** @var NotesClient $notes */
 $notes = Omnidesk::notes();
 
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
 // Альтернативно: Прямое внедрение класса
 use Palach\Omnidesk\Omnidesk;
 
@@ -46,6 +50,7 @@ $filters = $omnidesk->filters();
 $labels = $omnidesk->labels();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
+$users = $omnidesk->users();
 ```
 
 ### Транспорт и аутентификация
@@ -55,6 +60,7 @@ $notes = $omnidesk->notes();
 
 ### Методы
 
+#### CasesClient
 - **`$casesClient->store(StoreCasePayload $payload): StoreCaseResponse`** — создание обращения (case).
 - **`$casesClient->fetchList(FetchCaseListPayload $payload): FetchCaseListResponse`** — список обращений с пагинацией и фильтрами.
 - **`$casesClient->rate(RateCasePayload $payload): RateCaseResponse`** — оценка обращения.
@@ -80,6 +86,7 @@ $notes = $omnidesk->notes();
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
+- **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 
 ---
 
@@ -302,6 +309,76 @@ $payload = new DeleteLabelPayload(
     id: 123,
 );
 $labels->deleteLabel($payload);
+```
+
+---
+
+## Store User (создание пользователя)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreUser\Response` (содержит `UserData`).
+
+**UserStoreData** (поле `user` в Payload):
+
+**Обязательные поля (одно из):**
+- `user_email` — email пользователя
+- `user_phone` — телефон пользователя  
+- `user_whatsapp_phone` — телефон для WhatsApp
+- `user_vkontakte` — ID во ВКонтакте
+- `user_odnoklassniki` — ID в Одноклассниках
+- `user_facebook` — ID в Facebook
+- `user_instagram` — username в Instagram
+- `user_telegram` — ID в Telegram
+- `user_telegram_data` — телефон или username для Telegram
+- `user_viber` — ID в Viber
+- `user_skype` — ID в Skype
+- `user_line` — ID в Line
+- `user_slack` — ID в Slack
+- `user_mattermost` — ID в Mattermost
+- `user_avito` — ID в Avito
+- `user_custom_id` — ID для кастомного канала
+
+**Опциональные поля:**
+- `user_custom_channel` — ID кастомного канала (обязательно при использовании `user_custom_id`)
+- `user_full_name` — полное имя пользователя
+- `company_name` — имя компании
+- `company_position` — должность
+- `user_note` — заметка по пользователю
+- `language_id` — язык пользователя
+- `custom_fields` — массив кастомных полей
+
+**UserData** (поле `user` в Response):
+- `user_id` — ID пользователя
+- Все поля из запроса плюс служебные поля (`created_at`, `updated_at`, `confirmed`, `active`, `deleted`, `password`, `type`, `thumbnail`, `linked_users`)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\StoreUser\UserStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new StoreUserPayload(
+    user: new UserStoreData(
+        userEmail: 'user@domain.ru',
+        userFullName: 'John Doe',
+        companyName: 'Example Corp',
+        companyPosition: 'Developer',
+        userNote: 'VIP customer',
+        languageId: 1,
+        customFields: [
+            'cf_20' => 'some data',
+            'cf_23' => true,
+        ]
+    )
+);
+
+$response = $users->store($payload);
+$user = $response->user; // UserData
 ```
 
 ---

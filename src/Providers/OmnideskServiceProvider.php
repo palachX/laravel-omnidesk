@@ -9,6 +9,7 @@ use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
+use Palach\Omnidesk\Clients\UsersClient;
 use Palach\Omnidesk\Commands\CreateWebhookCommand;
 use Palach\Omnidesk\Commands\ListWebhooksCommand;
 use Palach\Omnidesk\DTO\OmnideskConfig;
@@ -60,6 +61,9 @@ class OmnideskServiceProvider extends PackageServiceProvider
         $this->app->singleton(NotesClient::class, function ($app) {
             return new NotesClient($app->make(OmnideskTransport::class));
         });
+        $this->app->singleton(UsersClient::class, function ($app) {
+            return new UsersClient($app->make(OmnideskTransport::class));
+        });
 
         $this->app->singleton('omnidesk', function ($app) {
             return new Omnidesk(
@@ -68,6 +72,7 @@ class OmnideskServiceProvider extends PackageServiceProvider
                 $app->make(LabelsClient::class),
                 $app->make(MessagesClient::class),
                 $app->make(NotesClient::class),
+                $app->make(UsersClient::class),
             );
         });
 

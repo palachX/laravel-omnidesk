@@ -9,6 +9,7 @@ use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
+use Palach\Omnidesk\Clients\UsersClient;
 
 final readonly class Omnidesk
 {
@@ -18,6 +19,7 @@ final readonly class Omnidesk
         private LabelsClient $labels,
         private MessagesClient $messages,
         private NotesClient $notes,
+        private UsersClient $users,
     ) {}
 
     public function cases(): CasesClient
@@ -43,5 +45,10 @@ final readonly class Omnidesk
     public function notes(): NotesClient
     {
         return $this->notes;
+    }
+
+    public function users(): UsersClient
+    {
+        return $this->users;
     }
 }
