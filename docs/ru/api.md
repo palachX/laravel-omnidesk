@@ -73,6 +73,7 @@ $notes = $omnidesk->notes();
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — получение списка меток с пагинацией.
 - **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — редактирование метки.
+- **`$labelsClient->deleteLabel(DeleteLabelPayload $payload): void`** — удаление метки.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
@@ -273,6 +274,34 @@ $payload = new UpdateLabelPayload(
 );
 $response = $labels->updateLabel($payload);
 $label = $response->label; // LabelData
+```
+
+---
+
+## Delete Label (удаление метки)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload`  
+**Response:** void (без тела ответа).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| id | int | да | ID метки |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload as DeleteLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new DeleteLabelPayload(
+    id: 123,
+);
+$labels->deleteLabel($payload);
 ```
 
 ---
@@ -1058,5 +1087,8 @@ $successIds = $response->caseSuccessId; // массив успешных ID об
 - `DELETE /api/cases/{caseIds}.json` — полное удаление нескольких обращений.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — удаление заметки.
 - `POST /api/labels.json` — создание метки.
+- `GET /api/labels.json` — получение списка меток.
+- `PUT /api/labels/{labelId}.json` — редактирование метки.
+- `DELETE /api/labels/{labelId}.json` — удаление метки.
 
 `caseIdOrNumber` — либо `case_id`, либо `case_number` из соответствующего Payload (внутри клиента выбирается одно значение).

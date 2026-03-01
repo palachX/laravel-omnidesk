@@ -73,6 +73,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — list labels with pagination.
 - **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — update a label.
+- **`$labelsClient->deleteLabel(DeleteLabelPayload $payload): void`** — delete a label.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
@@ -255,6 +256,34 @@ $payload = new UpdateLabelPayload(
 );
 $response = $labels->updateLabel($payload);
 $label = $response->label; // LabelData
+```
+
+---
+
+## Delete Label (delete label)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload`  
+**Response:** void (no response body).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | int | yes | Label ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload as DeleteLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new DeleteLabelPayload(
+    id: 123,
+);
+$labels->deleteLabel($payload);
 ```
 
 ---
@@ -1055,5 +1084,8 @@ The client uses these paths relative to `host`:
 - `DELETE /api/cases/{caseIds}.json` — permanently delete multiple cases.
 - `DELETE /api/cases/{caseId}/note/{messageId}.json` — delete note.
 - `POST /api/labels.json` — create label.
+- `GET /api/labels.json` — list labels.
+- `PUT /api/labels/{labelId}.json` — update label.
+- `DELETE /api/labels/{labelId}.json` — delete label.
 
 `caseIdOrNumber` is either `case_id` or `case_number` from the payload (the client picks one internally).

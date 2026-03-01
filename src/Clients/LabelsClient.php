@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload as DeleteLabelPayload;
 use Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload as FetchLabelListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchLabelList\Response as FetchLabelListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreLabel\Payload as StoreLabelPayload;
@@ -83,5 +84,16 @@ final readonly class LabelsClient
         return new UpdateLabelResponse(
             label: \Palach\Omnidesk\DTO\LabelData::from($label),
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteLabel(DeleteLabelPayload $payload): void
+    {
+        $url = sprintf(self::LABEL_URL, $payload->id);
+
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 }
