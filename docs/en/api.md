@@ -72,6 +72,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — list labels with pagination.
+- **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — update a label.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — create a message in a case.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — list messages for a specific case with pagination and sorting.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — update a message.
@@ -214,6 +215,46 @@ foreach ($labels as $label) {
     echo "Label ID: " . $label->labelId . "\n";
     echo "Label title: " . $label->labelTitle . "\n";
 }
+```
+
+---
+
+## Update Label (update label)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateLabel\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateLabel\Response` (contains `LabelData`).
+
+**LabelUpdateData** (payload `label` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| label_title | string | yes | Label title |
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| label_id | int | yes | Label ID |
+| label | LabelUpdateData | yes | Label update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\LabelUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\Payload as UpdateLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new UpdateLabelPayload(
+    labelId: 200,
+    label: new LabelUpdateData(
+        labelTitle: 'New label title'
+    )
+);
+$response = $labels->updateLabel($payload);
+$label = $response->label; // LabelData
 ```
 
 ---

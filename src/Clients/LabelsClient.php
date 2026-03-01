@@ -12,6 +12,8 @@ use Palach\Omnidesk\UseCases\V1\FetchLabelList\Payload as FetchLabelListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchLabelList\Response as FetchLabelListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreLabel\Payload as StoreLabelPayload;
 use Palach\Omnidesk\UseCases\V1\StoreLabel\Response as StoreLabelResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\Payload as UpdateLabelPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\Response as UpdateLabelResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class LabelsClient
@@ -19,6 +21,8 @@ final readonly class LabelsClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/labels.json';
+
+    private const string LABEL_URL = '/api/labels/%s.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -61,6 +65,23 @@ final readonly class LabelsClient
         return new FetchLabelListResponse(
             labels: $labels,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse
+    {
+        $url = sprintf(self::LABEL_URL, $payload->labelId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $label = $this->extract('label', $response);
+
+        return new UpdateLabelResponse(
+            label: \Palach\Omnidesk\DTO\LabelData::from($label),
         );
     }
 }

@@ -72,6 +72,7 @@ $notes = $omnidesk->notes();
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — получение списка меток с пагинацией.
+- **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — редактирование метки.
 - **`$messagesClient->store(StoreMessagePayload $payload): StoreMessageResponse`** — создание сообщения в обращении.
 - **`$messagesClient->fetchMessages(FetchCaseMessagesPayload $payload): FetchCaseMessagesResponse`** — получение сообщений для конкретного обращения с пагинацией и сортировкой.
 - **`$messagesClient->update(UpdateMessagePayload $payload): UpdateMessageResponse`** — обновление сообщения.
@@ -232,6 +233,46 @@ foreach ($labels as $label) {
     echo "ID метки: " . $label->labelId . "\n";
     echo "Название метки: " . $label->labelTitle . "\n";
 }
+```
+
+---
+
+## Update Label (редактирование метки)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateLabel\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateLabel\Response` (содержит `LabelData`).
+
+**LabelUpdateData** (поле `label` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| label_title | string | да | Название метки |
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| label_id | int | да | ID метки |
+| label | LabelUpdateData | да | Данные для обновления метки |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\LabelUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateLabel\Payload as UpdateLabelPayload;
+
+/** @var LabelsClient $labels */
+$labels = Omnidesk::labels();
+$payload = new UpdateLabelPayload(
+    labelId: 200,
+    label: new LabelUpdateData(
+        labelTitle: 'Новое название метки'
+    )
+);
+$response = $labels->updateLabel($payload);
+$label = $response->label; // LabelData
 ```
 
 ---
