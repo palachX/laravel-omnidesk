@@ -87,6 +87,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
+- **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
 
 ---
@@ -444,6 +445,59 @@ foreach ($users as $user) {
     echo "Имя пользователя: " . $user->userFullName . "\n";
     echo "Email: " . $user->userEmail . "\n";
 }
+```
+
+---
+
+## Update User (редактирование пользователя)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateUser\Response` (содержит `UserData`).
+
+**UserUpdateData** (поле `user` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_email | string | нет | Новый email-адрес (можно менять только пока не подтвержден) |
+| user_phone | string | нет | Новый номер телефона (применимо только к пользователям типа phone) |
+| user_full_name | string | нет | Полное имя |
+| company_name | string | нет | Имя компании |
+| company_position | string | нет | Должность |
+| user_note | string | нет | Заметка по пользователю |
+| language_id | int | нет | Язык пользователя |
+| custom_fields | array | нет | Кастомные поля |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя |
+| payload | UpdateUserPayload | да | Данные для обновления |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\UserUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\Payload as UpdateUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new UpdateUserPayload(
+    user: new UserUpdateData(
+        userFullName: "Измененное имя пользователя",
+        languageId: 1,
+        customFields: [
+            'cf_20' => 'некоторые данные',
+            'cf_23' => true,
+        ]
+    )
+);
+
+$response = $users->update(200, $payload);
+$user = $response->user; // UserData
 ```
 
 ---

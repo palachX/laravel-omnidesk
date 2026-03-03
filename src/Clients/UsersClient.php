@@ -13,6 +13,8 @@ use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\Payload as UpdateUserPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\Response as UpdateUserResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class UsersClient
@@ -36,6 +38,22 @@ final readonly class UsersClient
         $user = $this->extract('user', $response);
 
         return new StoreUserResponse(
+            user: UserData::from($user),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function update(int $userId, UpdateUserPayload $payload): UpdateUserResponse
+    {
+        $url = str_replace('.json', "/{$userId}.json", self::API_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $user = $this->extract('user', $response);
+
+        return new UpdateUserResponse(
             user: UserData::from($user),
         );
     }

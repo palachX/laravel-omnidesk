@@ -86,7 +86,61 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
+- **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
+
+---
+
+## Update User (update user)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateUser\Response` (contains `UserData`).
+
+**UserUpdateData** (payload `user` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_email | string | no | New email address (can only be changed while not confirmed) |
+| user_phone | string | no | New phone number (applicable only to phone type users) |
+| user_full_name | string | no | Full name |
+| company_name | string | no | Company name |
+| company_position | string | no | Position |
+| user_note | string | no | User note |
+| language_id | int | no | User language |
+| custom_fields | array | no | Custom fields |
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID |
+| payload | UpdateUserPayload | yes | Update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\UserUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateUser\Payload as UpdateUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new UpdateUserPayload(
+    user: new UserUpdateData(
+        userFullName: "User's full name changed",
+        languageId: 1,
+        customFields: [
+            'cf_20' => 'some data',
+            'cf_23' => true,
+        ]
+    )
+);
+
+$response = $users->update(200, $payload);
+$user = $response->user; // UserData
+```
 
 ---
 
