@@ -98,6 +98,7 @@ final readonly class CasesClient
 
         $response = $this->transport->get($url, $payload->toQuery());
 
+        /** @var array<mixed> $changelog */
         $changelog = $this->extract('changelog', $response);
 
         $changelogItems = collect($changelog)

@@ -11,6 +11,8 @@ use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Response as FetchUserResponse;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload as FetchUserIdentificationPayload;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Response as FetchUserIdentificationResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
@@ -24,6 +26,8 @@ final readonly class UsersClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/users.json';
+
+    private const string API_URL_IDENTIFICATION = '/api/users/identification.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -98,6 +102,22 @@ final readonly class UsersClient
         return new FetchUserListResponse(
             users: $users,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse
+    {
+        $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL_IDENTIFICATION, $payload->toArray());
+
+        /** @var string $code */
+        $code = $this->extract('code', $response);
+
+        return new FetchUserIdentificationResponse(
+            code: $code,
         );
     }
 }

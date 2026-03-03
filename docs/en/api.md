@@ -89,6 +89,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
+- **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — get user identification code.
 
 ---
 
@@ -514,6 +515,64 @@ foreach ($users as $user) {
     echo "User Name: " . $user->userFullName . "\n";
     echo "Email: " . $user->userEmail . "\n";
 }
+```
+
+---
+
+## Fetch User Identification (get user identification code)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Response` (contains identification `code`).
+
+**UserIdentificationData** (payload `user` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_email | string|Optional | Required if other contact data not provided. Valid email address |
+| user_phone | string|Optional | Required if other contact data not provided. Valid phone number |
+| user_whatsapp_phone | string|Optional | Required if other contact data not provided. Valid phone number linked to WhatsApp |
+| user_telegram_data | string|Optional | Required if other contact data not provided. Valid phone or username for Telegram |
+| user_custom_id | string|Optional | Required if other contact data not provided. ID for custom channel user |
+| user_custom_channel | string|Optional | Custom channel ID (e.g., cch101) |
+| user_full_name | string|Optional | User's full name |
+| company_name | string|Optional | User's company name |
+| company_position | string|Optional | User's position |
+| user_note | string|Optional | Note about user |
+| language_id | int|Optional | User language ID |
+| custom_fields | array|Optional | Custom fields |
+
+At least one of the contact fields (user_email, user_phone, user_whatsapp_phone, user_telegram_data, user_custom_id) must be provided.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\UserIdentificationData;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload as FetchUserIdentificationPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new FetchUserIdentificationPayload(
+    user: new UserIdentificationData(
+        userFullName: 'Алексей Семёнов',
+        companyName: 'ABCompany',
+        userEmail: 'a.semenov@abcompany.com',
+        userPhone: '+79221110000',
+        userWhatsappPhone: '+79221110000',
+        userCustomId: 'a.semenov',
+        userCustomChannel: '481',
+        customFields: [
+            'cf_7264' => 'some data',
+            'cf_7786' => 2,
+            'cf_7486' => true,
+        ]
+    )
+);
+
+$response = $users->fetchUserIdentification($payload);
+$code = $response->code; // string: "o_37BD49_uv"
 ```
 
 ---

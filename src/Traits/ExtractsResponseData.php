@@ -9,9 +9,9 @@ use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 trait ExtractsResponseData
 {
     /**
-     * @return array<mixed>
+     * @return array<mixed>|string
      */
-    private function extract(string $key, mixed $response): array
+    private function extract(string $key, mixed $response): array|string
     {
         if (! is_array($response) || ! isset($response[$key])) {
             throw new UnexpectedResponseException("$key not found in response");

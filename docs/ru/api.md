@@ -90,6 +90,7 @@ $users = $omnidesk->users();
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
+- **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — получение кода идентификации пользователя.
 
 ---
 
@@ -533,6 +534,64 @@ $payload = new FetchUserPayload(
 
 $response = $users->fetch($payload);
 $user = $response->user; // UserData
+```
+
+---
+
+## Fetch User Identification (получение кода идентификации)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Response` (содержит код идентификации `code`).
+
+**UserIdentificationData** (поле `user` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|------|--------------|----------|
+| user_email | string|Optional | Обязательно, если не указаны другие контактные данные. Валидный email-адрес |
+| user_phone | string|Optional | Обязательно, если не указаны другие контактные данные. Валидный телефон |
+| user_whatsapp_phone | string|Optional | Обязательно, если не указаны другие контактные данные. Валидный телефон, привязанный к WhatsApp |
+| user_telegram_data | string|Optional | Обязательно, если не указаны другие контактные данные. Валидный телефон или username для Telegram |
+| user_custom_id | string|Optional | Обязательно, если не указаны другие контактные данные. ID пользователя для кастомного канала |
+| user_custom_channel | string|Optional | ID кастомного канала (например, cch101) |
+| user_full_name | string|Optional | Полное имя пользователя |
+| company_name | string|Optional | Название компании пользователя |
+| company_position | string|Optional | Должность пользователя |
+| user_note | string|Optional | Заметка по пользователю |
+| language_id | int|Optional | ID языка пользователя |
+| custom_fields | array|Optional | Кастомные поля |
+
+Хотя бы одно из контактных полей (user_email, user_phone, user_whatsapp_phone, user_telegram_data, user_custom_id) должно быть указано.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\UserIdentificationData;
+use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload as FetchUserIdentificationPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new FetchUserIdentificationPayload(
+    user: new UserIdentificationData(
+        userFullName: 'Семёнов Алексей',
+        companyName: 'ABCompany',
+        userEmail: 'a.semenov@abcompany.com',
+        userPhone: '+79221110000',
+        userWhatsappPhone: '+79221110000',
+        userCustomId: 'a.semenov',
+        userCustomChannel: '481',
+        customFields: [
+            'cf_7264' => 'some data',
+            'cf_7786' => 2,
+            'cf_7486' => true,
+        ]
+    )
+);
+
+$response = $users->fetchUserIdentification($payload);
+$code = $response->code; // string: "o_37BD49_uv"
 ```
 
 ---
