@@ -85,6 +85,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
+- **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
@@ -139,6 +140,40 @@ $payload = new UpdateUserPayload(
 );
 
 $response = $users->update(200, $payload);
+$user = $response->user; // UserData
+```
+
+---
+
+## Fetch User (get user)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUser\Response` (contains `UserData`).
+
+**UserFetchData** (payload `user` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\FetchUser\UserFetchData;
+use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new FetchUserPayload(
+    user: new UserFetchData(
+        userId: 200
+    )
+);
+
+$response = $users->fetch($payload);
 $user = $response->user; // UserData
 ```
 

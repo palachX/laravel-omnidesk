@@ -86,6 +86,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
+- **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
@@ -497,6 +498,40 @@ $payload = new UpdateUserPayload(
 );
 
 $response = $users->update(200, $payload);
+$user = $response->user; // UserData
+```
+
+---
+
+## Fetch User (получение пользователя)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUser\Response` (содержит `UserData`).
+
+**UserFetchData** (поле `user` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\FetchUser\UserFetchData;
+use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new FetchUserPayload(
+    user: new UserFetchData(
+        userId: 200
+    )
+);
+
+$response = $users->fetch($payload);
 $user = $response->user; // UserData
 ```
 

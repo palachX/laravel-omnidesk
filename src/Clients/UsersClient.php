@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\UserData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
+use Palach\Omnidesk\UseCases\V1\FetchUser\Response as FetchUserResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
@@ -26,6 +28,22 @@ final readonly class UsersClient
     public function __construct(
         private OmnideskTransport $transport,
     ) {}
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetch(FetchUserPayload $payload): FetchUserResponse
+    {
+        $url = str_replace('.json', "/{$payload->user->userId}.json", self::API_URL);
+        $response = $this->transport->get($url);
+
+        $user = $this->extract('user', $response);
+
+        return new FetchUserResponse(
+            user: UserData::from($user),
+        );
+    }
 
     /**
      * @throws RequestException
