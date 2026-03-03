@@ -19,6 +19,8 @@ use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
 use Palach\Omnidesk\UseCases\V1\LinkUser\Response as LinkUserResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
+use Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload as UnlinkUserPayload;
+use Palach\Omnidesk\UseCases\V1\UnlinkUser\Response as UnlinkUserResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateUser\Payload as UpdateUserPayload;
 use Palach\Omnidesk\UseCases\V1\UpdateUser\Response as UpdateUserResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -135,6 +137,22 @@ final readonly class UsersClient
         $user = $this->extract('user', $response);
 
         return new LinkUserResponse(
+            user: UserData::from($user),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse
+    {
+        $url = str_replace('.json', "/$userId/unlink.json", self::API_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $user = $this->extract('user', $response);
+
+        return new UnlinkUserResponse(
             user: UserData::from($user),
         );
     }

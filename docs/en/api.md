@@ -91,6 +91,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — get user identification code.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — link user profiles.
+- **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — unlink user profiles.
 
 ---
 
@@ -983,6 +984,44 @@ $payload = new LinkUserPayload(
 
 $response = $users->linkUser(1307386, $payload);
 $user = $response->user;
+```
+
+---
+
+## Unlink User (unlink user profiles)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UnlinkUser\Response` (contains `UserData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | ID of the user to unlink from the user specified in URL |
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID (from URL) - the user from which another user will be unlinked |
+| payload | UnlinkUserPayload | yes | Unlink data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload as UnlinkUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new UnlinkUserPayload(
+    userId: 25830712,
+);
+
+$response = $users->unlinkUser(1307386, $payload);
+$user = $response->user; // UserData with updated linked_users array
 ```
 
 ---

@@ -92,6 +92,7 @@ $users = $omnidesk->users();
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — получение кода идентификации пользователя.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — связывание профилей пользователей.
+- **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — отвязывание профилей пользователей.
 
 ---
 
@@ -987,6 +988,44 @@ $payload = new LinkUserPayload(
 
 $response = $users->linkUser(1307386, $payload);
 $user = $response->user;
+```
+
+---
+
+## Unlink User (отвязывание профилей пользователей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UnlinkUser\Response` (содержит `UserData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя для отвязывания от пользователя указанного в URL |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя (из URL) - от которого будет отвязываться другой пользователь |
+| payload | UnlinkUserPayload | да | Данные для отвязывания |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload as UnlinkUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new UnlinkUserPayload(
+    userId: 25830712,
+);
+
+$response = $users->unlinkUser(1307386, $payload);
+$user = $response->user; // UserData с обновленным массивом linked_users
 ```
 
 ---
