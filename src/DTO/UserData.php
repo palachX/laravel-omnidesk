@@ -36,7 +36,7 @@ final class UserData extends Data
         public readonly string|Optional $userOdnoklassniki = new Optional,
         public readonly string|Optional $userFacebook = new Optional,
         public readonly string|Optional $userInstagram = new Optional,
-        public readonly string|Optional $userTelegram = new Optional,
+        public readonly string|Optional $telegramId = new Optional,
         public readonly string|Optional $userTelegramData = new Optional,
         public readonly string|Optional $userViber = new Optional,
         public readonly string|Optional $userSkype = new Optional,

@@ -91,6 +91,7 @@ $users = $omnidesk->users();
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — получение кода идентификации пользователя.
+- **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — связывание профилей пользователей.
 
 ---
 
@@ -935,6 +936,57 @@ $payload = new DeleteNotePayload(
     messageId: 111222,
 );
 $notes->deleteNote($payload);
+```
+
+---
+
+## Link User (связывание профилей пользователей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\LinkUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\LinkUser\Response` (содержит `UserData`).
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_email | string|Optional | Email адрес пользователя для связывания |
+| user_phone | string|Optional | Номер телефона пользователя для связывания |
+| user_id | int|Optional | ID пользователя для связывания |
+
+Хотя бы одно из полей (user_email, user_phone или user_id) должно быть предоставлено.
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя (из URL) - профиль которого будет связан |
+| payload | LinkUserPayload | да | Данные для связывания |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+// Связывание по email
+$payload = new LinkUserPayload(
+    userEmail: 'user@domain.ru',
+);
+
+$response = $users->linkUser(1307386, $payload);
+$user = $response->user; // UserData с обновленным массивом linked_users
+
+// Связывание по ID пользователя
+$payload = new LinkUserPayload(
+    userId: 25830712,
+);
+
+$response = $users->linkUser(1307386, $payload);
+$user = $response->user;
 ```
 
 ---

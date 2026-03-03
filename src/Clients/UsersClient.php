@@ -15,6 +15,8 @@ use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload as FetchUserIden
 use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Response as FetchUserIdentificationResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
+use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
+use Palach\Omnidesk\UseCases\V1\LinkUser\Response as LinkUserResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateUser\Payload as UpdateUserPayload;
@@ -118,6 +120,22 @@ final readonly class UsersClient
 
         return new FetchUserIdentificationResponse(
             code: $code,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse
+    {
+        $url = str_replace('.json', "/$userId/link.json", self::API_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $user = $this->extract('user', $response);
+
+        return new LinkUserResponse(
+            user: UserData::from($user),
         );
     }
 }

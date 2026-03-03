@@ -90,6 +90,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
 - **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — get user identification code.
+- **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — link user profiles.
 
 ---
 
@@ -931,6 +932,57 @@ $payload = new DeleteNotePayload(
     messageId: 111222,
 );
 $notes->deleteNote($payload);
+```
+
+---
+
+## Link User (link user profiles)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\LinkUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\LinkUser\Response` (contains `UserData`).
+
+**Payload fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_email | string|Optional | Email address of the user to link with |
+| user_phone | string|Optional | Phone number of the user to link with |
+| user_id | int|Optional | ID of the user to link with |
+
+At least one of the fields (user_email, user_phone, or user_id) must be provided.
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID (from URL) - the user whose profile will be linked |
+| payload | LinkUserPayload | yes | Link data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+// Link by email
+$payload = new LinkUserPayload(
+    userEmail: 'user@domain.ru',
+);
+
+$response = $users->linkUser(1307386, $payload);
+$user = $response->user; // UserData with updated linked_users array
+
+// Link by user ID
+$payload = new LinkUserPayload(
+    userId: 25830712,
+);
+
+$response = $users->linkUser(1307386, $payload);
+$user = $response->user;
 ```
 
 ---
