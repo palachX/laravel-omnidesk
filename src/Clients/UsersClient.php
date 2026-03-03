@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\UserData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +37,31 @@ final readonly class UsersClient
 
         return new StoreUserResponse(
             user: UserData::from($user),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchList(FetchUserListPayload $payload): FetchUserListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $users = collect($response)
+            ->map(fn ($item) => UserData::from($item['user']));
+
+        return new FetchUserListResponse(
+            users: $users,
+            total: $total,
         );
     }
 }

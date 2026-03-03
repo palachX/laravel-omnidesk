@@ -87,6 +87,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
+- **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — получение списка пользователей с пагинацией и фильтрами.
 
 ---
 
@@ -379,6 +380,70 @@ $payload = new StoreUserPayload(
 
 $response = $users->store($payload);
 $user = $response->user; // UserData
+```
+
+---
+
+## Fetch User List (получение списка пользователей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUserList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUserList\Response` (поля: `users` — коллекция `UserData`, `total` — общее количество).
+
+Получение списка пользователей с пагинацией и фильтрами.
+
+Параметры запроса (все опциональны):
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int\|Optional | 1–500 | Номер страницы (по умолчанию в API Omnidesk: 1) |
+| limit | int\|Optional | 1–100 | Размер страницы (по умолчанию в API: 100) |
+| user_email | string\|Optional | — | Поиск пользователей по email-адресу (не менее 3-х символов) |
+| user_phone | string\|Optional | — | Поиск пользователей по телефону (не менее 3-х символов) |
+| user_custom_id | string\|Optional | — | Поиск пользователя по кастомному id |
+| user_custom_channel | string\|Optional | — | ID кастомного канала (к примеру, cch101) |
+| company_id | array\|Optional | — | ID компании (выборка всех пользователей конкретной компании) |
+| language_id | int\|Optional | — | язык пользователя |
+| custom_fields | array\|Optional | — | Дополнительные поля данных |
+| amount_of_cases | bool\|Optional | — | Количество обращений пользователя |
+| from_time | string\|int\|Optional | — | Начало периода для фильтра по дате добавления пользователя |
+| to_time | string\|int\|Optional | — | Конец периода для фильтра по дате добавления пользователя |
+| from_updated_time | string\|int\|Optional | — | Начало периода для фильтра по дате обновления пользователя |
+| to_updated_time | string\|int\|Optional | — | Конец периода для фильтра по дате обновления пользователя |
+| from_last_contact_time | string\|int\|Optional | — | Начало периода для фильтра по дате последнего контакта пользователя |
+| to_last_contact_time | string\|int\|Optional | — | Конец периода для фильтра по дате последнего контакта пользователя |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var UsersClient $users */
+$users = $http->users();
+$payload = new FetchUserListPayload(
+    page: 1,
+    limit: 20,
+    userEmail: 'test@example.com',
+    companyId: [123, 456],
+);
+// Или с параметрами по умолчанию:
+// $payload = new FetchUserListPayload();
+$response = $users->fetchList($payload);
+$users = $response->users;
+$total = $response->total;
+
+// Перебор пользователей
+foreach ($users as $user) {
+    echo "ID пользователя: " . $user->userId . "\n";
+    echo "Имя пользователя: " . $user->userFullName . "\n";
+    echo "Email: " . $user->userEmail . "\n";
+}
 ```
 
 ---

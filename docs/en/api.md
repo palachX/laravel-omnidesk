@@ -7,13 +7,14 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes five typed clients:
+The main class exposes six typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
+- `Palach\Omnidesk\Clients\UsersClient` — operations with users
 
 Usage (inject via constructor or `app()`):
 
@@ -36,6 +37,9 @@ $messages = Omnidesk::messages();
 /** @var NotesClient $notes */
 $notes = Omnidesk::notes();
 
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
 // Alternative: Direct class injection
 use Palach\Omnidesk\Omnidesk;
 
@@ -46,6 +50,7 @@ $filters = $omnidesk->filters();
 $labels = $omnidesk->labels();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
+$users = $omnidesk->users();
 ```
 
 ### Transport and authentication
@@ -80,6 +85,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
+- **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
+- **`$usersClient->fetchList(FetchUserListPayload $payload): FetchUserListResponse`** — list users with pagination and filters.
 
 ---
 
@@ -284,6 +291,140 @@ $payload = new DeleteLabelPayload(
     id: 123,
 );
 $labels->deleteLabel($payload);
+```
+
+---
+
+## Store User (create user)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreUser\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreUser\Response` (contains `UserData`).
+
+**UserStoreData** (payload `user` field):
+
+**Required fields (one of):**
+- `user_email` — user email
+- `user_phone` — user phone  
+- `user_whatsapp_phone` — WhatsApp phone
+- `user_vkontakte` — VKontakte ID
+- `user_odnoklassniki` — Odnoklassniki ID
+- `user_facebook` — Facebook ID
+- `user_instagram` — Instagram username
+- `user_telegram` — Telegram ID
+- `user_telegram_data` — phone or username for Telegram
+- `user_viber` — Viber ID
+- `user_skype` — Skype ID
+- `user_line` — Line ID
+- `user_slack` — Slack ID
+- `user_mattermost` — Mattermost ID
+- `user_avito` — Avito ID
+- `user_custom_id` — Custom channel ID
+
+**Optional fields:**
+- `user_custom_channel` — Custom channel ID (required when using `user_custom_id`)
+- `user_full_name` — User full name
+- `company_name` — Company name
+- `company_position` — Position
+- `user_note` — User note
+- `language_id` — User language
+- `custom_fields` — Array of custom fields
+
+**UserData** (response `user` field):
+- `user_id` — User ID
+- All request fields plus service fields (`created_at`, `updated_at`, `confirmed`, `active`, `deleted`, `password`, `type`, `thumbnail`, `linked_users`)
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\UseCases\V1\StoreUser\UserStoreData;
+use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$payload = new StoreUserPayload(
+    user: new UserStoreData(
+        userEmail: 'user@domain.ru',
+        userFullName: 'John Doe',
+        companyName: 'Example Corp',
+        companyPosition: 'Developer',
+        userNote: 'VIP customer',
+        languageId: 1,
+        customFields: [
+            'cf_20' => 'some data',
+            'cf_23' => true,
+        ]
+    )
+);
+
+$response = $users->store($payload);
+$user = $response->user; // UserData
+```
+
+---
+
+## Fetch User List (list users)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchUserList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchUserList\Response` (fields: `users` — collection of `UserData`, `total` — total count).
+
+Get list of users with pagination and filters.
+
+Query parameters (all optional):
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int\|Optional | 1–500 | Page number (default in Omnidesk API: 1) |
+| limit | int\|Optional | 1–100 | Page size (default in API: 100) |
+| user_email | string\|Optional | — | Search users by email (min 3 characters) |
+| user_phone | string\|Optional | — | Search users by phone (min 3 characters) |
+| user_custom_id | string\|Optional | — | Search user by custom id |
+| user_custom_channel | string\|Optional | — | Custom channel ID (e.g., cch101) |
+| company_id | array\|Optional | — | Company ID (all users of specific company) |
+| language_id | int\|Optional | — | User language |
+| custom_fields | array\|Optional | — | Additional data fields |
+| amount_of_cases | bool\|Optional | — | User case count |
+| from_time | string\|int\|Optional | — | Start period for user creation date filter |
+| to_time | string\|int\|Optional | — | End period for user creation date filter |
+| from_updated_time | string\|int\|Optional | — | Start period for user update date filter |
+| to_updated_time | string\|int\|Optional | — | End period for user update date filter |
+| from_last_contact_time | string\|int\|Optional | — | Start period for user last contact date filter |
+| to_last_contact_time | string\|int\|Optional | — | End period for user last contact date filter |
+
+For GET requests use `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\UsersClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var UsersClient $users */
+$users = $http->users();
+$payload = new FetchUserListPayload(
+    page: 1,
+    limit: 20,
+    userEmail: 'test@example.com',
+    companyId: [123, 456],
+);
+// Or with default parameters:
+// $payload = new FetchUserListPayload();
+$response = $users->fetchList($payload);
+$users = $response->users;
+$total = $response->total;
+
+// Iterate users
+foreach ($users as $user) {
+    echo "User ID: " . $user->userId . "\n";
+    echo "User Name: " . $user->userFullName . "\n";
+    echo "Email: " . $user->userEmail . "\n";
+}
 ```
 
 ---
