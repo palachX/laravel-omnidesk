@@ -93,6 +93,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — link user profiles.
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — unlink user profiles.
 - **`$usersClient->disableUser(int $userId): DisableUserResponse`** — disable user (move to deleted list).
+- **`$usersClient->blockUser(int $userId): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
 
 ---
 
@@ -1046,6 +1047,31 @@ $users = Omnidesk::users();
 
 $response = $users->disableUser(200);
 $user = $response->user; // UserData with deleted = true
+```
+
+---
+
+## Block User (block user)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\BlockUser\Response` (contains `UserData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID (from URL) - the user to be blocked |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$response = $users->blockUser(200);
+$user = $response->user; // UserData with active = false
 ```
 
 ---
