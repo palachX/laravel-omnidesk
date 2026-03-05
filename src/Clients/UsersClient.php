@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\UserData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DisableUser\Response as DisableUserResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Response as FetchUserResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUserIdentification\Payload as FetchUserIdentificationPayload;
@@ -137,6 +138,22 @@ final readonly class UsersClient
         $user = $this->extract('user', $response);
 
         return new LinkUserResponse(
+            user: UserData::from($user),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function disableUser(int $userId): DisableUserResponse
+    {
+        $url = str_replace('.json', "/$userId/disable.json", self::API_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $user = $this->extract('user', $response);
+
+        return new DisableUserResponse(
             user: UserData::from($user),
         );
     }

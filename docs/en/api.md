@@ -92,6 +92,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — get user identification code.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — link user profiles.
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — unlink user profiles.
+- **`$usersClient->disableUser(int $userId): DisableUserResponse`** — disable user (move to deleted list).
 
 ---
 
@@ -1022,6 +1023,29 @@ $payload = new UnlinkUserPayload(
 
 $response = $users->unlinkUser(1307386, $payload);
 $user = $response->user; // UserData with updated linked_users array
+```
+
+## Disable User (disable user)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DisableUser\Response` (contains `UserData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID (from URL) - the user to be disabled |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$response = $users->disableUser(200);
+$user = $response->user; // UserData with deleted = true
 ```
 
 ---

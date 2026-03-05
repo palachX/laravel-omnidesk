@@ -93,6 +93,7 @@ $users = $omnidesk->users();
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — получение кода идентификации пользователя.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — связывание профилей пользователей.
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — отвязывание профилей пользователей.
+- **`$usersClient->disableUser(int $userId): DisableUserResponse`** — удаление пользователя (перенос в список удалённых).
 
 ---
 
@@ -1026,6 +1027,29 @@ $payload = new UnlinkUserPayload(
 
 $response = $users->unlinkUser(1307386, $payload);
 $user = $response->user; // UserData с обновленным массивом linked_users
+```
+
+## Disable User (удаление пользователя)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DisableUser\Response` (содержит `UserData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя (из URL) - который будет удалён |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$response = $users->disableUser(200);
+$user = $response->user; // UserData с полем deleted = true
 ```
 
 ---
