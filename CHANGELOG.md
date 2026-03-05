@@ -7,7 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-05
+
 ### Added
+
+#### New API Methods - UsersClient
+- `fetch()` - Fetch a single user by ID
+- `store()` - Create a new user
+- `update()` - Update an existing user
+- `fetchList()` - Fetch paginated list of users
+- `fetchUserIdentification()` - Fetch user identification code
+- `linkUser()` - Link a user
+- `unlinkUser()` - Unlink a user
+- `disableUser()` - Disable a user
+- `blockUser()` - Block a user
+- `recoveryUser()` - Restore/recover a user
+- `deleteUser()` - Delete a user
+
+#### New API Methods - LabelsClient
+- `store()` - Create a new label
+- `fetchList()` - Fetch list of labels
+- `updateLabel()` - Update an existing label
+- `deleteLabel()` - Delete a label
+
+#### New Client Access
+- `Omnidesk::users()` - Access to UsersClient for user operations
+- `Omnidesk::labels()` - Access to LabelsClient for label operations
+
+#### New DTOs
+- `UserData` - User data transfer object
+- `LabelData` - Label data transfer object
+
+#### New Use Cases
+- Complete user management use cases (V1 namespace)
+- Complete label management use cases (V1 namespace)
+
+#### Complete User Management System
+- Full CRUD operations for users with `UsersClient`
+- User lifecycle management: disable, block, recover, delete
+- User linking/unlinking functionality
+- User identification code fetching
+- Comprehensive user data handling with `UserData` DTO
+
+#### Complete Label Management System  
+- Full CRUD operations for labels with `LabelsClient`
+- Label creation, listing, updating, and deletion
+- Comprehensive label data handling with `LabelData` DTO
+
+#### Enhanced API Client Access
+- `Omnidesk::users()` - Access to complete user management API
+- `Omnidesk::labels()` - Access to complete label management API
+
+#### Architecture Improvements
+- Structured use cases for all user and label operations (V1 namespace)
+- Consistent payload/response patterns across all new endpoints
+- Proper error handling and type safety for all new operations
 
 ## [1.1.0] - 2026-02-27
 
