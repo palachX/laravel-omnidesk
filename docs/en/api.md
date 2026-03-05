@@ -94,6 +94,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — unlink user profiles.
 - **`$usersClient->disableUser(int $userId): DisableUserResponse`** — disable user (move to deleted list).
 - **`$usersClient->blockUser(int $userId): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
+- **`$usersClient->deleteUser(int $userId): DeleteUserResponse`** — permanently delete user (available only for employees with full access).
 - **`$usersClient->recoveryUser(int $userId): RecoveryUserResponse`** — recover user after blocking or deletion.
 
 ---
@@ -1073,6 +1074,33 @@ $users = Omnidesk::users();
 
 $response = $users->blockUser(200);
 $user = $response->user; // UserData with active = false
+```
+
+---
+
+## Delete User (permanently delete user)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteUser\Response` (contains `UserData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| user_id | int | yes | User ID (from URL) - the user to be permanently deleted |
+
+Permanently delete user. Available only for employees with full access.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$response = $users->deleteUser(200);
+$user = $response->user; // UserData with deleted = true
 ```
 
 ---
