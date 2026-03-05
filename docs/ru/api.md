@@ -95,6 +95,7 @@ $users = $omnidesk->users();
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — отвязывание профилей пользователей.
 - **`$usersClient->disableUser(int $userId): DisableUserResponse`** — удаление пользователя (перенос в список удалённых).
 - **`$usersClient->blockUser(int $userId): BlockUserResponse`** — блокирование пользователя (все последующие обращения пользователя будут помечаться как спам).
+- **`$usersClient->recoveryUser(int $userId): RecoveryUserResponse`** — восстановление пользователя после блокировки или удаления.
 
 ---
 
@@ -1076,6 +1077,33 @@ $users = Omnidesk::users();
 
 $response = $users->blockUser(200);
 $user = $response->user; // UserData с полем active = false
+```
+
+---
+
+## Recovery User (восстановление пользователя)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\RecoveryUser\Response` (содержит `UserData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| user_id | int | да | ID пользователя |
+
+Включение пользователя после блокировки или восстановление после удаления.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\UsersClient;
+
+/** @var UsersClient $users */
+$users = Omnidesk::users();
+
+$response = $users->recoveryUser(200);
+$user = $response->user; // UserData с полями active = true и deleted = false
 ```
 
 ---

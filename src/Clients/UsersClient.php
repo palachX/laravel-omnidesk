@@ -19,6 +19,7 @@ use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
 use Palach\Omnidesk\UseCases\V1\LinkUser\Response as LinkUserResponse;
+use Palach\Omnidesk\UseCases\V1\RecoveryUser\Response as RecoveryUserResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
 use Palach\Omnidesk\UseCases\V1\UnlinkUser\Payload as UnlinkUserPayload;
@@ -171,6 +172,22 @@ final readonly class UsersClient
         $user = $this->extract('user', $response);
 
         return new BlockUserResponse(
+            user: UserData::from($user),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function recoveryUser(int $userId): RecoveryUserResponse
+    {
+        $url = str_replace('.json', "/$userId/restore.json", self::API_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $user = $this->extract('user', $response);
+
+        return new RecoveryUserResponse(
             user: UserData::from($user),
         );
     }
