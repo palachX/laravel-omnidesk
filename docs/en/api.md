@@ -86,6 +86,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
+- **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -503,6 +504,62 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Fetch Company List (list companies)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCompanyList\Response` (fields: `companies` — collection of `CompanyData`, `totalCount` — total count).
+
+Get list of companies with pagination and filters.
+
+Query parameters (all optional):
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int\|Optional | 1–500 | Page number (default in Omnidesk API: 1) |
+| limit | int\|Optional | 1–100 | Companies per page limit (default in API: 100) |
+| company_name | string\|Optional | — | Search companies by name (min 3 characters) |
+| company_domains | string\|Optional | — | Search companies by domain (min 3 characters) |
+| company_address | string\|Optional | — | Search companies by address (min 3 characters) |
+| company_note | string\|Optional | — | Search companies by note (min 3 characters) |
+| amount_of_users | bool\|Optional | — | Company user count (default: false) |
+| amount_of_cases | bool\|Optional | — | Company case count (default: false) |
+
+For GET requests use `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CompaniesClient $companies */
+$companies = $http->companies();
+$payload = new FetchCompanyListPayload(
+    page: 1,
+    limit: 20,
+    companyName: 'Test Company',
+    amountOfUsers: true,
+);
+// Or with default parameters:
+// $payload = new FetchCompanyListPayload();
+$response = $companies->fetchCompanyList($payload);
+$companies = $response->companies;
+$totalCount = $response->totalCount;
+
+// Iterate companies
+foreach ($companies as $company) {
+    echo "Company ID: " . $company->companyId . "\n";
+    echo "Company Name: " . $company->companyName . "\n";
+    echo "User Count: " . $company->amountOfUsers . "\n";
+}
 ```
 
 ---

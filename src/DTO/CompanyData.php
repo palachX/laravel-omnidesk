@@ -23,5 +23,6 @@ final class CompanyData extends Data
         public readonly bool|Optional $deleted = new Optional,
         public readonly string|Optional $createdAt = new Optional,
         public readonly string|Optional $updatedAt = new Optional,
+        public readonly int|Optional $amountOfUsers = new Optional,
     ) {}
 }

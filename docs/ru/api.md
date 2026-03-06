@@ -87,6 +87,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
+- **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -435,6 +436,62 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Fetch Company List (получение списка компаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCompanyList\Response` (поля: `companies` — коллекция `CompanyData`, `totalCount` — общее количество).
+
+Получение списка компаний с пагинацией и фильтрами.
+
+Параметры запроса (все опциональны):
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int\|Optional | 1–500 | Номер страницы (по умолчанию в API Omnidesk: 1) |
+| limit | int\|Optional | 1–100 | Лимит компаний на странице (по умолчанию в API: 100) |
+| company_name | string\|Optional | — | Поиск компаний по названию (не менее 3-х символов) |
+| company_domains | string\|Optional | — | Поиск компаний по домену (не менее 3-х символов) |
+| company_address | string\|Optional | — | Поиск компаний по адресу (не менее 3-х символов) |
+| company_note | string\|Optional | — | Поиск компаний по заметке (не менее 3-х символов) |
+| amount_of_users | bool\|Optional | — | Количество пользователей компании (по умолчанию: false) |
+| amount_of_cases | bool\|Optional | — | Количество обращений компании (по умолчанию: false) |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CompaniesClient $companies */
+$companies = $http->companies();
+$payload = new FetchCompanyListPayload(
+    page: 1,
+    limit: 20,
+    companyName: 'Test Company',
+    amountOfUsers: true,
+);
+// Или с параметрами по умолчанию:
+// $payload = new FetchCompanyListPayload();
+$response = $companies->fetchCompanyList($payload);
+$companies = $response->companies;
+$totalCount = $response->totalCount;
+
+// Перебор компаний
+foreach ($companies as $company) {
+    echo "ID компании: " . $company->companyId . "\n";
+    echo "Название компании: " . $company->companyName . "\n";
+    echo "Количество пользователей: " . $company->amountOfUsers . "\n";
+}
 ```
 
 ---
