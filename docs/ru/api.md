@@ -86,6 +86,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — оценка сообщения.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
+- **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -389,6 +390,51 @@ $payload = new StoreUserPayload(
 
 $response = $users->store($payload);
 $user = $response->user; // UserData
+```
+
+---
+
+## Store Company (создание компании)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreCompany\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreCompany\Response` (содержит `CompanyData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_name | string | да | Название компании |
+| company_domains | string|null | нет | Можно указывать несколько доменов через запятую |
+| company_default_group | int|null | нет | ID группы |
+| company_address | string|null | нет | Адрес компании |
+| company_note | string|null | нет | Заметка |
+| company_users | string|null | нет | Через запятую ID пользователей, которые должны попасть в компанию |
+
+**CompanyData** (поле `company` в Response):
+- `company_id` — ID компании
+- Все поля из запроса плюс служебные поля (`active`, `deleted`, `created_at`, `updated_at`)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\StoreCompany\Payload as StoreCompanyPayload;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$payload = new StoreCompanyPayload(
+    companyName: 'New Company',
+    companyDomains: 'company.ru',
+    companyDefaultGroup: 492,
+    companyAddress: 'Some address',
+    companyNote: 'Some note',
+    companyUsers: '1351,1348,1347'
+);
+
+$response = $companies->store($payload);
+$company = $response->company; // CompanyData
 ```
 
 ---

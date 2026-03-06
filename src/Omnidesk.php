@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Palach\Omnidesk;
 
 use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Clients\CompaniesClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
@@ -15,6 +16,7 @@ final readonly class Omnidesk
 {
     public function __construct(
         private CasesClient $cases,
+        private CompaniesClient $companies,
         private FiltersClient $filters,
         private LabelsClient $labels,
         private MessagesClient $messages,
@@ -25,6 +27,11 @@ final readonly class Omnidesk
     public function cases(): CasesClient
     {
         return $this->cases;
+    }
+
+    public function companies(): CompaniesClient
+    {
+        return $this->companies;
     }
 
     public function filters(): FiltersClient

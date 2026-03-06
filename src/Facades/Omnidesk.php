@@ -6,6 +6,7 @@ namespace Palach\Omnidesk\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Palach\Omnidesk\Clients\CasesClient;
+use Palach\Omnidesk\Clients\CompaniesClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
@@ -19,6 +20,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static MessagesClient messages()
  * @method static NotesClient notes()
  * @method static UsersClient users()
+ * @method static CompaniesClient companies()
  */
 final class Omnidesk extends Facade
 {
