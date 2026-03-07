@@ -86,6 +86,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
+- **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
@@ -504,6 +505,57 @@ $payload = new StoreCompanyPayload(
 );
 
 $response = $companies->store($payload);
+$company = $response->company; // CompanyData
+```
+
+---
+
+## Update Company (update company)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateCompany\Response` (contains `CompanyData`).
+
+**CompanyUpdateData** (payload `company` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| company_name | string | no | Company name |
+| add_company_domains | string | no | Add domains for automatic user binding (multiple domains can be specified, separated by commas) |
+| remove_company_domains | string | no | Remove domains for automatic user binding (multiple domains can be specified, separated by commas) |
+| company_default_group | string | no | Group ID |
+| company_address | string | no | Company address |
+| company_note | string | no | Note |
+| add_company_users | string | no | Comma-separated user IDs to add to the company |
+| remove_company_users | string | no | Comma-separated user IDs to remove from the company |
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| company_id | int | yes | Company ID |
+| payload | UpdateCompanyPayload | yes | Update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\CompanyUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload as UpdateCompanyPayload;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$payload = new UpdateCompanyPayload(
+    company: new CompanyUpdateData(
+        companyName: "Company's full name changed",
+        companyNote: 'New note',
+        addCompanyDomains: 'newcompany.ru',
+        removeCompanyDomains: 'company.ru'
+    )
+);
+
+$response = $companies->update(200, $payload);
 $company = $response->company; // CompanyData
 ```
 

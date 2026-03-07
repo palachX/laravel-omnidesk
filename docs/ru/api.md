@@ -87,6 +87,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
+- **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — получение компании по ID.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
@@ -436,6 +437,57 @@ $payload = new StoreCompanyPayload(
 );
 
 $response = $companies->store($payload);
+$company = $response->company; // CompanyData
+```
+
+---
+
+## Update Company (редактирование компании)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateCompany\Response` (содержит `CompanyData`).
+
+**CompanyUpdateData** (поле `company` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_name | string | нет | Название компании |
+| add_company_domains | string | нет | Добавление доменов для автоматической привязки пользователей (можно указывать несколько доменов через запятую) |
+| remove_company_domains | string | нет | Удаление доменов для автоматической привязки пользователей (можно указывать несколько доменов через запятую) |
+| company_default_group | string | нет | ID группы |
+| company_address | string | нет | Адрес компании |
+| company_note | string | нет | Заметка |
+| add_company_users | string | нет | Через запятую ID пользователей, которых нужно добавить в компанию |
+| remove_company_users | string | нет | Через запятую ID пользователей, которых нужно удалить из компании |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_id | int | да | ID компании |
+| payload | UpdateCompanyPayload | да | Данные для обновления |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\CompanyUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload as UpdateCompanyPayload;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$payload = new UpdateCompanyPayload(
+    company: new CompanyUpdateData(
+        companyName: "Company's full name changed",
+        companyNote: 'New note',
+        addCompanyDomains: 'newcompany.ru',
+        removeCompanyDomains: 'company.ru'
+    )
+);
+
+$response = $companies->update(200, $payload);
 $company = $response->company; // CompanyData
 ```
 

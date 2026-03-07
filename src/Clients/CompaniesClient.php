@@ -15,6 +15,8 @@ use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayl
 use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Response as FetchCompanyListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCompany\Payload as StoreCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\StoreCompany\Response as StoreCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload as UpdateCompanyPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateCompany\Response as UpdateCompanyResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CompaniesClient
@@ -40,6 +42,23 @@ final readonly class CompaniesClient
         $company = $this->extract('company', $response);
 
         return new StoreCompanyResponse(
+            company: CompanyData::from($company),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse
+    {
+        $url = sprintf(self::COMPANY_URL, $companyId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $company = $this->extract('company', $response);
+
+        return new UpdateCompanyResponse(
             company: CompanyData::from($company),
         );
     }
