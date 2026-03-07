@@ -88,6 +88,7 @@ $users = $omnidesk->users();
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
+- **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — получение компании по ID.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -492,6 +493,55 @@ foreach ($companies as $company) {
     echo "Название компании: " . $company->companyName . "\n";
     echo "Количество пользователей: " . $company->amountOfUsers . "\n";
 }
+```
+
+---
+
+## Fetch Company (просмотр компании)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCompany\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCompany\Response` (содержит `CompanyData`).
+
+Просмотр данных конкретной компании.
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_id | int | да | ID компании |
+
+**CompanyData** (поле `company` в Response):
+- `company_id` — ID компании
+- `company_name` — Название компании
+- `company_domains` — Домены компании
+- `company_default_group` — ID группы по умолчанию
+- `company_address` — Адрес компании
+- `company_note` — Заметка
+- `active` — Активна ли компания
+- `deleted` — Удалена ли компания
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$payload = new FetchCompanyPayload(
+    companyId: 200
+);
+
+$response = $companies->getCompany($payload);
+$company = $response->company; // CompanyData
+
+echo "ID компании: " . $company->companyId . "\n";
+echo "Название компании: " . $company->companyName . "\n";
+echo "Домены: " . $company->companyDomains . "\n";
 ```
 
 ---

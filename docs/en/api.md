@@ -87,6 +87,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
+- **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -560,6 +561,55 @@ foreach ($companies as $company) {
     echo "Company Name: " . $company->companyName . "\n";
     echo "User Count: " . $company->amountOfUsers . "\n";
 }
+```
+
+---
+
+## Fetch Company (view company)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchCompany\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCompany\Response` (contains `CompanyData`).
+
+View data of a specific company.
+
+**Payload Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| company_id | int | yes | Company ID |
+
+**CompanyData** (field `company` in Response):
+- `company_id` — Company ID
+- `company_name` — Company name
+- `company_domains` — Company domains
+- `company_default_group` — Default group ID
+- `company_address` — Company address
+- `company_note` — Note
+- `active` — Whether company is active
+- `deleted` — Whether company is deleted
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$payload = new FetchCompanyPayload(
+    companyId: 200
+);
+
+$response = $companies->getCompany($payload);
+$company = $response->company; // CompanyData
+
+echo "Company ID: " . $company->companyId . "\n";
+echo "Company Name: " . $company->companyName . "\n";
+echo "Domains: " . $company->companyDomains . "\n";
 ```
 
 ---
