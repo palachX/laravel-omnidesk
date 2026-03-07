@@ -11,6 +11,7 @@ use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\BlockCompany\Response as BlockCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\DisabledCompany\Response as DisabledCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Response as FetchCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayload;
@@ -139,6 +140,24 @@ final readonly class CompaniesClient
         $company = $this->extract('company', $response);
 
         return new BlockCompanyResponse(
+            company: CompanyData::from($company),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function disableCompany(int $companyId): DisabledCompanyResponse
+    {
+        $url = sprintf(self::COMPANY_URL, $companyId);
+        $url = str_replace('.json', '/disable.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $company = $this->extract('company', $response);
+
+        return new DisabledCompanyResponse(
             company: CompanyData::from($company),
         );
     }
