@@ -7,15 +7,15 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\BlockCompany\Response as BlockCompanyResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-final class DeleteCompanyTest extends AbstractTestCase
+final class BlockCompanyTest extends AbstractTestCase
 {
     public static function dataArrayProvider(): iterable
     {
-        yield 'delete company' => [
+        yield 'block company' => [
             'companyId' => 200,
             'response' => [
                 'company' => [
@@ -25,8 +25,8 @@ final class DeleteCompanyTest extends AbstractTestCase
                     'company_default_group' => 492,
                     'company_address' => 'Some address',
                     'company_note' => 'New note',
-                    'active' => true,
-                    'deleted' => true,
+                    'active' => false,
+                    'deleted' => false,
                     'created_at' => 'Mon, 05 May 2014 00:15:17 +0300',
                     'updated_at' => 'Tue, 23 Dec 2014 10:55:23 +0200',
                 ],
@@ -37,21 +37,21 @@ final class DeleteCompanyTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testHttp(int $companyId, array $response): void
     {
-        $url = $this->host."/api/companies/$companyId.json";
+        $url = $this->host."/api/companies/$companyId/block.json";
 
         Http::fake([
             $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->companies()->deleteCompany($companyId);
+        $responseData = $this->makeHttpClient()->companies()->blockCompany($companyId);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url
                 && $request->isJson()
-                && $request->method() === SymfonyRequest::METHOD_DELETE
+                && $request->method() === SymfonyRequest::METHOD_PUT
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(DeleteCompanyResponse::from($response), $responseData);
+        $this->assertEquals(BlockCompanyResponse::from($response), $responseData);
     }
 }

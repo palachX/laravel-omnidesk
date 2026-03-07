@@ -91,6 +91,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — получение компании по ID.
 - **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — удаление компании (перенос в список удалённых).
+- **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — блокирование компании (все последующие обращения компании будут помечаться как спам).
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1284,6 +1285,33 @@ $users = Omnidesk::users();
 
 $response = $users->blockUser(200);
 $user = $response->user; // UserData с полем active = false
+```
+
+---
+
+## Block Company (блокирование компании)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\BlockCompany\Response` (содержит `CompanyData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_id | int | да | ID компании (из URL) - которая будет заблокирована |
+
+Блокирование компании. Все последующие обращения компании будут помечаться как спам.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$response = $companies->blockCompany(200);
+$company = $response->company; // CompanyData с полем active = false
 ```
 
 ---

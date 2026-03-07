@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\CompanyData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\BlockCompany\Response as BlockCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Response as FetchCompanyResponse;
@@ -113,13 +114,30 @@ final readonly class CompaniesClient
     public function deleteCompany(int $companyId): DeleteCompanyResponse
     {
         $url = sprintf(self::COMPANY_URL, $companyId);
-        $url = str_replace('.json', '/disable.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
+
+        $company = $this->extract('company', $response);
+
+        return new DeleteCompanyResponse(
+            company: CompanyData::from($company),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function blockCompany(int $companyId): BlockCompanyResponse
+    {
+        $url = sprintf(self::COMPANY_URL, $companyId);
+        $url = str_replace('.json', '/block.json', $url);
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $company = $this->extract('company', $response);
 
-        return new DeleteCompanyResponse(
+        return new BlockCompanyResponse(
             company: CompanyData::from($company),
         );
     }
