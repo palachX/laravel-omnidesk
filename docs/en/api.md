@@ -89,6 +89,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
+- **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — delete a company (move to deleted list).
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -662,6 +663,33 @@ $company = $response->company; // CompanyData
 echo "Company ID: " . $company->companyId . "\n";
 echo "Company Name: " . $company->companyName . "\n";
 echo "Domains: " . $company->companyDomains . "\n";
+```
+
+---
+
+## Delete Company (delete company)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCompany\Response` (contains `CompanyData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| company_id | int | yes | Company ID (from URL) - to be deleted |
+
+Delete a company. In this case, the company is moved to the deleted list and can be restored if necessary.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$response = $companies->deleteCompany(200);
+$company = $response->company; // CompanyData with deleted = true
 ```
 
 ---

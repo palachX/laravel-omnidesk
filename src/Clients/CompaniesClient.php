@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\CompanyData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Response as FetchCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayload;
@@ -102,6 +103,24 @@ final readonly class CompaniesClient
         return new FetchCompanyListResponse(
             companies: $companies,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteCompany(int $companyId): DeleteCompanyResponse
+    {
+        $url = sprintf(self::COMPANY_URL, $companyId);
+        $url = str_replace('.json', '/disable.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $company = $this->extract('company', $response);
+
+        return new DeleteCompanyResponse(
+            company: CompanyData::from($company),
         );
     }
 }
