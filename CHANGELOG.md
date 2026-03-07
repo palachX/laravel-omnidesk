@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-08
+
+### Added
+
+#### New API Methods - CompaniesClient
+- `store()` - Create a new company
+- `update()` - Update an existing company
+- `getCompany()` - Fetch a single company by ID
+- `fetchCompanyList()` - Fetch paginated list of companies
+- `deleteCompany()` - Delete a company
+- `blockCompany()` - Block a company
+- `disableCompany()` - Disable a company
+- `recoveryCompany()` - Restore/recover a company
+
+#### New Client Access
+- `Omnidesk::companies()` - Access to CompaniesClient for company operations
+
+#### New DTOs
+- `CompanyData` - Company data transfer object
+
+#### New Use Cases
+- Complete company management use cases (V1 namespace)
+
+#### Complete Company Management System
+- Full CRUD operations for companies with `CompaniesClient`
+- Company lifecycle management: disable, block, recover, delete
+- Comprehensive company data handling with `CompanyData` DTO
+- Paginated company listing functionality
+
+#### Enhanced API Client Access
+- `Omnidesk::companies()` - Access to complete company management API
+
+#### Architecture Improvements
+- Structured use cases for all company operations (V1 namespace)
+- Consistent payload/response patterns across all company endpoints
+- Proper error handling and type safety for all company operations
+
 ## [1.2.0] - 2026-03-05
 
 ### Added
