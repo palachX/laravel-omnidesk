@@ -92,6 +92,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — получение компании по ID.
 - **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — блокирование компании (все последующие обращения компании будут помечаться как спам).
+- **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1393,6 +1394,33 @@ $users = Omnidesk::users();
 
 $response = $users->recoveryUser(200);
 $user = $response->user; // UserData с полями active = true и deleted = false
+```
+
+---
+
+## Recovery Company (восстановление компании)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\RecoveryCompany\Response` (содержит `CompanyData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| company_id | int | да | ID компании |
+
+Включение компании после блокировки или восстановление после удаления.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$response = $companies->recoveryCompany(200);
+$company = $response->company; // CompanyData с полями active = true и deleted = false
 ```
 
 ---

@@ -15,6 +15,7 @@ use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Response as FetchCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Payload as FetchCompanyListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchCompanyList\Response as FetchCompanyListResponse;
+use Palach\Omnidesk\UseCases\V1\RecoveryCompany\Response as RecoveryCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\StoreCompany\Payload as StoreCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\StoreCompany\Response as StoreCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateCompany\Payload as UpdateCompanyPayload;
@@ -138,6 +139,24 @@ final readonly class CompaniesClient
         $company = $this->extract('company', $response);
 
         return new BlockCompanyResponse(
+            company: CompanyData::from($company),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function recoveryCompany(int $companyId): RecoveryCompanyResponse
+    {
+        $url = sprintf(self::COMPANY_URL, $companyId);
+        $url = str_replace('.json', '/restore.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $company = $this->extract('company', $response);
+
+        return new RecoveryCompanyResponse(
             company: CompanyData::from($company),
         );
     }

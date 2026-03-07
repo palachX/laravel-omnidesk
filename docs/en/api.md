@@ -91,6 +91,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
 - **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — delete a company (move to deleted list).
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — block company (all subsequent company requests will be marked as spam).
+- **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — recover company after blocking or deletion.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -1389,6 +1390,33 @@ $users = Omnidesk::users();
 
 $response = $users->recoveryUser(200);
 $user = $response->user; // UserData with active = true and deleted = false
+```
+
+---
+
+## Recovery Company (recover company)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\RecoveryCompany\Response` (contains `CompanyData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| company_id | int | yes | Company ID |
+
+Enable company after blocking or recover after deletion.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\CompaniesClient;
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+$response = $companies->recoveryCompany(200);
+$company = $response->company; // CompanyData with active = true and deleted = false
 ```
 
 ---
