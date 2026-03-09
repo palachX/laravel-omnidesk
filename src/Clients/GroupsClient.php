@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchGroupList\Response as FetchGroupListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreGroup\Payload as StoreGroupPayload;
 use Palach\Omnidesk\UseCases\V1\StoreGroup\Response as StoreGroupResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +37,31 @@ final readonly class GroupsClient
 
         return new StoreGroupResponse(
             group: GroupData::from($group),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchList(FetchGroupListPayload $payload): FetchGroupListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $groups = collect($response)
+            ->map(fn ($item) => \Palach\Omnidesk\DTO\GroupData::from($item['group']));
+
+        return new FetchGroupListResponse(
+            groups: $groups,
+            total: $total,
         );
     }
 }

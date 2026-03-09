@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\UseCases\V1\FetchLabelList;
+namespace Palach\Omnidesk\UseCases\V1\FetchGroupList;
 
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Attributes\Validation\Max;

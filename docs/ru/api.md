@@ -100,6 +100,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — создание группы.
+- **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -487,6 +488,56 @@ $payload = new StoreGroupPayload(
 
 $response = $groups->store($payload);
 $group = $response->group; // GroupData
+```
+
+---
+
+## Fetch Group List (получение списка групп)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchGroupList\Response` (поля: `groups` — коллекция `GroupData`, `total` — общее количество).
+
+Получение списка групп.
+
+Параметры запроса:
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит групп на странице (по умолчанию: 100) |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var GroupsClient $groups */
+$groups = $http->groups();
+$payload = new FetchGroupListPayload(
+    page: 1,
+    limit: 20,
+);
+// Или с параметрами по умолчанию:
+// $payload = new FetchGroupListPayload();
+$response = $groups->fetchList($payload);
+$groups = $response->groups;
+$total = $response->total;
+
+// Перебор групп
+foreach ($groups as $group) {
+    echo "ID группы: " . $group->groupId . "\n";
+    echo "Название группы: " . $group->groupTitle . "\n";
+    echo "Имя отправителя: " . $group->groupFromName . "\n";
+    echo "Подпись: " . $group->groupSignature . "\n";
+    echo "Активна: " . ($group->active ? 'Да' : 'Нет') . "\n";
+}
 ```
 
 ---

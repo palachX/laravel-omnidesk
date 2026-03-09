@@ -99,6 +99,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — disable company (move to deleted list).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — recover company after blocking or deletion.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — create a group.
+- **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -555,6 +556,56 @@ $payload = new StoreGroupPayload(
 
 $response = $groups->store($payload);
 $group = $response->group; // GroupData
+```
+
+---
+
+## Fetch Group List (get group list)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchGroupList\Response` (fields: `groups` — collection of `GroupData`, `total` — total count).
+
+Get list of groups.
+
+Request parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Groups per page limit (default: 100) |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var GroupsClient $groups */
+$groups = $http->groups();
+$payload = new FetchGroupListPayload(
+    page: 1,
+    limit: 20,
+);
+// Or with default parameters:
+// $payload = new FetchGroupListPayload();
+$response = $groups->fetchList($payload);
+$groups = $response->groups;
+$total = $response->total;
+
+// Iterate through groups
+foreach ($groups as $group) {
+    echo "Group ID: " . $group->groupId . "\n";
+    echo "Group Title: " . $group->groupTitle . "\n";
+    echo "From Name: " . $group->groupFromName . "\n";
+    echo "Signature: " . $group->groupSignature . "\n";
+    echo "Active: " . ($group->active ? 'Yes' : 'No') . "\n";
+}
 ```
 
 ---
