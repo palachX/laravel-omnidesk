@@ -7,10 +7,11 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к шести типизированным клиентам:
+Основной класс предоставляет доступ к семи типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
+- `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
@@ -27,6 +28,9 @@ $cases = Omnidesk::cases();
 
 /** @var FiltersClient $filters */
 $filters = Omnidesk::filters();
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
 
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
@@ -47,6 +51,7 @@ use Palach\Omnidesk\Omnidesk;
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $filters = $omnidesk->filters();
+$groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
@@ -94,6 +99,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — блокирование компании (все последующие обращения компании будут помечаться как спам).
 - **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
+- **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — создание группы.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -442,6 +448,45 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Store Group (создание группы)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreGroup\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreGroup\Response` (содержит `GroupData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_title | string | да | Название группы |
+| group_from_name | string|null | нет | Групповое имя отправителя для использования в ответах сотрудников |
+| group_signature | string|null | нет | Групповая подпись для использования в ответах сотрудников |
+
+**GroupData** (поле `group` в Response):
+- `group_id` — ID группы
+- Все поля из запроса плюс служебные поля (`active`, `created_at`, `updated_at`)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\UseCases\V1\StoreGroup\Payload as StoreGroupPayload;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$payload = new StoreGroupPayload(
+    groupTitle: 'Test group',
+    groupFromName: 'Test group from name',
+    groupSignature: 'Test group signature'
+);
+
+$response = $groups->store($payload);
+$group = $response->group; // GroupData
 ```
 
 ---
