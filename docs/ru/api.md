@@ -99,6 +99,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — блокирование компании (все последующие обращения компании будут помечаться как спам).
 - **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
+- **`$groupsClient->getGroup(FetchGroupPayload $payload): FetchGroupResponse`** — получение группы по ID.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — создание группы.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
@@ -449,6 +450,41 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Fetch Group (просмотр группы)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchGroup\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchGroup\Response` (поля: `group` — `GroupData`).
+
+Просмотр конкретной группы по ID.
+
+Параметры запроса:
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_id | int | да | ID группы |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var GroupsClient $groups */
+$groups = $http->groups();
+$payload = new FetchGroupPayload(
+    groupId: 200,
+);
+
+$response = $groups->getGroup($payload);
+$group = $response->group; // GroupData
 ```
 
 ---

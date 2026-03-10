@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
+use Palach\Omnidesk\UseCases\V1\FetchGroup\Response as FetchGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Response as FetchGroupListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreGroup\Payload as StoreGroupPayload;
@@ -21,9 +23,28 @@ final readonly class GroupsClient
 
     private const string API_URL = '/api/groups.json';
 
+    private const string GROUP_URL = '/api/groups/%s.json';
+
     public function __construct(
         private OmnideskTransport $transport,
     ) {}
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getGroup(FetchGroupPayload $payload): FetchGroupResponse
+    {
+        $url = sprintf(self::GROUP_URL, $payload->groupId);
+
+        $response = $this->transport->get($url);
+
+        $group = $this->extract('group', $response);
+
+        return new FetchGroupResponse(
+            group: GroupData::from($group),
+        );
+    }
 
     /**
      * @throws RequestException
@@ -57,7 +78,7 @@ final readonly class GroupsClient
         unset($response['total_count']);
 
         $groups = collect($response)
-            ->map(fn ($item) => \Palach\Omnidesk\DTO\GroupData::from($item['group']));
+            ->map(fn ($item) => GroupData::from($item['group']));
 
         return new FetchGroupListResponse(
             groups: $groups,

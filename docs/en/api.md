@@ -98,6 +98,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — block company (all subsequent company requests will be marked as spam).
 - **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — disable company (move to deleted list).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — recover company after blocking or deletion.
+- **`$groupsClient->getGroup(FetchGroupPayload $payload): FetchGroupResponse`** — fetch a single group by ID.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — create a group.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
@@ -517,6 +518,41 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Fetch Group (view group)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchGroup\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchGroup\Response` (fields: `group` — `GroupData`).
+
+View a specific group by ID.
+
+Request parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| group_id | int | Required | Group ID |
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var GroupsClient $groups */
+$groups = $http->groups();
+$payload = new FetchGroupPayload(
+    groupId: 200,
+);
+
+$response = $groups->getGroup($payload);
+$group = $response->group; // GroupData
 ```
 
 ---
