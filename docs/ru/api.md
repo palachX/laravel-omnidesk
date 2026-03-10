@@ -101,6 +101,7 @@ $users = $omnidesk->users();
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
 - **`$groupsClient->getGroup(FetchGroupPayload $payload): FetchGroupResponse`** — получение группы по ID.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — создание группы.
+- **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — редактирование группы.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
@@ -625,6 +626,50 @@ $payload = new UpdateCompanyPayload(
 
 $response = $companies->update(200, $payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Update Group (редактирование группы)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateGroup\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateGroup\Response` (содержит `GroupData`).
+
+**GroupUpdateData** (поле `group` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_title | string | нет | Название группы |
+| group_from_name | string | нет | Групповое имя отправителя для использования в ответах сотрудников |
+| group_signature | string | нет | Групповая подпись для использования в ответах сотрудников |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_id | int | да | ID группы |
+| payload | UpdateGroupPayload | да | Данные для обновления |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\UseCases\V1\UpdateGroup\GroupUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateGroup\Payload as UpdateGroupPayload;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$payload = new UpdateGroupPayload(
+    group: new GroupUpdateData(
+        groupTitle: 'Test group 2',
+        groupFromName: 'Test group 2 from name'
+    )
+);
+
+$response = $groups->update(200, $payload);
+$group = $response->group; // GroupData
 ```
 
 ---

@@ -15,6 +15,8 @@ use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Response as FetchGroupListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreGroup\Payload as StoreGroupPayload;
 use Palach\Omnidesk\UseCases\V1\StoreGroup\Response as StoreGroupResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateGroup\Payload as UpdateGroupPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateGroup\Response as UpdateGroupResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class GroupsClient
@@ -57,6 +59,23 @@ final readonly class GroupsClient
         $group = $this->extract('group', $response);
 
         return new StoreGroupResponse(
+            group: GroupData::from($group),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse
+    {
+        $url = sprintf(self::GROUP_URL, $groupId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $group = $this->extract('group', $response);
+
+        return new UpdateGroupResponse(
             group: GroupData::from($group),
         );
     }
