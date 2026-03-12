@@ -103,6 +103,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — update a group.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — disable a group.
+- **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -1498,6 +1499,48 @@ $groups = Omnidesk::groups();
 
 $response = $groups->disableGroup(200, 300);
 $group = $response->group; // GroupData with active = false
+```
+
+---
+
+## Enable Group (enable group)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledGroup\Response` (contains `GroupData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| group_id | int | yes | Group ID (from URL) - the group to be enabled |
+
+Enable a group.
+
+Response:
+```json
+{
+  "group" : {
+    "group_id" : 200,
+    "group_title" : "Test group 2",
+    "group_from_name" : "Test group 2 from name",
+    "group_signature" : "Test group 2 signature",
+    "active" : true,
+    "created_at" : "Mon, 05 May 2014 00:15:17 +0300",
+    "updated_at" : "Tue, 23 Dec 2014 10:55:23 +0200"
+  }
+}
+```
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$response = $groups->enableGroup(200);
+$group = $response->group; // GroupData with active = true
 ```
 
 ---

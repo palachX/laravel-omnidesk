@@ -104,6 +104,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — редактирование группы.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — отключение группы.
+- **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1475,6 +1476,48 @@ $groups = Omnidesk::groups();
 
 $response = $groups->disableGroup(200, 300);
 $group = $response->group; // GroupData с полем active = false
+```
+
+---
+
+## Enable Group (включение группы)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledGroup\Response` (содержит `GroupData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_id | int | да | ID группы (из URL) - которая будет включена |
+
+Включение группы.
+
+Ответ:
+```json
+{
+  "group" : {
+    "group_id" : 200,
+    "group_title" : "Test group 2",
+    "group_from_name" : "Test group 2 from name",
+    "group_signature" : "Test group 2 signature",
+    "active" : true,
+    "created_at" : "Mon, 05 May 2014 00:15:17 +0300",
+    "updated_at" : "Tue, 23 Dec 2014 10:55:23 +0200"
+  }
+}
+```
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$response = $groups->enableGroup(200);
+$group = $response->group; // GroupData с полем active = true
 ```
 
 ---

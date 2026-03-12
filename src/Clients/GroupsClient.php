@@ -10,6 +10,7 @@ use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DisabledGroup\Response as DisabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\EnabledGroup\Response as EnabledGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Response as FetchGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
@@ -120,6 +121,24 @@ final readonly class GroupsClient
         $group = $this->extract('group', $response);
 
         return new DisabledGroupResponse(
+            group: GroupData::from($group),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function enableGroup(int $groupId): EnabledGroupResponse
+    {
+        $url = sprintf(self::GROUP_URL, $groupId);
+        $url = str_replace('.json', '/enable.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $group = $this->extract('group', $response);
+
+        return new EnabledGroupResponse(
             group: GroupData::from($group),
         );
     }
