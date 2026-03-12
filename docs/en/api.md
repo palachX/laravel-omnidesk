@@ -7,9 +7,11 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes seven typed clients:
+The main class exposes eight typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
+- `Palach\Omnidesk\Clients\CompaniesClient` — operations with companies
+- `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
@@ -25,6 +27,12 @@ use Palach\Omnidesk\Facades\Omnidesk;
 
 /** @var CasesClient $cases */
 $cases = Omnidesk::cases();
+
+/** @var CompaniesClient $companies */
+$companies = Omnidesk::companies();
+
+/** @var StaffClient $staff */
+$staff = Omnidesk::staff();
 
 /** @var FiltersClient $filters */
 $filters = Omnidesk::filters();
@@ -50,6 +58,8 @@ use Palach\Omnidesk\Omnidesk;
 /** @var Omnidesk $omnidesk */
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
+$companies = $omnidesk->companies();
+$staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
@@ -90,6 +100,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->rate(RateMessagePayload $payload): RateMessageResponse`** — rate a message.
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
+- **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -522,6 +533,47 @@ $payload = new StoreCompanyPayload(
 
 $response = $companies->store($payload);
 $company = $response->company; // CompanyData
+```
+
+---
+
+## Store Staff (create staff member)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreStaff\Response` (contains `StaffData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| staff_email | string | yes | Valid email address of the staff member |
+| staff_full_name | string | no | Full name of the staff member |
+| staff_signature | string | no | Staff member signature for email cases |
+| staff_signature_chat | string | no | Staff member signature for chats |
+
+**StaffData** (response `staff` field):
+- `staff_id` — Staff member ID
+- All request fields plus service fields (`thumbnail`, `active`, `created_at`, `updated_at`)
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\StoreStaff\Payload as StoreStaffPayload;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new StoreStaffPayload(
+    staffEmail: 'staff@domain.ru',
+    staffFullName: 'Staff full name',
+    staffSignature: 'Staff signature for email cases',
+    staffSignatureChat: 'Staff signature for chats'
+);
+
+$response = $staff->store($payload);
+$staffMember = $response->staff; // StaffData
 ```
 
 ---

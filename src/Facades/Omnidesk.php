@@ -12,6 +12,7 @@ use Palach\Omnidesk\Clients\GroupsClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
+use Palach\Omnidesk\Clients\StaffsClient;
 use Palach\Omnidesk\Clients\UsersClient;
 
 /**
@@ -23,6 +24,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static NotesClient notes()
  * @method static UsersClient users()
  * @method static CompaniesClient companies()
+ * @method static StaffsClient staff()
  */
 final class Omnidesk extends Facade
 {

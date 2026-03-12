@@ -11,6 +11,7 @@ use Palach\Omnidesk\Clients\GroupsClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
+use Palach\Omnidesk\Clients\StaffsClient;
 use Palach\Omnidesk\Clients\UsersClient;
 
 final readonly class Omnidesk
@@ -18,6 +19,7 @@ final readonly class Omnidesk
     public function __construct(
         private CasesClient $cases,
         private CompaniesClient $companies,
+        private StaffsClient $staffs,
         private FiltersClient $filters,
         private GroupsClient $groups,
         private LabelsClient $labels,
@@ -34,6 +36,11 @@ final readonly class Omnidesk
     public function companies(): CompaniesClient
     {
         return $this->companies;
+    }
+
+    public function staffs(): StaffsClient
+    {
+        return $this->staffs;
     }
 
     public function filters(): FiltersClient
