@@ -103,6 +103,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — создание группы.
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — редактирование группы.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
+- **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — отключение группы.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1464,6 +1465,16 @@ $companies = Omnidesk::companies();
 
 $response = $companies->disableCompany(200);
 $company = $response->company; // CompanyData с полем deleted = true
+```
+
+#### Отключение группы
+
+```php
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$response = $groups->disableGroup(200, 300);
+$group = $response->group; // GroupData с полем active = false
 ```
 
 ---

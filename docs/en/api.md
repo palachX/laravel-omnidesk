@@ -102,6 +102,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — create a group.
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — update a group.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
+- **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — disable a group.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -1487,6 +1488,16 @@ $companies = Omnidesk::companies();
 
 $response = $companies->disableCompany(200);
 $company = $response->company; // CompanyData with deleted = true
+```
+
+#### Disable Group
+
+```php
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$response = $groups->disableGroup(200, 300);
+$group = $response->group; // GroupData with active = false
 ```
 
 ---
