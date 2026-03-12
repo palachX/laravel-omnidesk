@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload as DeleteGroupPayload;
 use Palach\Omnidesk\UseCases\V1\DisabledGroup\Response as DisabledGroupResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledGroup\Response as EnabledGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
@@ -141,5 +142,16 @@ final readonly class GroupsClient
         return new EnabledGroupResponse(
             group: GroupData::from($group),
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteGroup(int $groupId, DeleteGroupPayload $payload): void
+    {
+        $url = sprintf(self::GROUP_URL, $groupId);
+
+        $this->transport->sendJson(Request::METHOD_DELETE, $url, ['group' => $payload->toArray()]);
     }
 }

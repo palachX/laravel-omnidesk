@@ -104,6 +104,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — disable a group.
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
+- **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -1541,6 +1542,38 @@ $groups = Omnidesk::groups();
 
 $response = $groups->enableGroup(200);
 $group = $response->group; // GroupData with active = true
+```
+
+---
+
+## Delete Group (delete group)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload`  
+**Response:** void (no response body).
+
+**DeleteGroupData** (payload `group` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| replace_group_id | int | yes | ID of the group that will replace the deleted one. Required if the deleted group is used somewhere (in rules, cases, templates, etc.) |
+
+Delete a group.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload as DeleteGroupPayload;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$payload = new DeleteGroupPayload(
+    replaceGroupId: 300
+);
+
+$groups->deleteGroup(200, $payload);
 ```
 
 ---

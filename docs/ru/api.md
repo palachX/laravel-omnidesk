@@ -105,6 +105,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — отключение группы.
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
+- **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1518,6 +1519,45 @@ $groups = Omnidesk::groups();
 
 $response = $groups->enableGroup(200);
 $group = $response->group; // GroupData с полем active = true
+```
+
+---
+
+## Delete Group (удаление группы)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload`  
+**Response:** void (без тела ответа).
+
+**DeleteGroupData** (поле `group` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| replace_group_id | int | да | ID группы, которая заменит удаляемую. Необходима в случае, если отключаемая группа где-то (в правилах, обращениях, шаблонах и т.д.) задействована |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| group_id | int | да | ID группы (из URL) - которая будет удалена |
+| payload | DeleteGroupPayload | да | Данные для удаления группы |
+
+Удаление группы.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload as DeleteGroupPayload;
+
+/** @var GroupsClient $groups */
+$groups = Omnidesk::groups();
+
+$payload = new DeleteGroupPayload(
+    replaceGroupId: 300
+);
+
+$groups->deleteGroup(200, $payload);
 ```
 
 ---
