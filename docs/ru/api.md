@@ -104,6 +104,7 @@ $users = $omnidesk->users();
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
+- **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — получение списка статусов сотрудников.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
@@ -863,6 +864,37 @@ $count = $response->count;
 foreach ($staffRoles as $role) {
     echo "ID роли: " . $role->roleId . "\n";
     echo "Название роли: " . $role->role . "\n";
+}
+```
+
+---
+
+## Fetch Staff Status List (получение списка статусов сотрудников)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffStatusList\Response` (поля: `staffStatuses` — коллекция `StaffStatusData`, `count` — общее количество).
+
+Получение списка статусов сотрудников.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffsClient $staff */
+$staff = $http->staffs();
+$response = $staff->fetchStaffStatusList();
+$staffStatuses = $response->staffStatuses;
+$count = $response->count;
+
+// Перебор статусов
+foreach ($staffStatuses as $status) {
+    echo "ID статуса: " . $status->statusId . "\n";
+    echo "Название статуса: " . $status->status . "\n";
+    echo "Активен: " . ($status->active ? 'Да' : 'Нет') . "\n";
 }
 ```
 

@@ -103,6 +103,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
+- **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — list staff statuses.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -931,6 +932,37 @@ $count = $response->count;
 foreach ($staffRoles as $role) {
     echo "Role ID: " . $role->roleId . "\n";
     echo "Role Name: " . $role->role . "\n";
+}
+```
+
+---
+
+## Fetch Staff Status List (list staff statuses)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffStatusList\Response` (fields: `staffStatuses` — collection of `StaffStatusData`, `count` — total count).
+
+Get list of staff statuses.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffsClient $staff */
+$staff = $http->staffs();
+$response = $staff->fetchStaffStatusList();
+$staffStatuses = $response->staffStatuses;
+$count = $response->count;
+
+// Iterate staff statuses
+foreach ($staffStatuses as $status) {
+    echo "Status ID: " . $status->statusId . "\n";
+    echo "Status Name: " . $status->status . "\n";
+    echo "Active: " . ($status->active ? 'Yes' : 'No') . "\n";
 }
 ```
 
