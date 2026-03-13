@@ -102,6 +102,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
+- **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -900,6 +901,36 @@ foreach ($companies as $company) {
     echo "Company ID: " . $company->companyId . "\n";
     echo "Company Name: " . $company->companyName . "\n";
     echo "User Count: " . $company->amountOfUsers . "\n";
+}
+```
+
+---
+
+## Fetch Staff Role List (list staff roles)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffRoleList\Response` (fields: `staffRoles` — collection of `StaffRoleData`, `count` — total count).
+
+Get list of staff roles.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffsClient $staff */
+$staff = $http->staffs();
+$response = $staff->fetchStaffRoleList();
+$staffRoles = $response->staffRoles;
+$count = $response->count;
+
+// Iterate staff roles
+foreach ($staffRoles as $role) {
+    echo "Role ID: " . $role->roleId . "\n";
+    echo "Role Name: " . $role->role . "\n";
 }
 ```
 

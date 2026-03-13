@@ -7,10 +7,12 @@ namespace Palach\Omnidesk\Clients;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\StaffData;
+use Palach\Omnidesk\DTO\StaffRoleData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Response as FetchStaffListResponse;
+use Palach\Omnidesk\UseCases\V1\FetchStaffRoleList\Response as FetchStaffRoleListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Payload as StoreStaffPayload;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Response as StoreStaffResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +22,8 @@ final readonly class StaffsClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/staff.json';
+
+    private const string STAFF_ROLES_URL = '/api/staff_roles.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -62,6 +66,31 @@ final readonly class StaffsClient
         return new FetchStaffListResponse(
             staffs: $staffs,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchStaffRoleList(): FetchStaffRoleListResponse
+    {
+        $response = $this->transport->get(self::STAFF_ROLES_URL);
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $count = isset($response['count']) ? (int) $response['count'] : 0;
+
+        unset($response['count']);
+
+        $staffRoles = collect($response)
+            ->map(fn ($item) => StaffRoleData::from($item['staff_roles']));
+
+        return new FetchStaffRoleListResponse(
+            staffRoles: $staffRoles,
+            count: $count,
         );
     }
 }

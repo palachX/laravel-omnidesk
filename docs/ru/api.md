@@ -103,6 +103,7 @@ $users = $omnidesk->users();
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
+- **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
@@ -832,6 +833,36 @@ foreach ($companies as $company) {
     echo "ID компании: " . $company->companyId . "\n";
     echo "Название компании: " . $company->companyName . "\n";
     echo "Количество пользователей: " . $company->amountOfUsers . "\n";
+}
+```
+
+---
+
+## Fetch Staff Role List (получение списка ролей сотрудников)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffRoleList\Response` (поля: `staffRoles` — коллекция `StaffRoleData`, `count` — общее количество).
+
+Получение списка ролей сотрудников.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffsClient $staff */
+$staff = $http->staffs();
+$response = $staff->fetchStaffRoleList();
+$staffRoles = $response->staffRoles;
+$count = $response->count;
+
+// Перебор ролей
+foreach ($staffRoles as $role) {
+    echo "ID роли: " . $role->roleId . "\n";
+    echo "Название роли: " . $role->role . "\n";
 }
 ```
 
