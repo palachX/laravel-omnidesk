@@ -102,6 +102,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
+- **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
@@ -506,6 +507,57 @@ $payload = new StoreStaffPayload(
 
 $response = $staff->store($payload);
 $employee = $response->staff; // StaffData
+```
+
+---
+
+## Fetch Staff List (получение списка сотрудников)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffList\Response` (поля: `staff` — коллекция `StaffData`, `total` — общее количество).
+
+Получение списка сотрудников с пагинацией.
+
+Параметры запроса:
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит сотрудников на странице (по умолчанию: 100) |
+| language_id | string | — | ID языка для локализации данных сотрудника |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\StaffClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffClient $staff */
+$staff = $http->staff();
+$payload = new FetchStaffListPayload(
+    page: 1,
+    limit: 20,
+    languageId: 'ru',
+);
+// Или с параметрами по умолчанию:
+// $payload = new FetchStaffListPayload();
+$response = $staff->fetchStaffList($payload);
+$staffMembers = $response->staff;
+$total = $response->total;
+
+// Перебор сотрудников
+foreach ($staffMembers as $member) {
+    echo "ID сотрудника: " . $member->staffId . "\n";
+    echo "Email: " . $member->staffEmail . "\n";
+    echo "Активен: " . ($member->active ? 'Да' : 'Нет') . "\n";
+    echo "Статус: " . $member->status . "\n";
+}
 ```
 
 ---

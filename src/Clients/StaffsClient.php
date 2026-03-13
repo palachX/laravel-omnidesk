@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\StaffData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchStaffList\Response as FetchStaffListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Payload as StoreStaffPayload;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Response as StoreStaffResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +37,31 @@ final readonly class StaffsClient
 
         return new StoreStaffResponse(
             staff: StaffData::from($staff),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchStaffList(?FetchStaffListPayload $payload = null): FetchStaffListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload?->toQuery() ?? []);
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $staffs = collect($response)
+            ->map(fn ($item) => StaffData::from($item['staff']));
+
+        return new FetchStaffListResponse(
+            staffs: $staffs,
+            total: $total,
         );
     }
 }

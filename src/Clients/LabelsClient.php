@@ -6,6 +6,7 @@ namespace Palach\Omnidesk\Clients;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Palach\Omnidesk\DTO\LabelData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteLabel\Payload as DeleteLabelPayload;
@@ -61,7 +62,7 @@ final readonly class LabelsClient
         unset($response['total_count']);
 
         $labels = collect($response)
-            ->map(fn ($item) => \Palach\Omnidesk\DTO\LabelData::from($item['label']));
+            ->map(fn ($item) => LabelData::from($item['label']));
 
         return new FetchLabelListResponse(
             labels: $labels,
@@ -82,7 +83,7 @@ final readonly class LabelsClient
         $label = $this->extract('label', $response);
 
         return new UpdateLabelResponse(
-            label: \Palach\Omnidesk\DTO\LabelData::from($label),
+            label: LabelData::from($label),
         );
     }
 

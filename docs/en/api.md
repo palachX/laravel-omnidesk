@@ -101,6 +101,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
+- **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -574,6 +575,57 @@ $payload = new StoreStaffPayload(
 
 $response = $staff->store($payload);
 $staffMember = $response->staff; // StaffData
+```
+
+---
+
+## Fetch Staff List (list staff members)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaffList\Response` (fields: `staff` — collection of `StaffData`, `total` — total count).
+
+Get a list of staff members with pagination.
+
+Request parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Staff members per page (default: 100) |
+| language_id | string | — | Language ID for localized staff data |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\StaffClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffClient $staff */
+$staff = $http->staff();
+$payload = new FetchStaffListPayload(
+    page: 1,
+    limit: 20,
+    languageId: 'en',
+);
+// Or with default parameters:
+// $payload = new FetchStaffListPayload();
+$response = $staff->fetchStaffList($payload);
+$staffMembers = $response->staff;
+$total = $response->total;
+
+// Iterate over staff members
+foreach ($staffMembers as $member) {
+    echo "Staff ID: " . $member->staffId . "\n";
+    echo "Email: " . $member->staffEmail . "\n";
+    echo "Active: " . ($member->active ? 'Yes' : 'No') . "\n";
+    echo "Status: " . $member->status . "\n";
+}
 ```
 
 ---
