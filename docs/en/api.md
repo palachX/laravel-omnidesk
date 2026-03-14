@@ -101,6 +101,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
+- **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — list staff statuses.
@@ -577,6 +578,51 @@ $payload = new StoreStaffPayload(
 
 $response = $staff->store($payload);
 $staffMember = $response->staff; // StaffData
+```
+
+---
+
+## Fetch Staff (view staff member)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaff\Response` (fields: `staff` — `StaffData`).
+
+View data for a specific staff member.
+
+Request parameters:
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| staff_id | int | Required | Staff member ID |
+| language_id | string | Optional | Language ID for localized staff data |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\StaffClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var StaffClient $staff */
+$staff = $http->staff();
+$payload = new FetchStaffPayload(
+    staffId: 200,
+    languageId: 'en',
+);
+// Or without language:
+// $payload = new FetchStaffPayload(staffId: 200);
+$response = $staff->fetchStaff($payload);
+$staffMember = $response->staff; // StaffData
+
+echo "Staff ID: " . $staffMember->staffId . "\n";
+echo "Email: " . $staffMember->staffEmail . "\n";
+echo "Active: " . ($staffMember->active ? 'Yes' : 'No') . "\n";
+echo "Status: " . $staffMember->status . "\n";
 ```
 
 ---

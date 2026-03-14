@@ -11,6 +11,8 @@ use Palach\Omnidesk\DTO\StaffRoleData;
 use Palach\Omnidesk\DTO\StaffStatusData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
+use Palach\Omnidesk\UseCases\V1\FetchStaff\Response as FetchStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Response as FetchStaffListResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffRoleList\Response as FetchStaffRoleListResponse;
@@ -24,6 +26,8 @@ final readonly class StaffsClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/staff.json';
+
+    private const string STAFF_URL = '/api/staff/%s.json';
 
     private const string STAFF_ROLES_URL = '/api/staff_roles.json';
 
@@ -44,6 +48,23 @@ final readonly class StaffsClient
         $staff = $this->extract('staff', $response);
 
         return new StoreStaffResponse(
+            staff: StaffData::from($staff),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchStaff(FetchStaffPayload $payload): FetchStaffResponse
+    {
+        $url = sprintf(self::STAFF_URL, $payload->staffId);
+
+        $response = $this->transport->get($url, $payload->toQuery());
+
+        $staff = $this->extract('staff', $response);
+
+        return new FetchStaffResponse(
             staff: StaffData::from($staff),
         );
     }

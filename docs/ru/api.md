@@ -102,6 +102,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
+- **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — получение списка статусов сотрудников.
@@ -509,6 +510,50 @@ $payload = new StoreStaffPayload(
 
 $response = $staff->store($payload);
 $employee = $response->staff; // StaffData
+```
+
+---
+
+## Fetch Staff (просмотр сотрудника)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStaff\Response` (поля: `staff` — `StaffData`).
+
+Просмотр данных конкретного сотрудника.
+
+Параметры запроса:
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| staff_id | int | да | ID сотрудника |
+| language_id | string | нет | ID языка для локализованных данных сотрудника |
+
+Для GET-запросов используйте метод `Payload::toQuery()`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new FetchStaffPayload(
+    staffId: 200,
+    languageId: 'en',
+);
+// Или без языка:
+// $payload = new FetchStaffPayload(staffId: 200);
+
+$response = $staff->fetchStaff($payload);
+$employee = $response->staff; // StaffData
+
+echo "ID сотрудника: " . $employee->staffId . "\n";
+echo "Email: " . $employee->staffEmail . "\n";
+echo "Активен: " . ($employee->active ? 'Да' : 'Нет') . "\n";
+echo "Статус: " . $employee->status . "\n";
 ```
 
 ---
