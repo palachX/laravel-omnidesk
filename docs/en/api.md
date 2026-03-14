@@ -104,6 +104,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
 - **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
 - **`$staffClient->enableStaff(int $staffId): EnabledStaffResponse`** — enable a staff member.
+- **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — delete a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
@@ -690,6 +691,46 @@ $staff = Omnidesk::staff();
 
 $response = $staff->enableStaff(200);
 $enabledStaff = $response->staff; // StaffData
+```
+
+---
+
+## Delete Staff (delete staff member)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Response` (contains `StaffData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| replace_staff_id | int | yes | ID of the staff member who will replace the deleted staff member in rule settings, common templates, and parameters of all cases (with any status) |
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| staff_id | int | yes | Staff member ID (from URL) - the staff member to be deleted |
+| payload | DeleteStaffPayload | yes | Delete data |
+
+Delete a staff member.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new DeleteStaffPayload(
+    replaceStaffId: 300
+);
+
+$response = $staff->deleteStaff(100, $payload);
+$deletedStaff = $response->staff; // StaffData with deleted = true
 ```
 
 ---

@@ -105,6 +105,7 @@ $users = $omnidesk->users();
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
 - **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — отключение сотрудника.
 - **`$staffClient->enableStaff(int $staffId): EnabledStaffResponse`** — включение сотрудника.
+- **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — удаление сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
@@ -622,6 +623,46 @@ $staff = Omnidesk::staff();
 
 $response = $staff->enableStaff(200);
 $enabledStaff = $response->staff; // StaffData
+```
+
+---
+
+## Delete Staff (удаление сотрудника)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Response` (содержит `StaffData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| replace_staff_id | int | да | ID сотрудника, который заменит удаляемого в настройках правил, общих шаблонов и параметрах всех обращений (с любым статусом) |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| staff_id | int | да | ID сотрудника (из URL) - который будет удалён |
+| payload | DeleteStaffPayload | да | Данные для удаления |
+
+Удаление сотрудника.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new DeleteStaffPayload(
+    replaceStaffId: 300
+);
+
+$response = $staff->deleteStaff(100, $payload);
+$deletedStaff = $response->staff; // StaffData с полем deleted = true
 ```
 
 ---

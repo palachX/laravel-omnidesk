@@ -11,6 +11,8 @@ use Palach\Omnidesk\DTO\StaffRoleData;
 use Palach\Omnidesk\DTO\StaffStatusData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\Response as DeleteStaffResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Response as DisabledStaffResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledStaff\Response as EnabledStaffResponse;
@@ -175,6 +177,23 @@ final readonly class StaffsClient
         $staff = $this->extract('staff', $response);
 
         return new EnabledStaffResponse(
+            staff: StaffData::from($staff),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse
+    {
+        $url = sprintf(self::STAFF_URL, $staffId);
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, $payload->toArray());
+
+        $staff = $this->extract('staff', $response);
+
+        return new DeleteStaffResponse(
             staff: StaffData::from($staff),
         );
     }
