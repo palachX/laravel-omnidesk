@@ -101,6 +101,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — delete a message.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
+- **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
@@ -577,6 +578,52 @@ $payload = new StoreStaffPayload(
 );
 
 $response = $staff->store($payload);
+$staffMember = $response->staff; // StaffData
+```
+
+---
+
+## Update Staff (update staff member)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateStaff\Response` (contains `StaffData`).
+
+**StaffUpdateData** (payload `staff` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| staff_email | string | no | New email address of the staff member |
+| staff_full_name | string | no | Full name of the staff member |
+| staff_signature | string | no | Staff member signature for email cases |
+| staff_signature_chat | string | no | Staff member signature for chats |
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| staff_id | int | yes | Staff member ID |
+| payload | UpdateStaffPayload | yes | Update data |
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\Payload as UpdateStaffPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\StaffUpdateData;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new UpdateStaffPayload(
+    staff: new StaffUpdateData(
+        staffFullName: "Staff full name changed",
+        staffSignature: 'Updated signature for email cases',
+        staffSignatureChat: 'Updated signature for chats'
+    )
+);
+
+$response = $staff->update(200, $payload);
 $staffMember = $response->staff; // StaffData
 ```
 

@@ -102,6 +102,7 @@ $users = $omnidesk->users();
 - **`$messagesClient->deleteMessage(DeleteMessagePayload $payload): DeleteMessageResponse`** — удаление сообщения.
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
+- **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
@@ -509,6 +510,52 @@ $payload = new StoreStaffPayload(
 );
 
 $response = $staff->store($payload);
+$employee = $response->staff; // StaffData
+```
+
+---
+
+## Update Staff (редактирование сотрудника)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateStaff\Response` (содержит `StaffData`).
+
+**StaffUpdateData** (поле `staff` в payload):
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| staff_email | string | нет | Новый email-адрес сотрудника |
+| staff_full_name | string | нет | Полное имя сотрудника |
+| staff_signature | string | нет | Подпись сотрудника для email-обращений |
+| staff_signature_chat | string | нет | Подпись сотрудника для чатов |
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| staff_id | int | да | ID сотрудника |
+| payload | UpdateStaffPayload | да | Данные для обновления |
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\Payload as UpdateStaffPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\StaffUpdateData;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new UpdateStaffPayload(
+    staff: new StaffUpdateData(
+        staffFullName: "Измененное полное имя сотрудника",
+        staffSignature: 'Обновленная подпись для email-обращений',
+        staffSignatureChat: 'Обновленная подпись для чатов'
+    )
+);
+
+$response = $staff->update(200, $payload);
 $employee = $response->staff; // StaffData
 ```
 

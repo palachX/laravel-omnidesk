@@ -19,6 +19,8 @@ use Palach\Omnidesk\UseCases\V1\FetchStaffRoleList\Response as FetchStaffRoleLis
 use Palach\Omnidesk\UseCases\V1\FetchStaffStatusList\Response as FetchStaffStatusListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Payload as StoreStaffPayload;
 use Palach\Omnidesk\UseCases\V1\StoreStaff\Response as StoreStaffResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\Payload as UpdateStaffPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateStaff\Response as UpdateStaffResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class StaffsClient
@@ -48,6 +50,23 @@ final readonly class StaffsClient
         $staff = $this->extract('staff', $response);
 
         return new StoreStaffResponse(
+            staff: StaffData::from($staff),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse
+    {
+        $url = sprintf(self::STAFF_URL, $staffId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $staff = $this->extract('staff', $response);
+
+        return new UpdateStaffResponse(
             staff: StaffData::from($staff),
         );
     }
