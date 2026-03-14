@@ -7,7 +7,6 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DisabledStaff\DisabledStaffData;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Response as DisabledStaffResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,7 +18,11 @@ final class DisabledStaffTest extends AbstractTestCase
     {
         yield 'disable staff' => [
             'staffId' => 200,
-            'replaceStaffId' => 300,
+            'payload' => [
+                'staff' => [
+                    'replace_staff_id' => 300,
+                ],
+            ],
             'response' => [
                 'staff' => [
                     'staff_id' => 200,
@@ -36,12 +39,11 @@ final class DisabledStaffTest extends AbstractTestCase
     }
 
     #[DataProvider('dataArrayProvider')]
-    public function testHttp(int $staffId, int $replaceStaffId, array $response): void
+    public function testHttp(int $staffId, array $payload, array $response): void
     {
+        $payload = DisabledStaffPayload::from($payload);
+
         $url = $this->host."/api/staff/$staffId/disable.json";
-        $payload = new DisabledStaffPayload(
-            staff: new DisabledStaffData($replaceStaffId)
-        );
 
         Http::fake([
             $url => Http::response($response),
@@ -49,11 +51,11 @@ final class DisabledStaffTest extends AbstractTestCase
 
         $responseData = $this->makeHttpClient()->staffs()->disableStaff($staffId, $payload);
 
-        Http::assertSent(function (Request $request) use ($url, $replaceStaffId) {
+        Http::assertSent(function (Request $request) use ($url, $payload) {
             return $request->url() === $url
                 && $request->isJson()
                 && $request->method() === SymfonyRequest::METHOD_PUT
-                && $request->body() === json_encode(['staff' => ['replace_staff_id' => $replaceStaffId]]);
+                && $request->body() === json_encode($payload->toArray());
         });
 
         $this->assertEquals(DisabledStaffResponse::from($response), $responseData);
