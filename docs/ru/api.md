@@ -103,6 +103,7 @@ $users = $omnidesk->users();
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — удаление заметки.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
+- **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — отключение сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
@@ -557,6 +558,42 @@ $payload = new UpdateStaffPayload(
 
 $response = $staff->update(200, $payload);
 $employee = $response->staff; // StaffData
+```
+
+---
+
+## Disable Staff (отключение сотрудника)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DisabledStaff\Response` (содержит `StaffData`).
+
+Отключение сотрудника.
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| replace_staff_id | int | да | ID сотрудника, который заменит отключаемого в настройках правил, общих шаблонов и параметрах обращений со статусом «открытое» и «в ожидании» |
+
+**Пример использования:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\DisabledStaffData;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new DisabledStaffPayload(
+    staff: new DisabledStaffData(
+        replaceStaffId: 300
+    )
+);
+
+$response = $staff->disableStaff(200, $payload);
+$disabledStaff = $response->staff; // StaffData
 ```
 
 ---

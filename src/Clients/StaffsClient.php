@@ -11,6 +11,8 @@ use Palach\Omnidesk\DTO\StaffRoleData;
 use Palach\Omnidesk\DTO\StaffStatusData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\Response as DisabledStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Response as FetchStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
@@ -135,6 +137,24 @@ final readonly class StaffsClient
         return new FetchStaffRoleListResponse(
             staffRoles: $staffRoles,
             count: $count,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse
+    {
+        $url = sprintf(self::STAFF_URL, $staffId);
+        $url = str_replace('.json', '/disable.json', $url);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $staff = $this->extract('staff', $response);
+
+        return new DisabledStaffResponse(
+            staff: StaffData::from($staff),
         );
     }
 

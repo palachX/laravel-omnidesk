@@ -102,6 +102,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
+- **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
@@ -625,6 +626,42 @@ $payload = new UpdateStaffPayload(
 
 $response = $staff->update(200, $payload);
 $staffMember = $response->staff; // StaffData
+```
+
+---
+
+## Disable Staff (disable staff member)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DisabledStaff\Response` (contains `StaffData`).
+
+Disable a staff member.
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| replace_staff_id | int | yes | ID of the staff member who will replace the disabled staff member in rule settings, common templates, and case parameters with "open" and "waiting" status |
+
+**Example usage:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisabledStaff\DisabledStaffData;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$payload = new DisabledStaffPayload(
+    staff: new DisabledStaffData(
+        replaceStaffId: 300
+    )
+);
+
+$response = $staff->disableStaff(200, $payload);
+$disabledStaff = $response->staff; // StaffData
 ```
 
 ---
