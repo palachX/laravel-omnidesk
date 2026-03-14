@@ -103,6 +103,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
 - **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
+- **`$staffClient->enableStaff(int $staffId): EnabledStaffResponse`** — enable a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
@@ -662,6 +663,33 @@ $payload = new DisabledStaffPayload(
 
 $response = $staff->disableStaff(200, $payload);
 $disabledStaff = $response->staff; // StaffData
+```
+
+---
+
+## Enable Staff (enable staff member)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledStaff\Response` (contains `StaffData`).
+
+Enable a staff member.
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| staff_id | int | yes | Staff member ID |
+
+**Example usage:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$response = $staff->enableStaff(200);
+$enabledStaff = $response->staff; // StaffData
 ```
 
 ---

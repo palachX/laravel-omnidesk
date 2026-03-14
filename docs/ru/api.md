@@ -104,6 +104,7 @@ $users = $omnidesk->users();
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
 - **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — отключение сотрудника.
+- **`$staffClient->enableStaff(int $staffId): EnabledStaffResponse`** — включение сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
@@ -594,6 +595,33 @@ $payload = new DisabledStaffPayload(
 
 $response = $staff->disableStaff(200, $payload);
 $disabledStaff = $response->staff; // StaffData
+```
+
+---
+
+## Enable Staff (включение сотрудника)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledStaff\Response` (содержит `StaffData`).
+
+Включение сотрудника.
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| staff_id | int | да | ID сотрудника |
+
+**Пример использования:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StaffsClient;
+
+/** @var StaffsClient $staff */
+$staff = Omnidesk::staff();
+
+$response = $staff->enableStaff(200);
+$enabledStaff = $response->staff; // StaffData
 ```
 
 ---

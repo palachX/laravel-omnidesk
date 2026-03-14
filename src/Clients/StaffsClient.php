@@ -13,6 +13,7 @@ use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
 use Palach\Omnidesk\UseCases\V1\DisabledStaff\Response as DisabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnabledStaff\Response as EnabledStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Response as FetchStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
@@ -32,6 +33,10 @@ final readonly class StaffsClient
     private const string API_URL = '/api/staff.json';
 
     private const string STAFF_URL = '/api/staff/%s.json';
+
+    private const string STAFF_DISABLE_URL = '/api/staff/%s/disable.json';
+
+    private const string STAFF_ENABLE_URL = '/api/staff/%s/enable.json';
 
     private const string STAFF_ROLES_URL = '/api/staff_roles.json';
 
@@ -146,14 +151,30 @@ final readonly class StaffsClient
      */
     public function disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse
     {
-        $url = sprintf(self::STAFF_URL, $staffId);
-        $url = str_replace('.json', '/disable.json', $url);
+        $url = sprintf(self::STAFF_DISABLE_URL, $staffId);
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
         $staff = $this->extract('staff', $response);
 
         return new DisabledStaffResponse(
+            staff: StaffData::from($staff),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function enableStaff(int $staffId): EnabledStaffResponse
+    {
+        $url = sprintf(self::STAFF_ENABLE_URL, $staffId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $staff = $this->extract('staff', $response);
+
+        return new EnabledStaffResponse(
             staff: StaffData::from($staff),
         );
     }
