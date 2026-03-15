@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Facade;
 use Palach\Omnidesk\Clients\CasesClient;
 use Palach\Omnidesk\Clients\ClientEmailsClient;
 use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\Clients\CustomChannelsClient;
 use Palach\Omnidesk\Clients\CustomFieldsClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
@@ -31,6 +32,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static CompaniesClient companies()
  * @method static StaffsClient staff()
  * @method static CustomFieldsClient customFields()
+ * @method static CustomChannelsClient customChannels()
  * @method static ClientEmailsClient clientEmails()
  * @method static LanguagesClient languages()
  */

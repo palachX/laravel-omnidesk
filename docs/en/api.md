@@ -7,12 +7,13 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes twelve typed clients:
+The main class exposes thirteen typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — operations with client emails
 - `Palach\Omnidesk\Clients\CompaniesClient` — operations with companies
 - `Palach\Omnidesk\Clients\CustomFieldsClient` — operations with custom fields
+- `Palach\Omnidesk\Clients\CustomChannelsClient` — operations with custom channels
 - `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
@@ -65,6 +66,9 @@ $notes = Omnidesk::notes();
 /** @var CustomFieldsClient $customFields */
 $customFields = Omnidesk::customFields();
 
+/** @var CustomChannelsClient $customChannels */
+$customChannels = Omnidesk::customChannels();
+
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
@@ -77,6 +81,7 @@ $cases = $omnidesk->cases();
 $clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
 $customFields = $omnidesk->customFields();
+$customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
@@ -111,6 +116,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — list client emails.
 - **`$customFieldsClient->fetchList(): FetchCustomFieldListResponse`** — list custom fields.
+- **`$customChannelsClient->fetchList(): FetchCustomChannelListResponse`** — list custom channels.
 - **`$languagesClient->fetchList(): FetchLanguageListResponse`** — list languages.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — list macros (common and personal).
@@ -1526,6 +1532,51 @@ foreach ($customFields as $customField) {
 | fieldLevel | string | Field level (user - for user, case - for case) |
 | active | bool | Whether the field is active |
 | fieldData | array|string | Field data (for select - array of options, for others - empty string) |
+
+---
+
+## Fetch Custom Channel List (list custom channels)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCustomChannelList\Response` (fields: `customChannels` — collection of `CustomChannelData`, `totalCount` — total count).
+
+Retrieves all custom channels configured in the system.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\CustomChannelsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CustomChannelsClient $customChannels */
+$customChannels = $http->customChannels();
+$response = $customChannels->fetchList();
+$customChannels = $response->customChannels;
+$totalCount = $response->totalCount;
+
+// Iterate through custom channels
+foreach ($customChannels as $customChannel) {
+    echo "Channel ID: " . $customChannel->channelId . "\n";
+    echo "Title: " . $customChannel->title . "\n";
+    echo "Type: " . $customChannel->channelType . "\n";
+    echo "API Key: " . $customChannel->channelApiKey . "\n";
+    echo "Active: " . ($customChannel->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+**CustomChannelData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| channelId | int | Channel identifier |
+| channelApiKey | string | Channel API key |
+| title | string | Channel title |
+| channelType | string | Channel type (async, sync) |
+| icon | string | Channel icon (FontAwesome class) |
+| webhookUrl | string | Webhook URL for the channel |
+| active | bool | Whether the channel is active |
 
 ---
 

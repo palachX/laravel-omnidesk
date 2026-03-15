@@ -7,6 +7,7 @@ namespace Palach\Omnidesk;
 use Palach\Omnidesk\Clients\CasesClient;
 use Palach\Omnidesk\Clients\ClientEmailsClient;
 use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\Clients\CustomChannelsClient;
 use Palach\Omnidesk\Clients\CustomFieldsClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
@@ -34,6 +35,7 @@ final readonly class Omnidesk
         private NotesClient $notes,
         private UsersClient $users,
         private CustomFieldsClient $customFields,
+        private CustomChannelsClient $customChannels,
     ) {}
 
     public function cases(): CasesClient
@@ -99,5 +101,10 @@ final readonly class Omnidesk
     public function customFields(): CustomFieldsClient
     {
         return $this->customFields;
+    }
+
+    public function customChannels(): CustomChannelsClient
+    {
+        return $this->customChannels;
     }
 }

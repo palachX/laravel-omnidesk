@@ -7,12 +7,13 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к двенадцати типизированным клиентам:
+Основной класс предоставляет доступ к тринадцати типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — операции с email-адресами клиентов
 - `Palach\Omnidesk\Clients\CompaniesClient` — операции с компаниями
 - `Palach\Omnidesk\Clients\CustomFieldsClient` — операции с кастомными полями
+- `Palach\Omnidesk\Clients\CustomChannelsClient` — операции с кастомными каналами
 - `Palach\Omnidesk\Clients\StaffClient` — операции с персоналом
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
@@ -65,6 +66,9 @@ $notes = Omnidesk::notes();
 /** @var CustomFieldsClient $customFields */
 $customFields = Omnidesk::customFields();
 
+/** @var CustomChannelsClient $customChannels */
+$customChannels = Omnidesk::customChannels();
+
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
@@ -77,6 +81,7 @@ $cases = $omnidesk->cases();
 $clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
 $customFields = $omnidesk->customFields();
+$customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
@@ -112,6 +117,7 @@ $users = $omnidesk->users();
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — получение списка email-адресов клиента.
 - **`$customFieldsClient->fetchList(): FetchCustomFieldListResponse`** — получение списка кастомных полей.
+- **`$customChannelsClient->fetchList(): FetchCustomChannelListResponse`** — получение списка кастомных каналов.
 - **`$languagesClient->fetchList(): FetchLanguageListResponse`** — получение списка языков.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — получение списка шаблонов (общих и личных).
@@ -1517,6 +1523,51 @@ foreach ($customFields as $customField) {
 | fieldLevel | string | Уровень поля (user - для пользователя, case - для обращения) |
 | active | bool | Активно ли поле |
 | fieldData | array|string | Данные поля (для select - массив вариантов, для других - пустая строка) |
+
+---
+
+## Получение списка кастомных каналов (Fetch Custom Channel List)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCustomChannelList\Response` (поля: `customChannels` — коллекция `CustomChannelData`, `totalCount` — общее количество).
+
+Получение всех кастомных каналов, настроенных в системе.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\CustomChannelsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CustomChannelsClient $customChannels */
+$customChannels = $http->customChannels();
+$response = $customChannels->fetchList();
+$customChannels = $response->customChannels;
+$totalCount = $response->totalCount;
+
+// Перебор кастомных каналов
+foreach ($customChannels as $customChannel) {
+    echo "ID канала: " . $customChannel->channelId . "\n";
+    echo "Название: " . $customChannel->title . "\n";
+    echo "Тип: " . $customChannel->channelType . "\n";
+    echo "API ключ: " . $customChannel->channelApiKey . "\n";
+    echo "Активен: " . ($customChannel->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+**Свойства CustomChannelData:**
+
+| Поле | Тип | Описание |
+|------|-----|-------------|
+| channelId | int | Идентификатор канала |
+| channelApiKey | string | API ключ канала |
+| title | string | Название канала |
+| channelType | string | Тип канала (async, sync) |
+| icon | string | Иконка канала (класс FontAwesome) |
+| webhookUrl | string | URL вебхука для канала |
+| active | bool | Активен ли канал |
 
 ---
 
