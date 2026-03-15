@@ -7,11 +7,12 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes eleven typed clients:
+The main class exposes twelve typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — operations with client emails
 - `Palach\Omnidesk\Clients\CompaniesClient` — operations with companies
+- `Palach\Omnidesk\Clients\CustomFieldsClient` — operations with custom fields
 - `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
@@ -61,6 +62,9 @@ $messages = Omnidesk::messages();
 /** @var NotesClient $notes */
 $notes = Omnidesk::notes();
 
+/** @var CustomFieldsClient $customFields */
+$customFields = Omnidesk::customFields();
+
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
@@ -72,6 +76,7 @@ $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
+$customFields = $omnidesk->customFields();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
@@ -105,6 +110,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — list client emails.
+- **`$customFieldsClient->fetchList(): FetchCustomFieldListResponse`** — list custom fields.
 - **`$languagesClient->fetchList(): FetchLanguageListResponse`** — list languages.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — list macros (common and personal).
@@ -1476,6 +1482,50 @@ foreach ($filters as $filter) {
 | filterName | string | Filter name |
 | isSelected | bool | Whether the filter is currently selected |
 | isCustom | bool | Whether this is a custom filter |
+
+---
+
+## Fetch Custom Field List (list custom fields)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCustomFieldList\Response` (fields: `customFields` — collection of `CustomFieldData`, `totalCount` — total count).
+
+Retrieves all custom fields configured in the system. Field ownership (whether it belongs to a case or user) is specified in the `fieldLevel` parameter.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\CustomFieldsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CustomFieldsClient $customFields */
+$customFields = $http->customFields();
+$response = $customFields->fetchList();
+$customFields = $response->customFields;
+$totalCount = $response->totalCount;
+
+// Iterate through custom fields
+foreach ($customFields as $customField) {
+    echo "Field ID: " . $customField->fieldId . "\n";
+    echo "Title: " . $customField->title . "\n";
+    echo "Type: " . $customField->fieldType . "\n";
+    echo "Level: " . $customField->fieldLevel . "\n";
+    echo "Active: " . ($customField->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+**CustomFieldData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| fieldId | int | Field identifier |
+| title | string | Field title |
+| fieldType | string | Field type (text, textarea, checkbox, select, date, etc.) |
+| fieldLevel | string | Field level (user - for user, case - for case) |
+| active | bool | Whether the field is active |
+| fieldData | array|string | Field data (for select - array of options, for others - empty string) |
 
 ---
 

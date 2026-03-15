@@ -7,11 +7,12 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к одиннадцати типизированным клиентам:
+Основной класс предоставляет доступ к двенадцати типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — операции с email-адресами клиентов
 - `Palach\Omnidesk\Clients\CompaniesClient` — операции с компаниями
+- `Palach\Omnidesk\Clients\CustomFieldsClient` — операции с кастомными полями
 - `Palach\Omnidesk\Clients\StaffClient` — операции с персоналом
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
@@ -61,6 +62,9 @@ $messages = Omnidesk::messages();
 /** @var NotesClient $notes */
 $notes = Omnidesk::notes();
 
+/** @var CustomFieldsClient $customFields */
+$customFields = Omnidesk::customFields();
+
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
@@ -72,6 +76,7 @@ $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
 $clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
+$customFields = $omnidesk->customFields();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
@@ -106,6 +111,7 @@ $users = $omnidesk->users();
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — получение списка email-адресов клиента.
+- **`$customFieldsClient->fetchList(): FetchCustomFieldListResponse`** — получение списка кастомных полей.
 - **`$languagesClient->fetchList(): FetchLanguageListResponse`** — получение списка языков.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — получение списка шаблонов (общих и личных).
@@ -1467,6 +1473,50 @@ foreach ($filters as $filter) {
 | filterName | string | Название фильтра |
 | isSelected | bool | Выбран ли фильтр в данный момент |
 | isCustom | bool | Является ли этот фильтр пользовательским |
+
+---
+
+## Fetch Custom Field List (получение списка кастомных полей)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchCustomFieldList\Response` (поля: `customFields` — коллекция `CustomFieldData`, `totalCount` — общее количество).
+
+Получает все кастомные поля, настроенные в системе. Принадлежность поля (к обращению или пользователю) указана в параметре `fieldLevel`.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\CustomFieldsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var CustomFieldsClient $customFields */
+$customFields = $http->customFields();
+$response = $customFields->fetchList();
+$customFields = $response->customFields;
+$totalCount = $response->totalCount;
+
+// Перебор кастомных полей
+foreach ($customFields as $customField) {
+    echo "ID поля: " . $customField->fieldId . "\n";
+    echo "Название: " . $customField->title . "\n";
+    echo "Тип: " . $customField->fieldType . "\n";
+    echo "Уровень: " . $customField->fieldLevel . "\n";
+    echo "Активен: " . ($customField->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+**Свойства CustomFieldData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| fieldId | int | Идентификатор поля |
+| title | string | Название поля |
+| fieldType | string | Тип поля (text, textarea, checkbox, select, date и др.) |
+| fieldLevel | string | Уровень поля (user - для пользователя, case - для обращения) |
+| active | bool | Активно ли поле |
+| fieldData | array|string | Данные поля (для select - массив вариантов, для других - пустая строка) |
 
 ---
 
