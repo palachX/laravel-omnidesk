@@ -50,7 +50,7 @@ final readonly class MessagesClient
             ? $this->transport->sendMultipart(Request::METHOD_POST, $url, $payload->toMultipart())
             : $this->transport->sendJson(Request::METHOD_POST, $url, $payload->toArray());
 
-        $message = $this->extract('message', $response);
+        $message = $this->extractArray('message', $response);
 
         return new StoreMessageResponse(
             message: MessageData::from($message),
@@ -71,7 +71,7 @@ final readonly class MessagesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $message = $this->extract('message', $response);
+        $message = $this->extractArray('message', $response);
 
         return new UpdateMessageResponse(
             message: MessageData::from($message),
@@ -88,7 +88,7 @@ final readonly class MessagesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $message = $this->extract('message', $response);
+        $message = $this->extractArray('message', $response);
 
         return new RateMessageResponse(
             message: MessageData::from($message),

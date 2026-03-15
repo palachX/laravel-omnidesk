@@ -9,6 +9,7 @@ use Palach\Omnidesk\Clients\CompaniesClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
 use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\Clients\MacrosClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Clients\StaffsClient;
@@ -23,6 +24,7 @@ final readonly class Omnidesk
         private FiltersClient $filters,
         private GroupsClient $groups,
         private LabelsClient $labels,
+        private MacrosClient $macros,
         private MessagesClient $messages,
         private NotesClient $notes,
         private UsersClient $users,
@@ -56,6 +58,11 @@ final readonly class Omnidesk
     public function labels(): LabelsClient
     {
         return $this->labels;
+    }
+
+    public function macros(): MacrosClient
+    {
+        return $this->macros;
     }
 
     public function messages(): MessagesClient

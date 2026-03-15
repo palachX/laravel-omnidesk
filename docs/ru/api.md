@@ -7,7 +7,7 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к восьми типизированным клиентам:
+Основной класс предоставляет доступ к девяти типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\CompaniesClient` — операции с компаниями
@@ -15,6 +15,7 @@
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
+- `Palach\Omnidesk\Clients\MacrosClient` — операции с шаблонами
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
 - `Palach\Omnidesk\Clients\UsersClient` — операции с пользователями
@@ -43,6 +44,9 @@ $groups = Omnidesk::groups();
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
 
+/** @var MacrosClient $macros */
+$macros = Omnidesk::macros();
+
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
@@ -63,6 +67,7 @@ $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
+$macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 $users = $omnidesk->users();
@@ -91,6 +96,7 @@ $users = $omnidesk->users();
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
+- **`$macrosClient->fetchList(): FetchMacroListResponse`** — получение списка шаблонов (общих и личных).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — получение списка меток с пагинацией.
 - **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — редактирование метки.
@@ -1449,6 +1455,74 @@ foreach ($filters as $filter) {
 | filterName | string | Название фильтра |
 | isSelected | bool | Выбран ли фильтр в данный момент |
 | isCustom | bool | Является ли этот фильтр пользовательским |
+
+---
+
+## Fetch Macro List (получение списка шаблонов)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchMacroList\Response` (поля: `common` — коллекция общих шаблонов `MacroCategoryData`, `personal` — коллекция личных шаблонов `MacroCategoryData`).
+
+Получает список шаблонов из аккаунта администратора. Выводятся общие и личные шаблоны, разделённые на категории.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\MacrosClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var MacrosClient $macros */
+$macros = $http->macros();
+$response = $macros->fetchList();
+
+$commonMacros = $response->common;
+$personalMacros = $response->personal;
+
+// Перебор общих шаблонов
+foreach ($commonMacros as $category) {
+    echo "Категория: " . $category->title . "\n";
+    foreach ($category->data as $macro) {
+        echo "Шаблон: " . $macro->title . "\n";
+        echo "Группа: " . $macro->groupName . "\n";
+        foreach ($macro->actions as $action) {
+            echo "Действие: " . $action->actionDisplayName . "\n";
+            echo "Тип: " . $action->actionType . "\n";
+        }
+    }
+}
+```
+
+**Свойства MacroCategoryData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| title | string | Название категории |
+| sort | int | Порядок сортировки |
+| macrosCategoryId | int | ID категории шаблонов |
+| data | Collection<int, MacroData> | Коллекция шаблонов в категории |
+
+**Свойства MacroData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| title | string | Название шаблона |
+| position | int | Позиция шаблона |
+| groupName | string | Название группы |
+| actions | Collection<int, MacroActionData> | Коллекция действий шаблона |
+
+**Свойства MacroActionData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| macroActionId | int | ID действия шаблона |
+| actionType | string | Тип действия (add_note, email_to_user, group_id, status и т.д.) |
+| actionDisplayName | string | Отображаемое название действия |
+| actionDestination | string|array | Назначение действия (зависит от типа) |
+| content | string|null | Содержимое действия |
+| subject | string|null | Тема действия |
+| position | int | Позиция действия |
 
 ---
 

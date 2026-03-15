@@ -80,7 +80,7 @@ final readonly class LabelsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $label = $this->extract('label', $response);
+        $label = $this->extractArray('label', $response);
 
         return new UpdateLabelResponse(
             label: LabelData::from($label),

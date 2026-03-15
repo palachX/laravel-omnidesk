@@ -10,6 +10,7 @@ use Palach\Omnidesk\Clients\CompaniesClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
 use Palach\Omnidesk\Clients\LabelsClient;
+use Palach\Omnidesk\Clients\MacrosClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Clients\StaffsClient;
@@ -20,6 +21,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static LabelsClient labels()
  * @method static FiltersClient filters()
  * @method static GroupsClient groups()
+ * @method static MacrosClient macros()
  * @method static MessagesClient messages()
  * @method static NotesClient notes()
  * @method static UsersClient users()

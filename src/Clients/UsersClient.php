@@ -50,7 +50,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/{$payload->user->userId}.json", self::API_URL);
         $response = $this->transport->get($url);
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new FetchUserResponse(
             user: UserData::from($user),
@@ -65,7 +65,7 @@ final readonly class UsersClient
     {
         $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, $payload->toArray());
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new StoreUserResponse(
             user: UserData::from($user),
@@ -81,7 +81,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/{$userId}.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new UpdateUserResponse(
             user: UserData::from($user),
@@ -121,8 +121,7 @@ final readonly class UsersClient
     {
         $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL_IDENTIFICATION, $payload->toArray());
 
-        /** @var string $code */
-        $code = $this->extract('code', $response);
+        $code = $this->extractString('code', $response);
 
         return new FetchUserIdentificationResponse(
             code: $code,
@@ -138,7 +137,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId/link.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new LinkUserResponse(
             user: UserData::from($user),
@@ -154,7 +153,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId/disable.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new DisableUserResponse(
             user: UserData::from($user),
@@ -170,7 +169,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId/block.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new BlockUserResponse(
             user: UserData::from($user),
@@ -186,7 +185,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId/restore.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new RecoveryUserResponse(
             user: UserData::from($user),
@@ -202,7 +201,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new DeleteUserResponse(
             user: UserData::from($user),
@@ -218,7 +217,7 @@ final readonly class UsersClient
         $url = str_replace('.json', "/$userId/unlink.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $user = $this->extract('user', $response);
+        $user = $this->extractArray('user', $response);
 
         return new UnlinkUserResponse(
             user: UserData::from($user),

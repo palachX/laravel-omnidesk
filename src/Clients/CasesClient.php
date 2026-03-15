@@ -81,7 +81,7 @@ final readonly class CasesClient
 
         $response = $this->transport->get($url);
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new FetchCaseResponse(
             case: CaseData::from($case),
@@ -99,7 +99,7 @@ final readonly class CasesClient
         $response = $this->transport->get($url, $payload->toQuery());
 
         /** @var array<mixed> $changelog */
-        $changelog = $this->extract('changelog', $response);
+        $changelog = $this->extractArray('changelog', $response);
 
         $changelogItems = collect($changelog)
             ->map(fn ($item) => ChangelogData::from($item));
@@ -119,7 +119,7 @@ final readonly class CasesClient
             ? $this->transport->sendMultipart(Request::METHOD_POST, self::API_URL, $payload->toMultipart())
             : $this->transport->sendJson(Request::METHOD_POST, self::API_URL, $payload->toArray());
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new StoreCaseResponse(
             case: CaseData::from($case),
@@ -136,7 +136,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new RateCaseResponse(
             case: CaseData::from($case),
@@ -178,7 +178,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new TrashCaseResponse(
             case: CaseData::from($case),
@@ -196,7 +196,7 @@ final readonly class CasesClient
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         /** @var int[] $caseSuccessId */
-        $caseSuccessId = $this->extract('case_success_id', $response);
+        $caseSuccessId = $this->extractArray('case_success_id', $response);
 
         return new TrashCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
@@ -213,7 +213,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new RestoreCaseResponse(
             case: CaseData::from($case),
@@ -231,7 +231,7 @@ final readonly class CasesClient
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         /** @var int[] $caseSuccessId */
-        $caseSuccessId = $this->extract('case_success_id', $response);
+        $caseSuccessId = $this->extractArray('case_success_id', $response);
 
         return new RestoreCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
@@ -248,7 +248,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new DeleteCaseResponse(
             case: CaseData::from($case),
@@ -266,7 +266,7 @@ final readonly class CasesClient
         $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
 
         /** @var int[] $caseSuccessId */
-        $caseSuccessId = $this->extract('case_success_id', $response);
+        $caseSuccessId = $this->extractArray('case_success_id', $response);
 
         return new DeleteCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
@@ -283,7 +283,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new SpamCaseResponse(
             case: CaseData::from($case),
@@ -301,7 +301,7 @@ final readonly class CasesClient
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         /** @var int[] $caseSuccessId */
-        $caseSuccessId = $this->extract('case_success_id', $response);
+        $caseSuccessId = $this->extractArray('case_success_id', $response);
 
         return new SpamCaseBulkResponse(
             caseSuccessId: $caseSuccessId,
@@ -318,7 +318,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new UpdateIdeaResponse(
             case: CaseData::from($case),
@@ -335,7 +335,7 @@ final readonly class CasesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $case = $this->extract('case', $response);
+        $case = $this->extractArray('case', $response);
 
         return new UpdateIdeaOfficialResponseResponse(
             case: CaseData::from($case),

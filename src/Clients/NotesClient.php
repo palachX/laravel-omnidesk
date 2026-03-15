@@ -42,7 +42,7 @@ final readonly class NotesClient
             ? $this->transport->sendMultipart(Request::METHOD_POST, $url, $payload->toMultipart())
             : $this->transport->sendJson(Request::METHOD_POST, $url, $payload->toArray());
 
-        $message = $this->extract('message', $response);
+        $message = $this->extractArray('message', $response);
 
         return new StoreNoteResponse(
             message: MessageData::from($message),
@@ -63,7 +63,7 @@ final readonly class NotesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $message = $this->extract('message', $response);
+        $message = $this->extractArray('message', $response);
 
         return new UpdateNoteResponse(
             message: MessageData::from($message),

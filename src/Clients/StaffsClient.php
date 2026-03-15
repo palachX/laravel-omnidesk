@@ -56,7 +56,7 @@ final readonly class StaffsClient
     {
         $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, ['staff' => $payload->toArray()]);
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new StoreStaffResponse(
             staff: StaffData::from($staff),
@@ -73,7 +73,7 @@ final readonly class StaffsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new UpdateStaffResponse(
             staff: StaffData::from($staff),
@@ -90,7 +90,7 @@ final readonly class StaffsClient
 
         $response = $this->transport->get($url, $payload->toQuery());
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new FetchStaffResponse(
             staff: StaffData::from($staff),
@@ -157,7 +157,7 @@ final readonly class StaffsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new DisabledStaffResponse(
             staff: StaffData::from($staff),
@@ -174,7 +174,7 @@ final readonly class StaffsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new EnabledStaffResponse(
             staff: StaffData::from($staff),
@@ -191,7 +191,7 @@ final readonly class StaffsClient
 
         $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, $payload->toArray());
 
-        $staff = $this->extract('staff', $response);
+        $staff = $this->extractArray('staff', $response);
 
         return new DeleteStaffResponse(
             staff: StaffData::from($staff),

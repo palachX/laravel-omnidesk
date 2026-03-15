@@ -7,7 +7,7 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes eight typed clients:
+The main class exposes nine typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\CompaniesClient` — operations with companies
@@ -15,6 +15,7 @@ The main class exposes eight typed clients:
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
+- `Palach\Omnidesk\Clients\MacrosClient` — operations with macros
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
 - `Palach\Omnidesk\Clients\UsersClient` — operations with users
@@ -43,6 +44,9 @@ $groups = Omnidesk::groups();
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
 
+/** @var MacrosClient $macros */
+$macros = Omnidesk::macros();
+
 /** @var MessagesClient $messages */
 $messages = Omnidesk::messages();
 
@@ -63,6 +67,7 @@ $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
+$macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 $users = $omnidesk->users();
@@ -90,6 +95,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
+- **`$macrosClient->fetchList(): FetchMacroListResponse`** — list macros (common and personal).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
 - **`$labelsClient->fetchList(FetchLabelListPayload $payload): FetchLabelListResponse`** — list labels with pagination.
 - **`$labelsClient->updateLabel(UpdateLabelPayload $payload): UpdateLabelResponse`** — update a label.
@@ -1458,6 +1464,74 @@ foreach ($filters as $filter) {
 | filterName | string | Filter name |
 | isSelected | bool | Whether the filter is currently selected |
 | isCustom | bool | Whether this is a custom filter |
+
+---
+
+## Fetch Macro List (list macros)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchMacroList\Response` (fields: `common` — collection of common macros `MacroCategoryData`, `personal` — collection of personal macros `MacroCategoryData`).
+
+Retrieves macros from the administrator account. Displays common and personal macros, divided by categories.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\MacrosClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var MacrosClient $macros */
+$macros = $http->macros();
+$response = $macros->fetchList();
+
+$commonMacros = $response->common;
+$personalMacros = $response->personal;
+
+// Iterate through common macros
+foreach ($commonMacros as $category) {
+    echo "Category: " . $category->title . "\n";
+    foreach ($category->data as $macro) {
+        echo "Macro: " . $macro->title . "\n";
+        echo "Group: " . $macro->groupName . "\n";
+        foreach ($macro->actions as $action) {
+            echo "Action: " . $action->actionDisplayName . "\n";
+            echo "Type: " . $action->actionType . "\n";
+        }
+    }
+}
+```
+
+**MacroCategoryData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Category title |
+| sort | int | Sort order |
+| macrosCategoryId | int | Macro category ID |
+| data | Collection<int, MacroData> | Collection of macros in the category |
+
+**MacroData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Macro title |
+| position | int | Macro position |
+| groupName | string | Group name |
+| actions | Collection<int, MacroActionData> | Collection of macro actions |
+
+**MacroActionData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| macroActionId | int | Macro action ID |
+| actionType | string | Action type (add_note, email_to_user, group_id, status, etc.) |
+| actionDisplayName | string | Action display name |
+| actionDestination | string|array | Action destination (depends on type) |
+| content | string|null | Action content |
+| subject | string|null | Action subject |
+| position | int | Action position |
 
 ---
 

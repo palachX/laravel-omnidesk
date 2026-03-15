@@ -43,7 +43,7 @@ final readonly class CompaniesClient
     {
         $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, ['company' => $payload->toArray()]);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new StoreCompanyResponse(
             company: CompanyData::from($company),
@@ -60,7 +60,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new UpdateCompanyResponse(
             company: CompanyData::from($company),
@@ -77,7 +77,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->get($url);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new FetchCompanyResponse(
             company: CompanyData::from($company),
@@ -119,7 +119,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new DeleteCompanyResponse(
             company: CompanyData::from($company),
@@ -137,7 +137,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new BlockCompanyResponse(
             company: CompanyData::from($company),
@@ -155,7 +155,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new DisabledCompanyResponse(
             company: CompanyData::from($company),
@@ -173,7 +173,7 @@ final readonly class CompaniesClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $company = $this->extract('company', $response);
+        $company = $this->extractArray('company', $response);
 
         return new RecoveryCompanyResponse(
             company: CompanyData::from($company),

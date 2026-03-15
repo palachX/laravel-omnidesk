@@ -44,7 +44,7 @@ final readonly class GroupsClient
 
         $response = $this->transport->get($url);
 
-        $group = $this->extract('group', $response);
+        $group = $this->extractArray('group', $response);
 
         return new FetchGroupResponse(
             group: GroupData::from($group),
@@ -59,7 +59,7 @@ final readonly class GroupsClient
     {
         $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, ['group' => $payload->toArray()]);
 
-        $group = $this->extract('group', $response);
+        $group = $this->extractArray('group', $response);
 
         return new StoreGroupResponse(
             group: GroupData::from($group),
@@ -76,7 +76,7 @@ final readonly class GroupsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
 
-        $group = $this->extract('group', $response);
+        $group = $this->extractArray('group', $response);
 
         return new UpdateGroupResponse(
             group: GroupData::from($group),
@@ -119,7 +119,7 @@ final readonly class GroupsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, ['group' => ['replace_group_id' => $replaceGroupId]]);
 
-        $group = $this->extract('group', $response);
+        $group = $this->extractArray('group', $response);
 
         return new DisabledGroupResponse(
             group: GroupData::from($group),
@@ -137,7 +137,7 @@ final readonly class GroupsClient
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
-        $group = $this->extract('group', $response);
+        $group = $this->extractArray('group', $response);
 
         return new EnabledGroupResponse(
             group: GroupData::from($group),
