@@ -7,9 +7,10 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к девяти типизированным клиентам:
+Основной класс предоставляет доступ к десяти типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
+- `Palach\Omnidesk\Clients\ClientEmailsClient` — операции с email-адресами клиентов
 - `Palach\Omnidesk\Clients\CompaniesClient` — операции с компаниями
 - `Palach\Omnidesk\Clients\StaffClient` — операции с персоналом
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
@@ -28,6 +29,9 @@ use Palach\Omnidesk\Facades\Omnidesk;
 
 /** @var CasesClient $cases */
 $cases = Omnidesk::cases();
+
+/** @var ClientEmailsClient $clientEmails */
+$clientEmails = Omnidesk::clientEmails();
 
 /** @var CompaniesClient $companies */
 $companies = Omnidesk::companies();
@@ -62,6 +66,7 @@ use Palach\Omnidesk\Omnidesk;
 /** @var Omnidesk $omnidesk */
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
+$clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
@@ -95,6 +100,7 @@ $users = $omnidesk->users();
 - **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — редактирование предложения.
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
+- **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — получение списка email-адресов клиента.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — получение списка шаблонов (общих и личных).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
@@ -1455,6 +1461,45 @@ foreach ($filters as $filter) {
 | filterName | string | Название фильтра |
 | isSelected | bool | Выбран ли фильтр в данный момент |
 | isCustom | bool | Является ли этот фильтр пользовательским |
+
+---
+
+## Fetch Client Email List (получение списка email-адресов клиента)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchClientEmailList\Response` (поля: `clientEmails` — коллекция `ClientEmailData`, `totalCount` — общее количество).
+
+Получает все email-адреса клиента.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\ClientEmailsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var ClientEmailsClient $clientEmails */
+$clientEmails = $http->clientEmails();
+$response = $clientEmails->fetchList();
+$clientEmails = $response->clientEmails;
+$totalCount = $response->totalCount;
+
+// Перебор email-адресов
+foreach ($clientEmails as $clientEmail) {
+    echo "ID email: " . $clientEmail->emailId . "\n";
+    echo "Email: " . $clientEmail->email . "\n";
+    echo "Активен: " . ($clientEmail->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+**Свойства ClientEmailData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| emailId | int | Идентификатор email-адреса |
+| email | string | Email-адрес |
+| active | bool | Активен ли email-адрес |
 
 ---
 

@@ -7,9 +7,10 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes nine typed clients:
+The main class exposes ten typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
+- `Palach\Omnidesk\Clients\ClientEmailsClient` — operations with client emails
 - `Palach\Omnidesk\Clients\CompaniesClient` — operations with companies
 - `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
@@ -28,6 +29,9 @@ use Palach\Omnidesk\Facades\Omnidesk;
 
 /** @var CasesClient $cases */
 $cases = Omnidesk::cases();
+
+/** @var ClientEmailsClient $clientEmails */
+$clientEmails = Omnidesk::clientEmails();
 
 /** @var CompaniesClient $companies */
 $companies = Omnidesk::companies();
@@ -62,6 +66,7 @@ use Palach\Omnidesk\Omnidesk;
 /** @var Omnidesk $omnidesk */
 $omnidesk = app(Omnidesk::class);
 $cases = $omnidesk->cases();
+$clientEmails = $omnidesk->clientEmails();
 $companies = $omnidesk->companies();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
@@ -94,6 +99,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — update an idea (proposal).
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
+- **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — list client emails.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — list macros (common and personal).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
@@ -1464,6 +1470,45 @@ foreach ($filters as $filter) {
 | filterName | string | Filter name |
 | isSelected | bool | Whether the filter is currently selected |
 | isCustom | bool | Whether this is a custom filter |
+
+---
+
+## Fetch Client Email List (list client emails)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchClientEmailList\Response` (fields: `clientEmails` — collection of `ClientEmailData`, `totalCount` — total count).
+
+Retrieves all client emails.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\ClientEmailsClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var ClientEmailsClient $clientEmails */
+$clientEmails = $http->clientEmails();
+$response = $clientEmails->fetchList();
+$clientEmails = $response->clientEmails;
+$totalCount = $response->totalCount;
+
+// Iterate through client emails
+foreach ($clientEmails as $clientEmail) {
+    echo "Email ID: " . $clientEmail->emailId . "\n";
+    echo "Email: " . $clientEmail->email . "\n";
+    echo "Is Active: " . ($clientEmail->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+**ClientEmailData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| emailId | int | Email identifier |
+| email | string | Email address |
+| active | bool | Whether the email is active |
 
 ---
 
