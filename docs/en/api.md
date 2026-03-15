@@ -7,7 +7,7 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes ten typed clients:
+The main class exposes eleven typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — operations with client emails
@@ -16,6 +16,7 @@ The main class exposes ten typed clients:
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
+- `Palach\Omnidesk\Clients\LanguagesClient` — operations with languages
 - `Palach\Omnidesk\Clients\MacrosClient` — operations with macros
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
@@ -48,6 +49,9 @@ $groups = Omnidesk::groups();
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
 
+/** @var LanguagesClient $languages */
+$languages = Omnidesk::languages();
+
 /** @var MacrosClient $macros */
 $macros = Omnidesk::macros();
 
@@ -72,6 +76,7 @@ $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
+$languages = $omnidesk->languages();
 $macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
@@ -100,6 +105,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — list client emails.
+- **`$languagesClient->fetchList(): FetchLanguageListResponse`** — list languages.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — list filters for the authenticated employee.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — list macros (common and personal).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — create a label.
@@ -1509,6 +1515,47 @@ foreach ($clientEmails as $clientEmail) {
 | emailId | int | Email identifier |
 | email | string | Email address |
 | active | bool | Whether the email is active |
+
+---
+
+## Fetch Language List (list languages)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchLanguageList\Response` (fields: `languages` — collection of `LanguageData`, `totalCount` — total count).
+
+Retrieves all languages configured in the administrator account.
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\LanguagesClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var LanguagesClient $languages */
+$languages = $http->languages();
+$response = $languages->fetchList();
+$languages = $response->languages;
+$totalCount = $response->totalCount;
+
+// Iterate through languages
+foreach ($languages as $language) {
+    echo "Language ID: " . $language->languageId . "\n";
+    echo "Code: " . $language->code . "\n";
+    echo "Title: " . $language->title . "\n";
+    echo "Is Active: " . ($language->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+**LanguageData properties:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| languageId | int | Language identifier |
+| code | string | Language code (e.g., 'РУС', 'ENG') |
+| title | string | Language title (e.g., 'Русский', 'English') |
+| active | bool | Whether the language is active |
 
 ---
 

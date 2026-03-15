@@ -7,7 +7,7 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к десяти типизированным клиентам:
+Основной класс предоставляет доступ к одиннадцати типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — операции с email-адресами клиентов
@@ -16,6 +16,7 @@
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
+- `Palach\Omnidesk\Clients\LanguagesClient` — операции с языками
 - `Palach\Omnidesk\Clients\MacrosClient` — операции с шаблонами
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
@@ -48,6 +49,9 @@ $groups = Omnidesk::groups();
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
 
+/** @var LanguagesClient $languages */
+$languages = Omnidesk::languages();
+
 /** @var MacrosClient $macros */
 $macros = Omnidesk::macros();
 
@@ -72,6 +76,7 @@ $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
 $labels = $omnidesk->labels();
+$languages = $omnidesk->languages();
 $macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
@@ -101,6 +106,7 @@ $users = $omnidesk->users();
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
 - **`$clientEmailsClient->fetchList(): FetchClientEmailListResponse`** — получение списка email-адресов клиента.
+- **`$languagesClient->fetchList(): FetchLanguageListResponse`** — получение списка языков.
 - **`$filtersClient->fetchList(FetchFilterListPayload $payload): FetchFilterListResponse`** — получение списка фильтров для аутентифицированного сотрудника.
 - **`$macrosClient->fetchList(): FetchMacroListResponse`** — получение списка шаблонов (общих и личных).
 - **`$labelsClient->store(StoreLabelPayload $payload): StoreLabelResponse`** — создание метки.
@@ -1500,6 +1506,47 @@ foreach ($clientEmails as $clientEmail) {
 | emailId | int | Идентификатор email-адреса |
 | email | string | Email-адрес |
 | active | bool | Активен ли email-адрес |
+
+---
+
+## Fetch Language List (получение списка языков)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchLanguageList\Response` (поля: `languages` — коллекция `LanguageData`, `totalCount` — общее количество).
+
+Получает все языки для поддержки, настроенные в аккаунте администратора.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\LanguagesClient;
+use Palach\Omnidesk\Omnidesk;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var LanguagesClient $languages */
+$languages = $http->languages();
+$response = $languages->fetchList();
+$languages = $response->languages;
+$totalCount = $response->totalCount;
+
+// Перебор языков
+foreach ($languages as $language) {
+    echo "ID языка: " . $language->languageId . "\n";
+    echo "Код: " . $language->code . "\n";
+    echo "Название: " . $language->title . "\n";
+    echo "Активен: " . ($language->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+**Свойства LanguageData:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| languageId | int | Идентификатор языка |
+| code | string | Код языка (например, 'РУС', 'ENG') |
+| title | string | Название языка (например, 'Русский', 'English') |
+| active | bool | Активен ли язык |
 
 ---
 
