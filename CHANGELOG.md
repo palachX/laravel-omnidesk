@@ -7,6 +7,110 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-15
+
+### Added
+
+#### New API Methods - StaffClient
+- `store()` - Create a new staff member
+- `update()` - Update an existing staff member
+- `delete()` - Delete a staff member
+- `enable()` - Enable a staff member
+- `disable()` - Disable a staff member
+- `fetch()` - Fetch a single staff member by ID
+- `fetchList()` - Fetch paginated list of staff members
+- `fetchRoleList()` - Fetch list of staff roles
+- `fetchStatusList()` - Fetch list of staff statuses
+
+#### New API Methods - GroupsClient
+- `store()` - Create a new group
+- `update()` - Update an existing group
+- `delete()` - Delete a group
+- `enable()` - Enable a group
+- `disable()` - Disable a group
+- `fetch()` - Fetch a single group by ID
+- `fetchList()` - Fetch paginated list of groups
+
+#### New API Methods - MacrosClient
+- `fetchList()` - Fetch list of macros
+
+#### New API Methods - ClientEmailsClient
+- `fetchList()` - Fetch list of client emails
+
+#### New API Methods - LanguagesClient
+- `fetchList()` - Fetch list of languages
+
+#### New API Methods - CustomFieldsClient
+- `fetchList()` - Fetch list of custom fields
+
+#### New API Methods - CustomChannelsClient
+- `fetchList()` - Fetch list of custom channels
+
+#### New Client Access
+- `Omnidesk::staff()` - Access to StaffClient for staff operations
+- `Omnidesk::groups()` - Access to GroupsClient for group operations
+- `Omnidesk::macros()` - Access to MacrosClient for macro operations
+- `Omnidesk::clientEmails()` - Access to ClientEmailsClient for client email operations
+- `Omnidesk::languages()` - Access to LanguagesClient for language operations
+- `Omnidesk::customFields()` - Access to CustomFieldsClient for custom field operations
+- `Omnidesk::customChannels()` - Access to CustomChannelsClient for custom channel operations
+
+#### New DTOs
+- `StaffData` - Staff data transfer object
+- `GroupData` - Group data transfer object
+- `MacroData` - Macro data transfer object
+- `ClientEmailData` - Client email data transfer object
+- `LanguageData` - Language data transfer object
+- `CustomFieldData` - Custom field data transfer object
+- `CustomChannelData` - Custom channel data transfer object
+
+#### New Use Cases
+- Complete staff management use cases (V1 namespace)
+- Complete group management use cases (V1 namespace)
+- Complete macro listing use cases (V1 namespace)
+- Complete client email listing use cases (V1 namespace)
+- Complete language listing use cases (V1 namespace)
+- Complete custom field listing use cases (V1 namespace)
+- Complete custom channel listing use cases (V1 namespace)
+
+#### Complete Staff Management System
+- Full CRUD operations for staff with `StaffClient`
+- Staff lifecycle management: enable, disable, delete
+- Staff role and status listing functionality
+- Comprehensive staff data handling with `StaffData` DTO
+- Paginated staff listing functionality
+
+#### Complete Group Management System
+- Full CRUD operations for groups with `GroupsClient`
+- Group lifecycle management: enable, disable, delete
+- Comprehensive group data handling with `GroupData` DTO
+- Paginated group listing functionality
+
+#### Complete Listing Systems
+- Macro listing functionality with `MacrosClient`
+- Client email listing functionality with `ClientEmailsClient`
+- Language listing functionality with `LanguagesClient`
+- Custom field listing functionality with `CustomFieldsClient`
+- Custom channel listing functionality with `CustomChannelsClient`
+
+#### Enhanced API Client Access
+- `Omnidesk::staff()` - Access to complete staff management API
+- `Omnidesk::groups()` - Access to complete group management API
+- `Omnidesk::macros()` - Access to macro listing API
+- `Omnidesk::clientEmails()` - Access to client email listing API
+- `Omnidesk::languages()` - Access to language listing API
+- `Omnidesk::customFields()` - Access to custom field listing API
+- `Omnidesk::customChannels()` - Access to custom channel listing API
+
+#### Architecture Improvements
+- Optimized service provider for better performance
+- Structured use cases for all new operations (V1 namespace)
+- Consistent payload/response patterns across all new endpoints
+- Proper error handling and type safety for all new operations
+
+### Fixed
+- Fixed disabled test functionality
+
 ## [1.3.0] - 2026-03-08
 
 ### Added
