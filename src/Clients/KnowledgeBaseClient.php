@@ -37,7 +37,7 @@ final readonly class KnowledgeBaseClient
      */
     public function storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse
     {
-        $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, ['kb_category' => $payload->toArray()]);
+        $response = $this->transport->sendJson(Request::METHOD_POST, self::API_URL, $payload->toArray());
 
         $kbCategory = $this->extractArray('kb_category', $response);
 

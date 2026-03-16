@@ -11,20 +11,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapName(SnakeCaseMapper::class)]
 final class Payload extends Data
 {
-    /**
-     * @param  string|array<string, string>  $categoryTitle
-     */
     public function __construct(
-        public readonly string|array $categoryTitle,
+        public readonly KnowledgeBaseCategoryStoreData $kbCategory
     ) {}
-
-    /**
-     * @return array<mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'category_title' => ['required'],
-        ];
-    }
 }

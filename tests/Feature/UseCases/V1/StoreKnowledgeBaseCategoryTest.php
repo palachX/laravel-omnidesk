@@ -16,43 +16,66 @@ final class StoreKnowledgeBaseCategoryTest extends AbstractTestCase
 {
     public static function dataArrayProvider(): iterable
     {
-        yield 'store kb category with single language title' => [
-            'payload' => new StoreKnowledgeBaseCategoryPayload(
-                categoryTitle: 'Test category'
-            ),
+        yield [
+            'payload' => [
+                'kb_category' => [
+                    'category_title' => 'Test category 2',
+                ],
+            ],
             'response' => [
                 'kb_category' => [
                     'category_id' => 234,
-                    'category_title' => 'Test category',
+                    'category_title' => 'Test category 2',
                     'active' => true,
                     'created_at' => 'Mon, 05 May 2014 00:15:17 +0300',
                     'updated_at' => 'Tue, 23 Dec 2014 10:55:23 +0200',
                 ],
             ],
         ];
-
-        yield 'store kb category with multilingual title' => [
-            'payload' => new StoreKnowledgeBaseCategoryPayload(
-                categoryTitle: [
-                    '1' => 'Название категории',
-                    '2' => 'Category name',
-                ]
-            ),
+        yield [
+            'payload' => [
+                'kb_category' => [
+                    'category_title' => [
+                        '1' => 'Тест 2',
+                        '2' => 'Test category 2',
+                    ],
+                ],
+            ],
             'response' => [
                 'kb_category' => [
                     'category_id' => 235,
-                    'category_title' => 'Category name',
+                    'category_title' => [
+                        '1' => 'Тест 2',
+                        '2' => 'Test category 2',
+                    ],
                     'active' => true,
-                    'created_at' => 'Mon, 05 May 2014 00:15:17 +0300',
-                    'updated_at' => 'Tue, 23 Dec 2014 10:55:23 +0200',
+                    'created_at' => 'Wed, 15 Jun 2023 14:30:00 +0300',
+                    'updated_at' => 'Thu, 25 Dec 2014 15:30:00 +0200',
+                ],
+            ],
+        ];
+        yield [
+            'payload' => [
+                'kb_category' => [
+                    'category_title' => 'Stored Category Name',
+                ],
+            ],
+            'response' => [
+                'kb_category' => [
+                    'category_id' => 236,
+                    'category_title' => 'Stored Category Name',
+                    'active' => false,
+                    'created_at' => 'Thu, 20 Jul 2023 09:15:00 +0300',
+                    'updated_at' => 'Fri, 26 Dec 2014 11:20:00 +0200',
                 ],
             ],
         ];
     }
 
     #[DataProvider('dataArrayProvider')]
-    public function testHttp(StoreKnowledgeBaseCategoryPayload $payload, array $response): void
+    public function testHttp(array $payload, array $response): void
     {
+        $payload = StoreKnowledgeBaseCategoryPayload::validateAndCreate($payload);
         $url = $this->host.'/api/kb_category.json';
 
         Http::fake([
@@ -65,7 +88,7 @@ final class StoreKnowledgeBaseCategoryTest extends AbstractTestCase
             return $request->url() === $url
                 && $request->isJson()
                 && $request->method() === SymfonyRequest::METHOD_POST
-                && $request->body() === json_encode(['kb_category' => $payload->toArray()]);
+                && $request->body() === json_encode($payload->toArray());
         });
 
         $this->assertEquals(StoreKnowledgeBaseCategoryResponse::from($response), $responseData);
