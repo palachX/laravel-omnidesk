@@ -7,7 +7,7 @@ The package provides a main `Palach\Omnidesk\Omnidesk` class for accessing the O
 Class `Palach\Omnidesk\Omnidesk` is registered in the container as a singleton using configuration (host, email, api_key) from `config/omnidesk.php`.  
 You can access it through the convenient `Palach\Omnidesk\Facades\Omnidesk` facade.
 
-The main class exposes thirteen typed clients:
+The main class exposes fourteen typed clients:
 
 - `Palach\Omnidesk\Clients\CasesClient` — operations with cases
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — operations with client emails
@@ -17,6 +17,7 @@ The main class exposes thirteen typed clients:
 - `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
+- `Palach\Omnidesk\Clients\KnowledgeBaseClient` — operations with knowledge base
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
 - `Palach\Omnidesk\Clients\LanguagesClient` — operations with languages
 - `Palach\Omnidesk\Clients\MacrosClient` — operations with macros
@@ -47,6 +48,9 @@ $filters = Omnidesk::filters();
 
 /** @var GroupsClient $groups */
 $groups = Omnidesk::groups();
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
 
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
@@ -85,6 +89,7 @@ $customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
+$knowledgeBase = $omnidesk->knowledgeBase();
 $labels = $omnidesk->labels();
 $languages = $omnidesk->languages();
 $macros = $omnidesk->macros();
@@ -154,6 +159,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — disable a group.
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
+- **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -165,6 +171,53 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->blockUser(int $userId): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
 - **`$usersClient->deleteUser(int $userId): DeleteUserResponse`** — permanently delete user (available only for employees with full access).
 - **`$usersClient->recoveryUser(int $userId): RecoveryUserResponse`** — recover user after blocking or deletion.
+
+---
+
+## Store Knowledge Base Category (create knowledge base category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_title | string|array | yes | Category title. If multilingual is enabled, you can pass an array with language IDs as keys and titles as values. |
+
+**KnowledgeBaseCategoryData** (response `kb_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Single language
+$payload = new StoreKnowledgeBaseCategoryPayload(
+    categoryTitle: 'Test category'
+);
+
+// Multilingual - when you have multilingual knowledge base enabled
+$payload = new StoreKnowledgeBaseCategoryPayload(
+    categoryTitle: [
+        '1' => 'Название категории',
+        '2' => 'Category name'
+    ]
+);
+
+$response = $knowledgeBase->storeCategory($payload);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
 
 ---
 

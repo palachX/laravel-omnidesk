@@ -7,7 +7,7 @@
 Класс `Palach\Omnidesk\Omnidesk` зарегистрирован в контейнере как синглтон и использует конфигурацию (host, email, api_key) из `config/omnidesk.php`.  
 Вы можете получить к нему доступ через удобный фасад `Palach\Omnidesk\Facades\Omnidesk`.
 
-Основной класс предоставляет доступ к тринадцати типизированным клиентам:
+Основной класс предоставляет доступ к четырнадцати типизированным клиентам:
 
 - `Palach\Omnidesk\Clients\CasesClient` — операции с обращениями (cases)
 - `Palach\Omnidesk\Clients\ClientEmailsClient` — операции с email-адресами клиентов
@@ -17,6 +17,7 @@
 - `Palach\Omnidesk\Clients\StaffClient` — операции с персоналом
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
+- `Palach\Omnidesk\Clients\KnowledgeBaseClient` — операции с базой знаний
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
 - `Palach\Omnidesk\Clients\LanguagesClient` — операции с языками
 - `Palach\Omnidesk\Clients\MacrosClient` — операции с шаблонами
@@ -47,6 +48,9 @@ $filters = Omnidesk::filters();
 
 /** @var GroupsClient $groups */
 $groups = Omnidesk::groups();
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
 
 /** @var LabelsClient $labels */
 $labels = Omnidesk::labels();
@@ -85,6 +89,7 @@ $customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
+$knowledgeBase = $omnidesk->knowledgeBase();
 $labels = $omnidesk->labels();
 $languages = $omnidesk->languages();
 $macros = $omnidesk->macros();
@@ -155,6 +160,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — отключение группы.
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
+- **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -388,6 +394,53 @@ $payload = new DeleteLabelPayload(
     id: 123,
 );
 $labels->deleteLabel($payload);
+```
+
+---
+
+## Store Knowledge Base Category (создание категории базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| category_title | string|array | да | Название категории. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и названиями в качестве значений. |
+
+**KnowledgeBaseCategoryData** (поле `kb_category` в Response):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Один язык
+$payload = new StoreKnowledgeBaseCategoryPayload(
+    categoryTitle: 'Test category'
+);
+
+// Мультиязычный - когда включена мультиязычность и база знаний доступна на нескольких языках
+$payload = new StoreKnowledgeBaseCategoryPayload(
+    categoryTitle: [
+        '1' => 'Название категории',
+        '2' => 'Category name'
+    ]
+);
+
+$response = $knowledgeBase->storeCategory($payload);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 
 ---
