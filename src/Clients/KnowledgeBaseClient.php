@@ -10,6 +10,7 @@ use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as DisabledKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
@@ -118,6 +119,23 @@ final readonly class KnowledgeBaseClient
         $kbCategory = $this->extractArray('kb_category', $response);
 
         return new DisabledKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::CATEGORY_URL, $categoryId);
+        $url = str_replace('.json', '/enable.json', $url);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new EnabledKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }
