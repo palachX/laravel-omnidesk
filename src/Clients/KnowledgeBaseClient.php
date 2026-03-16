@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
@@ -20,6 +22,8 @@ final readonly class KnowledgeBaseClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/kb_category.json';
+
+    private const string CATEGORY_URL = '/api/kb_category/%s.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -36,6 +40,23 @@ final readonly class KnowledgeBaseClient
         $kbCategory = $this->extractArray('kb_category', $response);
 
         return new StoreKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::CATEGORY_URL, $payload->categoryId);
+
+        $response = $this->transport->get($url, $payload->toQuery());
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new FetchKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }

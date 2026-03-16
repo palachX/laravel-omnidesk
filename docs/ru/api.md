@@ -161,6 +161,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
+- **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — получение категории базы знаний по ID.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
@@ -441,6 +442,58 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 );
 
 $response = $knowledgeBase->storeCategory($payload);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Fetch Knowledge Base Category (получение категории базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+
+**Параметры Payload:**
+
+| Название | Тип | Обязательный | Описание |
+|----------|-----|--------------|----------|
+| category_id | int | да | ID категории |
+| language_id | string | нет | ID языка. По умолчанию в ответе выводится категория на основном языке. Можно передать "all" для получения названий на всех языках. |
+
+**KnowledgeBaseCategoryData** (поле `kb_category` в Response):
+- `category_id` — ID категории
+- `category_title` — Название категории (строка или массив названий на разных языках)
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Получение категории на основном языке
+$payload = new FetchKnowledgeBaseCategoryPayload(
+    categoryId: 234
+);
+
+// Получение категории на конкретном языке
+$payload = new FetchKnowledgeBaseCategoryPayload(
+    categoryId: 234,
+    languageId: 'en'
+);
+
+// Получение категории на всех языках
+$payload = new FetchKnowledgeBaseCategoryPayload(
+    categoryId: 234,
+    languageId: 'all'
+);
+
+$response = $knowledgeBase->fetchCategory($payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 
