@@ -161,6 +161,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
+- **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -441,6 +442,74 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 
 $response = $knowledgeBase->storeCategory($payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Fetch Knowledge Base Category List (получение списка категорий базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response` (поля: `kbCategories` — коллекция `KnowledgeBaseCategoryData`, `total` — общее количество).
+
+Получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
+
+**Параметры Payload:**
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит категорий на странице (по умолчанию: 100) |
+| language_id | string | Опционально | ID языка для локализованных названий категорий. Используйте "all" для получения всех языков. По умолчанию: основной язык |
+
+Для GET-запросов используется метод `Payload::toQuery()`.
+
+**KnowledgeBaseCategoryData** (поле `kb_category` в Response):
+- `category_id` — ID категории
+- `category_title` — Название категории (строка или массив названий на разных языках)
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Получение категорий с пагинацией
+$payload = new FetchKnowledgeBaseCategoryListPayload(
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Или с параметрами по умолчанию:
+// $payload = new FetchKnowledgeBaseCategoryListPayload();
+
+// Получение всех языков
+$payloadAllLanguages = new FetchKnowledgeBaseCategoryListPayload(
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchList($payload);
+$categories = $response->kbCategories;
+$total = $response->total;
+
+// Перебор категорий
+foreach ($categories as $category) {
+    echo "ID категории: " . $category->categoryId . "\n";
+    echo "Название категории: " . (is_array($category->categoryTitle) ? implode(', ', $category->categoryTitle) : $category->categoryTitle) . "\n";
+    echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
+}
 ```
 
 ---

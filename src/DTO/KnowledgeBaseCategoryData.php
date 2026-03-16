@@ -12,13 +12,23 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class KnowledgeBaseCategoryData extends Data
 {
     /**
-     * @param  string|array<string,string>  $category_title
+     * @param  string|array<string,string>  $categoryTitle
      */
     public function __construct(
         public readonly int $categoryId,
-        public readonly string|array $category_title,
+        public readonly string|array $categoryTitle,
         public readonly bool $active,
         public readonly string $createdAt,
         public readonly string $updatedAt,
     ) {}
+
+    /**
+     * @return array<mixed>
+     */
+    public static function rules(): array
+    {
+        return [
+            'category_title' => ['required'],
+        ];
+    }
 }

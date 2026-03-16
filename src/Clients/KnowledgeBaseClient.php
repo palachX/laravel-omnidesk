@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +37,31 @@ final readonly class KnowledgeBaseClient
 
         return new StoreKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse
+    {
+        $response = $this->transport->get(self::API_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $kbCategories = collect($response)
+            ->map(fn ($item) => KnowledgeBaseCategoryData::from($item['kb_category']));
+
+        return new FetchKnowledgeBaseCategoryListResponse(
+            kbCategories: $kbCategories,
+            total: $total,
         );
     }
 }

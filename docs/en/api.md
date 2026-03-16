@@ -160,6 +160,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
+- **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -217,6 +218,74 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 
 $response = $knowledgeBase->storeCategory($payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Fetch Knowledge Base Category List (list knowledge base categories)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response` (fields: `kbCategories` — collection of `KnowledgeBaseCategoryData`, `total` — total count).
+
+Get a list of knowledge base categories with pagination and language filtering.
+
+**Payload Parameters:**
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Categories per page (default: 100) |
+| language_id | string | Optional | Language ID for localized category titles. Use "all" to get all languages. Default: primary language |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**KnowledgeBaseCategoryData** (response `kb_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title (string or array of language-specific titles)
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Get categories with pagination
+$payload = new FetchKnowledgeBaseCategoryListPayload(
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Or with default parameters:
+// $payload = new FetchKnowledgeBaseCategoryListPayload();
+
+// Get all languages
+$payloadAllLanguages = new FetchKnowledgeBaseCategoryListPayload(
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchList($payload);
+$categories = $response->kbCategories;
+$total = $response->total;
+
+// Iterate over categories
+foreach ($categories as $category) {
+    echo "Category ID: " . $category->categoryId . "\n";
+    echo "Category title: " . (is_array($category->categoryTitle) ? implode(', ', $category->categoryTitle) : $category->categoryTitle) . "\n";
+    echo "Active: " . ($category->active ? 'Yes' : 'No') . "\n";
+}
 ```
 
 ---

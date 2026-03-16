@@ -26,7 +26,7 @@ final class StoreKnowledgeBaseCategoryResponseTest extends AbstractTestCase
             'expected' => new StoreKnowledgeBaseCategoryResponse(
                 kbCategory: new KnowledgeBaseCategoryData(
                     categoryId: 234,
-                    category_title: 'Test category',
+                    categoryTitle: 'Test category',
                     active: true,
                     createdAt: 'Mon, 05 May 2014 00:15:17 +0300',
                     updatedAt: 'Tue, 23 Dec 2014 10:55:23 +0200',
@@ -50,7 +50,7 @@ final class StoreKnowledgeBaseCategoryResponseTest extends AbstractTestCase
             'expected' => new StoreKnowledgeBaseCategoryResponse(
                 kbCategory: new KnowledgeBaseCategoryData(
                     categoryId: 234,
-                    category_title: [
+                    categoryTitle: [
                         '1' => 'Название категории',
                         '2' => 'Category name',
                     ],
