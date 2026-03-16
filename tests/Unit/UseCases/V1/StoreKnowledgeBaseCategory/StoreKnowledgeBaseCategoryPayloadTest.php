@@ -40,7 +40,7 @@ final class StoreKnowledgeBaseCategoryPayloadTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testFromArray(array $data, StoreKnowledgeBaseCategoryPayload $expected): void
     {
-        $payload = StoreKnowledgeBaseCategoryPayload::from($data);
+        $payload = StoreKnowledgeBaseCategoryPayload::validateAndCreate($data);
 
         $this->assertEquals($expected, $payload);
     }

@@ -15,6 +15,8 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchK
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response as UpdateKnowledgeBaseCategoryResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class KnowledgeBaseClient
@@ -83,6 +85,23 @@ final readonly class KnowledgeBaseClient
         return new FetchKnowledgeBaseCategoryListResponse(
             kbCategories: $kbCategories,
             total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::CATEGORY_URL, $categoryId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new UpdateKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }
 }

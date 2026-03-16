@@ -160,6 +160,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
+- **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
@@ -218,6 +219,58 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 );
 
 $response = $knowledgeBase->storeCategory($payload);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Update Knowledge Base Category (update knowledge base category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_title | string|array | yes | Category title. If multilingual is enabled, you can pass an array with language IDs as keys and titles as values. |
+
+**KnowledgeBaseCategoryData** (response `kb_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\KnowledgeBaseCategoryUpdateData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Single language
+$payload = new UpdateKnowledgeBaseCategoryPayload(
+    kbCategory: new KnowledgeBaseCategoryUpdateData(
+        categoryTitle: 'Updated category name'
+    )
+);
+
+// Multilingual - when you have multilingual knowledge base enabled
+$payload = new UpdateKnowledgeBaseCategoryPayload(
+    kbCategory: new KnowledgeBaseCategoryUpdateData(
+        categoryTitle: [
+            '1' => 'Обновленное название категории',
+            '2' => 'Updated category name'
+        ]
+    )
+);
+
+$response = $knowledgeBase->updateCategory(234, $payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 

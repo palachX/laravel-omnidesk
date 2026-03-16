@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory;
+namespace Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory;
 
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-final class Payload extends Data
+final class KnowledgeBaseCategoryUpdateData extends Data
 {
     /**
-     * @param  string|array<string, string>  $categoryTitle
+     * @param  string|array<string,string>  $categoryTitle
      */
     public function __construct(
-        public readonly string|array $categoryTitle,
+        public readonly string|array $categoryTitle
     ) {}
 
     /**

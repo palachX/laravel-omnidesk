@@ -161,7 +161,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
-- **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — получение категории базы знаний по ID.
+- **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
@@ -447,21 +447,20 @@ $category = $response->kbCategory; // KnowledgeBaseCategoryData
 
 ---
 
-## Fetch Knowledge Base Category (получение категории базы знаний)
+## Update Knowledge Base Category (редактирование категории базы знаний)
 
-**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
 
 **Параметры Payload:**
 
-| Название | Тип | Обязательный | Описание |
-|----------|-----|--------------|----------|
-| category_id | int | да | ID категории |
-| language_id | string | нет | ID языка. По умолчанию в ответе выводится категория на основном языке. Можно передать "all" для получения названий на всех языках. |
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| category_title | string|array | да | Название категории. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и названиями в качестве значений. |
 
 **KnowledgeBaseCategoryData** (поле `kb_category` в Response):
 - `category_id` — ID категории
-- `category_title` — Название категории (строка или массив названий на разных языках)
+- `category_title` — Название категории
 - `active` — Статус активности
 - `created_at` — Дата создания
 - `updated_at` — Дата обновления
@@ -471,29 +470,30 @@ $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```php
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\KnowledgeBaseClient;
-use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\KnowledgeBaseCategoryUpdateData;
 
 /** @var KnowledgeBaseClient $knowledgeBase */
 $knowledgeBase = Omnidesk::knowledgeBase();
 
-// Получение категории на основном языке
-$payload = new FetchKnowledgeBaseCategoryPayload(
-    categoryId: 234
+// Один язык
+$payload = new UpdateKnowledgeBaseCategoryPayload(
+    kbCategory: new KnowledgeBaseCategoryUpdateData(
+        categoryTitle: 'Updated category name'
+    )
 );
 
-// Получение категории на конкретном языке
-$payload = new FetchKnowledgeBaseCategoryPayload(
-    categoryId: 234,
-    languageId: 'en'
+// Мультиязычный - когда включена мультиязычность и база знаний доступна на нескольких языках
+$payload = new UpdateKnowledgeBaseCategoryPayload(
+    kbCategory: new KnowledgeBaseCategoryUpdateData(
+        categoryTitle: [
+            '1' => 'Обновленное название категории',
+            '2' => 'Updated category name'
+        ]
+    )
 );
 
-// Получение категории на всех языках
-$payload = new FetchKnowledgeBaseCategoryPayload(
-    categoryId: 234,
-    languageId: 'all'
-);
-
-$response = $knowledgeBase->fetchCategory($payload);
+$response = $knowledgeBase->updateCategory(234, $payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 
