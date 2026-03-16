@@ -163,6 +163,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
+- **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -563,6 +564,38 @@ foreach ($categories as $category) {
     echo "Название категории: " . (is_array($category->categoryTitle) ? implode(', ', $category->categoryTitle) : $category->categoryTitle) . "\n";
     echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
 }
+```
+
+---
+
+## Disable Knowledge Base Category (отключение категории базы знаний)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| category_id | int | да | ID категории |
+
+**KnowledgeBaseCategoryData** (поле `kb_category` в Response):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Статус активности (будет false после отключения)
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->disableCategory(234);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData с active = false
 ```
 
 ---
