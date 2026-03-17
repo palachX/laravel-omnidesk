@@ -15,6 +15,7 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowl
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
+use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
@@ -29,6 +30,10 @@ final readonly class KnowledgeBaseClient
     private const string API_URL = '/api/kb_category.json';
 
     private const string CATEGORY_URL = '/api/kb_category/%s.json';
+
+    private const string MOVE_UP_URL = '/api/kb_category/%s/moveup.json';
+
+    private const string MOVE_DOWN_URL = '/api/kb_category/%s/movedown.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -147,13 +152,28 @@ final readonly class KnowledgeBaseClient
      */
     public function moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse
     {
-        $url = sprintf(self::CATEGORY_URL, $categoryId);
-        $url = str_replace('.json', '/moveup.json', $url);
+        $url = sprintf(self::MOVE_UP_URL, $categoryId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
         return new MoveUpKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::MOVE_DOWN_URL, $categoryId);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new MoveDownKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }

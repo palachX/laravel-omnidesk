@@ -166,6 +166,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
+- **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -661,6 +662,38 @@ use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveUpCategory(234);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Move Down Knowledge Base Category (перемещение категории базы знаний вниз)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательно | Описание |
+|------|-----|-------------|----------|
+| category_id | int | да | ID категории |
+
+**KnowledgeBaseCategoryData** (поле `kb_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->moveDownCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 
