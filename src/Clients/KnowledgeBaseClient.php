@@ -15,6 +15,7 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowl
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
@@ -136,6 +137,23 @@ final readonly class KnowledgeBaseClient
         $kbCategory = $this->extractArray('kb_category', $response);
 
         return new EnabledKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::CATEGORY_URL, $categoryId);
+        $url = str_replace('.json', '/moveup.json', $url);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new MoveUpKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }
