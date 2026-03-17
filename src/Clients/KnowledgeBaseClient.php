@@ -7,6 +7,7 @@ namespace Palach\Omnidesk\Clients;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
+use Palach\Omnidesk\DTO\KnowledgeBaseSectionData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
@@ -20,6 +21,8 @@ use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDo
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Response as StoreKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response as UpdateKnowledgeBaseCategoryResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +32,8 @@ final readonly class KnowledgeBaseClient
     use ExtractsResponseData;
 
     private const string API_URL = '/api/kb_category.json';
+
+    private const string SECTION_URL = '/api/kb_section.json';
 
     private const string CATEGORY_URL = '/api/kb_category/%s.json';
 
@@ -52,6 +57,21 @@ final readonly class KnowledgeBaseClient
 
         return new StoreKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse
+    {
+        $response = $this->transport->sendJson(Request::METHOD_POST, self::SECTION_URL, $payload->toArray());
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new StoreKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
 

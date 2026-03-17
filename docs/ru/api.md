@@ -161,6 +161,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
+- **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
@@ -448,6 +449,69 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 
 $response = $knowledgeBase->storeCategory($payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Store Knowledge Base Section (создание раздела базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Response` (содержит `KnowledgeBaseSectionData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| section_title | string|array | да | Название раздела. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и названиями в качестве значений. |
+| section_description | string|array | нет | Описание раздела. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и описаниями в качестве значений. |
+| category_id | string | да | ID категории |
+
+**KnowledgeBaseSectionData** (поле `kb_section` в Response):
+- `section_id` — ID раздела
+- `category_id` — ID категории
+- `section_title` — Название раздела
+- `section_description` — Описание раздела
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\KnowledgeBaseSectionStoreData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Один язык
+$payload = new StoreKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionStoreData(
+        sectionTitle: 'Test section',
+        sectionDescription: 'Test section description',
+        categoryId: '1'
+    )
+);
+
+// Мультиязычный - когда включена мультиязычность и база знаний доступна на нескольких языках
+$payload = new StoreKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionStoreData(
+        sectionTitle: [
+            '1' => 'Тестовый раздел',
+            '2' => 'Test section'
+        ],
+        sectionDescription: [
+            '1' => 'Тестовое описание раздела',
+            '2' => 'Test section description'
+        ],
+        categoryId: '1'
+    )
+);
+
+$response = $knowledgeBase->storeSection($payload);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---

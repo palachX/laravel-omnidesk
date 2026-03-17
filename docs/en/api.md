@@ -160,6 +160,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
+- **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
@@ -226,6 +227,51 @@ $payload = new StoreKnowledgeBaseCategoryPayload(
 $response = $knowledgeBase->storeCategory($payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
+
+---
+
+## Store Knowledge Base Section (create knowledge base section)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_title | string|array | yes | Section title. If multilingual is enabled, you can pass an array with language IDs as keys and titles as values. |
+| section_description | string|array | no | Section description. If multilingual is enabled, you can pass an array with language IDs as keys and descriptions as values. |
+| category_id | string | yes | Category ID |
+
+**Example:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\KnowledgeBaseSectionStoreData;
+
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$payload = new StoreKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionStoreData(
+        sectionTitle: 'Test section',
+        sectionDescription: 'Test section description',
+        categoryId: '1'
+    )
+);
+
+$response = $knowledgeBase->storeSection($payload);
+$section = $response->kbSection; // KnowledgeBaseSectionData
+```
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title
+- `section_description` — Section description
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
 
 ---
 
