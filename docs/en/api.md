@@ -167,6 +167,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
+- **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — delete a knowledge base category.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -534,6 +535,29 @@ use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveDownCategory(234);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Delete Knowledge Base Category (delete category)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
+
+**HTTP Method:** `DELETE /api/kb_category/{id}.json`
+
+Delete a knowledge base category.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->deleteCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 

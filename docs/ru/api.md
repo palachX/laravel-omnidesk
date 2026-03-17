@@ -167,6 +167,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
+- **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — удаление категории базы знаний.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -694,6 +695,29 @@ use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveDownCategory(234);
+$category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Delete Knowledge Base Category (удаление категории)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+
+**HTTP Method:** `DELETE /api/kb_category/{id}.json`
+
+Удаление категории базы знаний.
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->deleteCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
 ```
 

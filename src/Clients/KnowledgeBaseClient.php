@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as DisabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
@@ -174,6 +175,23 @@ final readonly class KnowledgeBaseClient
         $kbCategory = $this->extractArray('kb_category', $response);
 
         return new MoveDownKnowledgeBaseCategoryResponse(
+            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse
+    {
+        $url = sprintf(self::CATEGORY_URL, $categoryId);
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
+
+        $kbCategory = $this->extractArray('kb_category', $response);
+
+        return new DeleteKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }
