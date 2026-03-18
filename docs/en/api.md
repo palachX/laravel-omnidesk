@@ -165,6 +165,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
+- **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — fetch a single knowledge base section by ID with optional language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
@@ -530,6 +531,73 @@ foreach ($sections as $section) {
     echo "Section description: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
     echo "Active: " . ($section->active ? 'Yes' : 'No') . "\n";
 }
+```
+
+---
+
+## Fetch Knowledge Base Section (get knowledge base section)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+
+Fetch a single knowledge base section by ID with optional language filtering.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_id | int | yes | Section ID |
+| language_id | string | no | Language ID for localized section data. Use "all" to get all languages. Default: primary language |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title (string or array of titles in different languages)
+- `section_description` — Section description (string or array of descriptions in different languages)
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Payload as FetchKnowledgeBaseSectionPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Get section in primary language
+$payload = new FetchKnowledgeBaseSectionPayload(
+    sectionId: 10
+);
+
+// Get section in specific language
+$payloadWithLanguage = new FetchKnowledgeBaseSectionPayload(
+    sectionId: 10,
+    languageId: '2'
+);
+
+// Get section in all languages
+$payloadAllLanguages = new FetchKnowledgeBaseSectionPayload(
+    sectionId: 10,
+    languageId: 'all'
+);
+
+$response = $knowledgeBase->getSection($payload);
+$section = $response->kbSection; // KnowledgeBaseSectionData
+
+echo "Section ID: " . $section->sectionId . "\n";
+echo "Category ID: " . $section->categoryId . "\n";
+echo "Section title: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
+echo "Section description: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
+echo "Active: " . ($section->active ? 'Yes' : 'No') . "\n";
 ```
 
 ---

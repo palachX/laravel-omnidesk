@@ -17,6 +17,8 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowl
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Payload as FetchKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Response as FetchKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response as FetchKnowledgeBaseSectionListResponse;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
@@ -36,6 +38,8 @@ final readonly class KnowledgeBaseClient
     private const string API_URL = '/api/kb_category.json';
 
     private const string SECTION_URL = '/api/kb_section.json';
+
+    private const string SECTION_DETAIL_URL = '/api/kb_section/%s.json';
 
     private const string CATEGORY_URL = '/api/kb_category/%s.json';
 
@@ -91,6 +95,23 @@ final readonly class KnowledgeBaseClient
 
         return new FetchKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse
+    {
+        $url = sprintf(self::SECTION_DETAIL_URL, $payload->sectionId);
+
+        $response = $this->transport->get($url, $payload->toQuery());
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new FetchKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
 
