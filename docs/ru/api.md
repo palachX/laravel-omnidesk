@@ -164,6 +164,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
+- **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
@@ -631,6 +632,81 @@ foreach ($categories as $category) {
     echo "ID категории: " . $category->categoryId . "\n";
     echo "Название категории: " . (is_array($category->categoryTitle) ? implode(', ', $category->categoryTitle) : $category->categoryTitle) . "\n";
     echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+---
+
+## Fetch Knowledge Base Section List (получение списка разделов базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response` (поля: `kbSections` — коллекция `KnowledgeBaseSectionData`, `total` — общее количество).
+
+Получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
+
+**Параметры Payload:**
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит разделов на странице (по умолчанию: 100) |
+| category_id | string | Обязательно | ID категории |
+| language_id | string | Опционально | ID языка для локализованных названий разделов. Используйте "all" для получения всех языков. По умолчанию: основной язык |
+
+Для GET-запросов используется метод `Payload::toQuery()`.
+
+**KnowledgeBaseSectionData** (поле `kb_section` в Response):
+- `section_id` — ID раздела
+- `category_id` — ID категории
+- `section_title` — Название раздела (строка или массив названий на разных языках)
+- `section_description` — Описание раздела (строка или массив описаний на разных языках)
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Получение разделов с пагинацией
+$payload = new FetchKnowledgeBaseSectionListPayload(
+    categoryId: '1',
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Или с параметрами по умолчанию:
+// $payload = new FetchKnowledgeBaseSectionListPayload(categoryId: '1');
+
+// Получение всех языков
+$payloadAllLanguages = new FetchKnowledgeBaseSectionListPayload(
+    categoryId: '1',
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchSectionList($payload);
+$sections = $response->kbSections;
+$total = $response->total;
+
+// Перебор разделов
+foreach ($sections as $section) {
+    echo "ID раздела: " . $section->sectionId . "\n";
+    echo "ID категории: " . $section->categoryId . "\n";
+    echo "Название раздела: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
+    echo "Описание раздела: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
+    echo "Активна: " . ($section->active ? 'Да' : 'Нет') . "\n";
 }
 ```
 

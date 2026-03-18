@@ -164,6 +164,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
+- **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
@@ -453,6 +454,81 @@ foreach ($categories as $category) {
     echo "Category ID: " . $category->categoryId . "\n";
     echo "Category title: " . (is_array($category->categoryTitle) ? implode(', ', $category->categoryTitle) : $category->categoryTitle) . "\n";
     echo "Active: " . ($category->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+---
+
+## Fetch Knowledge Base Section List (list knowledge base sections)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response` (fields: `kbSections` — collection of `KnowledgeBaseSectionData`, `total` — total count).
+
+List knowledge base sections with pagination and language filtering.
+
+**Payload Parameters:**
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Limit of sections per page (default: 100) |
+| category_id | string | Required | Category ID |
+| language_id | string | Optional | Language ID for localized section titles. Use "all" to get all languages. Default: primary language |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title (string or array of titles in different languages)
+- `section_description` — Section description (string or array of descriptions in different languages)
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Get sections with pagination
+$payload = new FetchKnowledgeBaseSectionListPayload(
+    categoryId: '1',
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Or with default parameters:
+// $payload = new FetchKnowledgeBaseSectionListPayload(categoryId: '1');
+
+// Get all languages
+$payloadAllLanguages = new FetchKnowledgeBaseSectionListPayload(
+    categoryId: '1',
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchSectionList($payload);
+$sections = $response->kbSections;
+$total = $response->total;
+
+// Iterate over sections
+foreach ($sections as $section) {
+    echo "Section ID: " . $section->sectionId . "\n";
+    echo "Category ID: " . $section->categoryId . "\n";
+    echo "Section title: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
+    echo "Section description: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
+    echo "Active: " . ($section->active ? 'Yes' : 'No') . "\n";
 }
 ```
 

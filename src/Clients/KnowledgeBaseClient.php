@@ -17,6 +17,8 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowl
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Response as FetchKnowledgeBaseCategoryListResponse;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response as FetchKnowledgeBaseSectionListResponse;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
@@ -113,6 +115,31 @@ final readonly class KnowledgeBaseClient
 
         return new FetchKnowledgeBaseCategoryListResponse(
             kbCategories: $kbCategories,
+            total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse
+    {
+        $response = $this->transport->get(self::SECTION_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $kbSections = collect($response)
+            ->map(fn ($item) => KnowledgeBaseSectionData::from($item['kb_section']));
+
+        return new FetchKnowledgeBaseSectionListResponse(
+            kbSections: $kbSections,
             total: $total,
         );
     }
