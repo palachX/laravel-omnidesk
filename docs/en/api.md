@@ -163,6 +163,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — update a knowledge base section.
+- **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
@@ -694,6 +695,40 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->disableCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData with active = false
+```
+
+---
+
+## Disable Knowledge Base Section (disable knowledge base section)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_id | int | yes | Section ID |
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title
+- `section_description` — Section description
+- `active` — Active status (will be false after disabling)
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->disableSection(10);
+$section = $response->kbSection; // KnowledgeBaseSectionData with active = false
 ```
 
 ---
