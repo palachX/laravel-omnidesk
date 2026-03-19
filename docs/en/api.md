@@ -172,6 +172,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
+- **`$knowledgeBaseClient->moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse`** — move up a knowledge base section.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
 - **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — delete a knowledge base category.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
@@ -828,6 +829,44 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveUpCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Move Up Knowledge Base Section (move up knowledge base section)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+
+**HTTP Method:** `PUT /api/kb_section/{id}/moveup.json`
+
+Move up a knowledge base section by one step.
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_id | int | yes | Section ID |
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title
+- `section_description` — Section description
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->moveUpSection(10);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---

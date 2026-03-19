@@ -25,6 +25,7 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKn
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response as FetchKnowledgeBaseSectionListResponse;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Response as MoveUpKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
@@ -50,6 +51,8 @@ final readonly class KnowledgeBaseClient
     private const string MOVE_UP_URL = '/api/kb_category/%s/moveup.json';
 
     private const string MOVE_DOWN_URL = '/api/kb_category/%s/movedown.json';
+
+    private const string MOVE_UP_SECTION_URL = '/api/kb_section/%s/moveup.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -314,6 +317,22 @@ final readonly class KnowledgeBaseClient
 
         return new DeleteKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse
+    {
+        $url = sprintf(self::MOVE_UP_SECTION_URL, $sectionId);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new MoveUpKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
 }
