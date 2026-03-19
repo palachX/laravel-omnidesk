@@ -176,6 +176,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — move down a knowledge base section.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
 - **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — delete a knowledge base category.
+- **`$knowledgeBaseClient->deleteSection(int $sectionId): DeleteKnowledgeBaseSectionResponse`** — delete a knowledge base section.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -961,6 +962,16 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->deleteCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+#### Delete Knowledge Base Section
+
+```php
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->deleteSection(345);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---

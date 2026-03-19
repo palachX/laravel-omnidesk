@@ -11,6 +11,7 @@ use Palach\Omnidesk\DTO\KnowledgeBaseSectionData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Response as DeleteKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as DisabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
@@ -320,6 +321,23 @@ final readonly class KnowledgeBaseClient
 
         return new DeleteKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteSection(int $sectionId): DeleteKnowledgeBaseSectionResponse
+    {
+        $url = sprintf(self::SECTION_DETAIL_URL, $sectionId);
+
+        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new DeleteKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
 

@@ -176,6 +176,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вниз.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
 - **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — удаление категории базы знаний.
+- **`$knowledgeBaseClient->deleteSection(int $sectionId): DeleteKnowledgeBaseSectionResponse`** — удаление раздела базы знаний.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — получение пользователя по ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — создание пользователя.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — редактирование пользователя.
@@ -1139,6 +1140,16 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->deleteCategory(234);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+#### Удаление раздела базы знаний
+
+```php
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->deleteSection(345);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---
