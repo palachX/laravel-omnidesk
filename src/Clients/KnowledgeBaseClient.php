@@ -24,6 +24,7 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Response as FetchKnowl
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response as FetchKnowledgeBaseSectionListResponse;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseSection\Response as MoveDownKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Response as MoveUpKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
@@ -53,6 +54,8 @@ final readonly class KnowledgeBaseClient
     private const string MOVE_DOWN_URL = '/api/kb_category/%s/movedown.json';
 
     private const string MOVE_UP_SECTION_URL = '/api/kb_section/%s/moveup.json';
+
+    private const string MOVE_DOWN_SECTION_URL = '/api/kb_section/%s/movedown.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -332,6 +335,22 @@ final readonly class KnowledgeBaseClient
         $kbSection = $this->extractArray('kb_section', $response);
 
         return new MoveUpKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse
+    {
+        $url = sprintf(self::MOVE_DOWN_SECTION_URL, $sectionId);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new MoveDownKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
