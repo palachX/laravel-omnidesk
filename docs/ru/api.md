@@ -163,6 +163,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
+- **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — редактирование раздела базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — получение раздела базы знаний по ID.
@@ -566,6 +567,69 @@ $payload = new UpdateKnowledgeBaseCategoryPayload(
 
 $response = $knowledgeBase->updateCategory(234, $payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Update Knowledge Base Section (редактирование раздела базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Response` (содержит `KnowledgeBaseSectionData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| section_title | string|array | да | Название раздела. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и названиями в качестве значений. |
+| section_description | string|array | да | Описание раздела. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и описаниями в качестве значений. |
+| category_id | int | да | ID категории |
+
+**KnowledgeBaseSectionData** (поле `kb_section` в Response):
+- `section_id` — ID раздела
+- `category_id` — ID категории
+- `section_title` — Название раздела
+- `section_description` — Описание раздела
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload as UpdateKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\KnowledgeBaseSectionUpdateData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Один язык
+$payload = new UpdateKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionUpdateData(
+        sectionTitle: 'Обновленное название раздела',
+        sectionDescription: 'Обновленное описание раздела',
+        categoryId: 2
+    )
+);
+
+// Мультиязычный - когда включена мультиязычность и база знаний доступна на нескольких языках
+$payload = new UpdateKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionUpdateData(
+        sectionTitle: [
+            '1' => 'Обновленное название раздела',
+            '2' => 'Updated section name'
+        ],
+        sectionDescription: [
+            '1' => 'Обновленное описание раздела',
+            '2' => 'Updated section description'
+        ],
+        categoryId: 2
+    )
+);
+
+$response = $knowledgeBase->updateSection(10, $payload);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---

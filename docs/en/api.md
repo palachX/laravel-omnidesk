@@ -162,6 +162,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
+- **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — update a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
@@ -325,6 +326,69 @@ $payload = new UpdateKnowledgeBaseCategoryPayload(
 
 $response = $knowledgeBase->updateCategory(234, $payload);
 $category = $response->kbCategory; // KnowledgeBaseCategoryData
+```
+
+---
+
+## Update Knowledge Base Section (update knowledge base section)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_title | string|array | yes | Section title. If multilingual is enabled, you can pass an array with language IDs as keys and titles as values. |
+| section_description | string|array | yes | Section description. If multilingual is enabled, you can pass an array with language IDs as keys and descriptions as values. |
+| category_id | int | yes | Category ID |
+
+**KnowledgeBaseSectionData** (response `kb_section` field):
+- `section_id` — Section ID
+- `category_id` — Category ID
+- `section_title` — Section title
+- `section_description` — Section description
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload as UpdateKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\KnowledgeBaseSectionUpdateData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Single language
+$payload = new UpdateKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionUpdateData(
+        sectionTitle: 'Updated section name',
+        sectionDescription: 'Updated section description',
+        categoryId: 2
+    )
+);
+
+// Multilingual - when you have multilingual knowledge base enabled
+$payload = new UpdateKnowledgeBaseSectionPayload(
+    kbSection: new KnowledgeBaseSectionUpdateData(
+        sectionTitle: [
+            '1' => 'Обновленное название раздела',
+            '2' => 'Updated section name'
+        ],
+        sectionDescription: [
+            '1' => 'Обновленное описание раздела',
+            '2' => 'Updated section description'
+        ],
+        categoryId: 2
+    )
+);
+
+$response = $knowledgeBase->updateSection(10, $payload);
+$section = $response->kbSection; // KnowledgeBaseSectionData
 ```
 
 ---

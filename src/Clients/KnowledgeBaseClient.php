@@ -29,6 +29,8 @@ use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowle
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Response as StoreKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response as UpdateKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload as UpdateKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Response as UpdateKnowledgeBaseSectionResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class KnowledgeBaseClient
@@ -179,6 +181,23 @@ final readonly class KnowledgeBaseClient
 
         return new UpdateKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse
+    {
+        $url = sprintf(self::SECTION_DETAIL_URL, $sectionId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $kbSection = $this->extractArray('kb_section', $response);
+
+        return new UpdateKnowledgeBaseSectionResponse(
+            kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
 
