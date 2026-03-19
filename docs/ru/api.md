@@ -165,6 +165,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — редактирование раздела базы знаний.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — отключение раздела базы знаний.
+- **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — включение раздела базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — получение раздела базы знаний по ID.
@@ -907,6 +908,40 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->disableSection(10);
 $section = $response->kbSection; // KnowledgeBaseSectionData с active = false
+```
+
+---
+
+## Enable Knowledge Base Section (включение раздела базы знаний)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseSection\Response` (содержит `KnowledgeBaseSectionData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| section_id | int | да | ID раздела |
+
+**KnowledgeBaseSectionData** (поле `kb_section` в Response):
+- `section_id` — ID раздела
+- `category_id` — ID категории
+- `section_title` — Название раздела
+- `section_description` — Описание раздела
+- `active` — Статус активности (будет true после включения)
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->enableSection(10);
+$section = $response->kbSection; // KnowledgeBaseSectionData с active = true
 ```
 
 ---
