@@ -39,6 +39,8 @@ use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowl
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Response as StoreKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\Payload as UpdateKnowledgeBaseArticlePayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\Response as UpdateKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Payload as UpdateKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseCategory\Response as UpdateKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseSection\Payload as UpdateKnowledgeBaseSectionPayload;
@@ -275,6 +277,23 @@ final readonly class KnowledgeBaseClient
 
         return new UpdateKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse
+    {
+        $url = sprintf(self::ARTICLE_DETAIL_URL, $articleId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $kbArticle = $this->extractArray('kb_article', $response);
+
+        return new UpdateKnowledgeBaseArticleResponse(
+            kbArticle: KnowledgeBaseArticleData::from($kbArticle),
         );
     }
 

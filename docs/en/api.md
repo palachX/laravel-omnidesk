@@ -164,6 +164,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — create a knowledge base article.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — update a knowledge base section.
+- **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — update a knowledge base article.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
 - **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — enable a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
@@ -397,6 +398,91 @@ $payload = new UpdateKnowledgeBaseSectionPayload(
 
 $response = $knowledgeBase->updateSection(10, $payload);
 $section = $response->kbSection; // KnowledgeBaseSectionData
+```
+
+---
+
+## Update Knowledge Base Article (update knowledge base article)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| article_title | string|array | yes | Article title. If multilingual is enabled, you can pass an array with language IDs as keys and titles as values. |
+| article_content | string|array | yes | Article content. If multilingual is enabled, you can pass an array with language IDs as keys and content as values. |
+| article_tags | string|array | yes | Keywords for search. If multilingual is enabled, you can pass an array with language IDs. |
+| section_id | string|array|int | yes | Section ID(s). You can pass an array to add article to multiple sections. |
+| access_type | string | no | Access level (public or staff_only). Default: public. |
+
+**KnowledgeBaseArticleData** (response `kb_article` field):
+- `article_id` — Article ID
+- `section_id` — Primary section ID
+- `article_title` — Article title
+- `article_content` — Article content
+- `article_tags` — Keywords for search
+- `access_type` — Access level
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\Payload as UpdateKnowledgeBaseArticlePayload;
+use Palach\Omnidesk\UseCases\V1\UpdateKnowledgeBaseArticle\KnowledgeBaseArticleUpdateData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Single language
+$payload = new UpdateKnowledgeBaseArticlePayload(
+    kbArticle: new KnowledgeBaseArticleUpdateData(
+        articleTitle: 'Updated article title',
+        articleContent: 'Updated article content',
+        articleTags: 'updated,tag,article',
+        sectionId: 20,
+        accessType: 'public'
+    )
+);
+
+// Multilingual - when you have multilingual knowledge base enabled
+$payload = new UpdateKnowledgeBaseArticlePayload(
+    kbArticle: new KnowledgeBaseArticleUpdateData(
+        articleTitle: [
+            '1' => 'Обновленное название статьи',
+            '2' => 'Updated article title'
+        ],
+        articleContent: [
+            '1' => 'Обновленное содержание статьи',
+            '2' => 'Updated article content'
+        ],
+        articleTags: [
+            '1' => 'обновленный,тег,статья',
+            '2' => 'updated,tag,article'
+        ],
+        sectionId: 20,
+        accessType: 'public'
+    )
+);
+
+// Multiple sections
+$payload = new UpdateKnowledgeBaseArticlePayload(
+    kbArticle: new KnowledgeBaseArticleUpdateData(
+        articleTitle: 'Multi-section article',
+        articleContent: 'Content for multiple sections',
+        articleTags: 'multi,section,article',
+        sectionId: [20, 21, 22],
+        accessType: 'staff_only'
+    )
+);
+
+$response = $knowledgeBase->updateArticle(100, $payload);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
 ```
 
 ---
