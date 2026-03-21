@@ -167,6 +167,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — редактирование раздела базы знаний.
 - **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — редактирование статьи базы знаний.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — отключение раздела базы знаний.
+- **`$knowledgeBaseClient->disableArticle(int $articleId): DisabledKnowledgeBaseArticleResponse`** — отключение статьи базы знаний.
 - **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — включение раздела базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
@@ -1240,6 +1241,41 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->disableSection(10);
 $section = $response->kbSection; // KnowledgeBaseSectionData с active = false
+```
+
+---
+
+## Disable Knowledge Base Article (отключение статьи базы знаний)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| article_id | int | да | ID статьи |
+
+**KnowledgeBaseArticleData** (поле `kb_article` в Response):
+- `article_id` — ID статьи
+- `section_id` — ID раздела
+- `article_title` — Название статьи
+- `article_content` — Содержимое статьи
+- `access_type` — Тип доступа (public, private и т.д.)
+- `active` — Статус активности (будет false после отключения)
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->disableArticle(100);
+$article = $response->kbArticle; // KnowledgeBaseArticleData с active = false
 ```
 
 ---

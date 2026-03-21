@@ -13,6 +13,7 @@ use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Response as DeleteKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseArticle\Response as DisabledKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as DisabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
@@ -310,6 +311,22 @@ final readonly class KnowledgeBaseClient
 
         return new DisabledKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function disableArticle(int $articleId): DisabledKnowledgeBaseArticleResponse
+    {
+        $url = str_replace('.json', "/$articleId/disable.json", self::ARTICLE_URL);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+
+        $kbArticle = $this->extractArray('kb_article', $response);
+
+        return new DisabledKnowledgeBaseArticleResponse(
+            kbArticle: KnowledgeBaseArticleData::from($kbArticle),
         );
     }
 
