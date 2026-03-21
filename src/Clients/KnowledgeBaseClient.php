@@ -17,6 +17,8 @@ use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as Disabl
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseSection\Response as EnabledKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload as FetchKnowledgeBaseArticleListPayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Response as FetchKnowledgeBaseArticleListResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Response as FetchKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategoryList\Payload as FetchKnowledgeBaseCategoryListPayload;
@@ -192,6 +194,31 @@ final readonly class KnowledgeBaseClient
 
         return new FetchKnowledgeBaseSectionListResponse(
             kbSections: $kbSections,
+            total: $total,
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse
+    {
+        $response = $this->transport->get(self::ARTICLE_URL, $payload->toQuery());
+
+        if (! is_array($response)) {
+            throw new ConnectionException('Invalid response format');
+        }
+
+        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
+
+        unset($response['total_count']);
+
+        $kbArticles = collect($response)
+            ->map(fn ($item) => KnowledgeBaseArticleData::from($item['kb_article']));
+
+        return new FetchKnowledgeBaseArticleListResponse(
+            kbArticles: $kbArticles,
             total: $total,
         );
     }

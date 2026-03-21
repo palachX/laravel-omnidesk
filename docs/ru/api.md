@@ -169,6 +169,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — включение раздела базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
+- **`$knowledgeBaseClient->fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse`** — получение списка статей базы знаний с пагинацией, поиском и фильтрацией.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — получение раздела базы знаний по ID.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
@@ -853,6 +854,98 @@ foreach ($sections as $section) {
     echo "Название раздела: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
     echo "Описание раздела: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
     echo "Активна: " . ($section->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+---
+
+## Fetch Knowledge Base Article List (получение списка статей базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Response` (поля: `kbArticles` — коллекция `KnowledgeBaseArticleData`, `total` — общее количество).
+
+Получение списка статей базы знаний с пагинацией, поиском и фильтрацией.
+
+**Параметры Payload:**
+
+| Поле | Тип | Ограничения | Описание |
+|------|-----|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Лимит статей на странице (по умолчанию: 100) |
+| search | string | Минимум 3 символа | Строка для поиска (опционально) |
+| section_id | string | Опционально | ID раздела для вывода статей только конкретного раздела |
+| language_id | string | Опционально | ID языка для локализованных данных статей. Используйте "all" для получения всех языков. По умолчанию: основной язык |
+| sort | string | Опционально | Сортировка. Доступные значения: id_desc, id_asc, created_at_desc, created_at_asc, manual_order |
+
+Для GET-запросов используется метод `Payload::toQuery()`.
+
+**KnowledgeBaseArticleData** (поле `kb_article` в Response):
+- `article_id` — ID статьи
+- `section_id` — ID основного раздела
+- `section_id_arr` — Массив ID разделов (если статья добавлена в несколько разделов)
+- `article_title` — Название статьи (строка или массив названий на разных языках)
+- `article_content` — Содержание статьи (строка или массив содержимого на разных языках)
+- `article_tags` — Ключевые слова для поиска (строка или массив тегов на разных языках)
+- `access_type` — Уровень доступа
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload as FetchKnowledgeBaseArticleListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Получение статей с пагинацией
+$payload = new FetchKnowledgeBaseArticleListPayload(
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Поиск статей
+$searchPayload = new FetchKnowledgeBaseArticleListPayload(
+    search: 'test query',
+    page: 1,
+    limit: 10,
+);
+
+// Фильтрация по разделу с сортировкой
+$sectionPayload = new FetchKnowledgeBaseArticleListPayload(
+    sectionId: '10',
+    sort: 'id_desc',
+    page: 1,
+    limit: 15,
+);
+
+// Получение всех языков
+$allLanguagesPayload = new FetchKnowledgeBaseArticleListPayload(
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchArticleList($payload);
+$articles = $response->kbArticles;
+$total = $response->total;
+
+// Перебор статей
+foreach ($articles as $article) {
+    echo "ID статьи: " . $article->articleId . "\n";
+    echo "ID раздела: " . $article->sectionId . "\n";
+    echo "Название статьи: " . (is_array($article->articleTitle) ? implode(', ', $article->articleTitle) : $article->articleTitle) . "\n";
+    echo "Содержание статьи: " . (is_array($article->articleContent) ? implode(', ', $article->articleContent) : $article->articleContent) . "\n";
+    echo "Теги: " . (is_array($article->articleTags) ? implode(', ', $article->articleTags) : $article->articleTags) . "\n";
+    echo "Уровень доступа: " . $article->accessType . "\n";
+    echo "Активна: " . ($article->active ? 'Да' : 'Нет') . "\n";
 }
 ```
 

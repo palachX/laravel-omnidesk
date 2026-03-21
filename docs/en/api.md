@@ -169,6 +169,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
+- **`$knowledgeBaseClient->fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse`** — list knowledge base articles with pagination, search, and filtering.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — fetch a single knowledge base section by ID with optional language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
@@ -600,6 +601,98 @@ foreach ($sections as $section) {
     echo "Section title: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
     echo "Section description: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
     echo "Active: " . ($section->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+---
+
+## Fetch Knowledge Base Article List (list knowledge base articles)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Response` (fields: `kbArticles` — collection of `KnowledgeBaseArticleData`, `total` — total count).
+
+List knowledge base articles with pagination, search, and filtering.
+
+**Payload Parameters:**
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Limit of articles per page (default: 100) |
+| search | string | Minimum 3 characters | Search string (optional) |
+| section_id | string | Optional | Section ID to get articles only from specific section |
+| language_id | string | Optional | Language ID for localized article data. Use "all" to get all languages. Default: primary language |
+| sort | string | Optional | Sort order. Available values: id_desc, id_asc, created_at_desc, created_at_asc, manual_order |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**KnowledgeBaseArticleData** (response `kb_article` field):
+- `article_id` — Article ID
+- `section_id` — Primary section ID
+- `section_id_arr` — Array of section IDs (if article is in multiple sections)
+- `article_title` — Article title (string or array of titles in different languages)
+- `article_content` — Article content (string or array of content in different languages)
+- `article_tags` — Search keywords (string or array of tags in different languages)
+- `access_type` — Access level
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload as FetchKnowledgeBaseArticleListPayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Get articles with pagination
+$payload = new FetchKnowledgeBaseArticleListPayload(
+    page: 1,
+    limit: 20,
+    languageId: '1',
+);
+
+// Search articles
+$searchPayload = new FetchKnowledgeBaseArticleListPayload(
+    search: 'test query',
+    page: 1,
+    limit: 10,
+);
+
+// Filter by section with sorting
+$sectionPayload = new FetchKnowledgeBaseArticleListPayload(
+    sectionId: '10',
+    sort: 'id_desc',
+    page: 1,
+    limit: 15,
+);
+
+// Get all languages
+$allLanguagesPayload = new FetchKnowledgeBaseArticleListPayload(
+    page: 1,
+    limit: 50,
+    languageId: 'all',
+);
+
+$response = $knowledgeBase->fetchArticleList($payload);
+$articles = $response->kbArticles;
+$total = $response->total;
+
+// Iterate over articles
+foreach ($articles as $article) {
+    echo "Article ID: " . $article->articleId . "\n";
+    echo "Section ID: " . $article->sectionId . "\n";
+    echo "Article title: " . (is_array($article->articleTitle) ? implode(', ', $article->articleTitle) : $article->articleTitle) . "\n";
+    echo "Article content: " . (is_array($article->articleContent) ? implode(', ', $article->articleContent) : $article->articleContent) . "\n";
+    echo "Tags: " . (is_array($article->articleTags) ? implode(', ', $article->articleTags) : $article->articleTags) . "\n";
+    echo "Access type: " . $article->accessType . "\n";
+    echo "Active: " . ($article->active ? 'Yes' : 'No') . "\n";
 }
 ```
 
