@@ -162,6 +162,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
+- **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — создание статьи базы знаний.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — редактирование категории базы знаний.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — редактирование раздела базы знаний.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — отключение раздела базы знаний.
@@ -520,6 +521,81 @@ $payload = new StoreKnowledgeBaseSectionPayload(
 
 $response = $knowledgeBase->storeSection($payload);
 $section = $response->kbSection; // KnowledgeBaseSectionData
+```
+
+---
+
+## Store Knowledge Base Article (создание статьи базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| article_title | string|array | да | Название статьи. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и названиями в качестве значений. |
+| article_content | string|array | да | Содержание статьи. Если включена мультиязычность, можно передать массив с ID языков в качестве ключей и содержанием в качестве значений. |
+| article_tags | string|array | нет | Ключевые слова для поиска. Если включена мультиязычность, можно передать массив с ID языков. |
+| section_id | string|array | да | ID раздела(ов). Можно передать массив для добавления статьи в несколько разделов. |
+| access_type | string | нет | Уровень доступа (public или staff_only). По умолчанию - public. |
+
+**KnowledgeBaseArticleData** (поле `kb_article` в Response):
+- `article_id` — ID статьи
+- `section_id` — ID основного раздела
+- `section_id_arr` — Массив ID разделов (если статья добавлена в несколько разделов)
+- `article_title` — Название статьи
+- `article_content` — Содержание статьи
+- `article_tags` — Ключевые слова для поиска
+- `access_type` — Уровень доступа
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Payload as StoreKnowledgeBaseArticlePayload;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\KnowledgeBaseArticleStoreData;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+// Один язык
+$payload = new StoreKnowledgeBaseArticlePayload(
+    kbArticle: new KnowledgeBaseArticleStoreData(
+        articleTitle: 'Test article title',
+        articleContent: 'Test article content',
+        articleTags: 'test,article,content',
+        sectionId: [10, 11],
+        accessType: 'public'
+    )
+);
+
+// Мультиязычный - когда включена мультиязычность и база знаний доступна на нескольких языках
+$payload = new StoreKnowledgeBaseArticlePayload(
+    kbArticle: new KnowledgeBaseArticleStoreData(
+        articleTitle: [
+            '1' => 'Название статьи',
+            '2' => 'Test article title'
+        ],
+        articleContent: [
+            '1' => 'Содержание статьи',
+            '2' => 'Test article content'
+        ],
+        articleTags: [
+            '1' => 'тег,тег,тег',
+            '2' => 'tag,tag,tag'
+        ],
+        sectionId: [10, 11],
+        accessType: 'public'
+    )
+);
+
+$response = $knowledgeBase->storeArticle($payload);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
 ```
 
 ---

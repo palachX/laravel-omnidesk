@@ -6,6 +6,7 @@ namespace Palach\Omnidesk\Clients;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Palach\Omnidesk\DTO\KnowledgeBaseArticleData;
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\DTO\KnowledgeBaseSectionData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
@@ -28,6 +29,8 @@ use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDo
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseSection\Response as MoveDownKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Response as MoveUpKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Payload as StoreKnowledgeBaseArticlePayload;
+use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Response as StoreKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Payload as StoreKnowledgeBaseCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseCategory\Response as StoreKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseSection\Payload as StoreKnowledgeBaseSectionPayload;
@@ -47,6 +50,8 @@ final readonly class KnowledgeBaseClient
     private const string SECTION_URL = '/api/kb_section.json';
 
     private const string SECTION_DETAIL_URL = '/api/kb_section/%s.json';
+
+    private const string ARTICLE_URL = '/api/kb_article.json';
 
     private const string CATEGORY_URL = '/api/kb_category/%s.json';
 
@@ -89,6 +94,21 @@ final readonly class KnowledgeBaseClient
 
         return new StoreKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse
+    {
+        $response = $this->transport->sendJson(Request::METHOD_POST, self::ARTICLE_URL, $payload->toArray());
+
+        $kbArticle = $this->extractArray('kb_article', $response);
+
+        return new StoreKnowledgeBaseArticleResponse(
+            kbArticle: KnowledgeBaseArticleData::from($kbArticle),
         );
     }
 

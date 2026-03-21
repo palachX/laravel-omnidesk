@@ -161,6 +161,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
+- **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — create a knowledge base article.
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — update a knowledge base section.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
