@@ -17,6 +17,8 @@ use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as Disabl
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseSection\Response as EnabledKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload as FetchKnowledgeBaseArticlePayload;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Response as FetchKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload as FetchKnowledgeBaseArticleListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Response as FetchKnowledgeBaseArticleListResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseCategory\Payload as FetchKnowledgeBaseCategoryPayload;
@@ -54,6 +56,8 @@ final readonly class KnowledgeBaseClient
     private const string SECTION_DETAIL_URL = '/api/kb_section/%s.json';
 
     private const string ARTICLE_URL = '/api/kb_article.json';
+
+    private const string ARTICLE_DETAIL_URL = '/api/kb_article/%s.json';
 
     private const string CATEGORY_URL = '/api/kb_category/%s.json';
 
@@ -145,6 +149,23 @@ final readonly class KnowledgeBaseClient
 
         return new FetchKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse
+    {
+        $url = sprintf(self::ARTICLE_DETAIL_URL, $payload->articleId);
+
+        $response = $this->transport->get($url, $payload->toQuery());
+
+        $kbArticle = $this->extractArray('kb_article', $response);
+
+        return new FetchKnowledgeBaseArticleResponse(
+            kbArticle: KnowledgeBaseArticleData::from($kbArticle),
         );
     }
 

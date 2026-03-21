@@ -171,6 +171,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse`** — list knowledge base articles with pagination, search, and filtering.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — fetch a single knowledge base section by ID with optional language filtering.
+- **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — fetch a single knowledge base article by ID with optional language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
@@ -761,6 +762,79 @@ echo "Category ID: " . $section->categoryId . "\n";
 echo "Section title: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
 echo "Section description: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
 echo "Active: " . ($section->active ? 'Yes' : 'No') . "\n";
+```
+
+---
+
+## Fetch Knowledge Base Article (get knowledge base article)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
+
+Fetch a single knowledge base article by ID with optional language filtering.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| article_id | int | yes | Article ID |
+| language_id | string | no | Language ID for localized article data. Use "all" to get all languages. Default: primary language |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**KnowledgeBaseArticleData** (response `kb_article` field):
+- `article_id` — Article ID
+- `section_id` — Primary section ID
+- `section_id_arr` — Array of section IDs (if article is in multiple sections)
+- `article_title` — Article title (string or array of titles in different languages)
+- `article_content` — Article content (string or array of content in different languages)
+- `article_tags` — Search keywords (string or array of tags in different languages)
+- `access_type` — Access level (public/private)
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload as FetchKnowledgeBaseArticlePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Get article in primary language
+$payload = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100
+);
+
+// Get article in specific language
+$payloadWithLanguage = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100,
+    languageId: '2'
+);
+
+// Get article in all languages
+$payloadAllLanguages = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100,
+    languageId: 'all'
+);
+
+$response = $knowledgeBase->fetchArticle($payload);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
+
+echo "Article ID: " . $article->articleId . "\n";
+echo "Section ID: " . $article->sectionId . "\n";
+echo "Section IDs: " . implode(', ', $article->sectionIdArr ?? []) . "\n";
+echo "Article title: " . (is_array($article->articleTitle) ? implode(', ', $article->articleTitle) : $article->articleTitle) . "\n";
+echo "Article content: " . (is_array($article->articleContent) ? implode(', ', $article->articleContent) : $article->articleContent) . "\n";
+echo "Tags: " . (is_array($article->articleTags) ? implode(', ', $article->articleTags) : $article->articleTags) . "\n";
+echo "Access type: " . $article->accessType . "\n";
+echo "Active: " . ($article->active ? 'Yes' : 'No') . "\n";
 ```
 
 ---

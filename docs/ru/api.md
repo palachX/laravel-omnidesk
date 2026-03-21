@@ -171,6 +171,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse`** — получение списка статей базы знаний с пагинацией, поиском и фильтрацией.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — получение раздела базы знаний по ID.
+- **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — получение статьи базы знаний по ID.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
@@ -1014,6 +1015,79 @@ echo "ID категории: " . $section->categoryId . "\n";
 echo "Название раздела: " . (is_array($section->sectionTitle) ? implode(', ', $section->sectionTitle) : $section->sectionTitle) . "\n";
 echo "Описание раздела: " . (is_array($section->sectionDescription) ? implode(', ', $section->sectionDescription) : $section->sectionDescription) . "\n";
 echo "Активна: " . ($section->active ? 'Да' : 'Нет') . "\n";
+```
+
+---
+
+## Fetch Knowledge Base Article (получение статьи базы знаний)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
+
+Получение статьи базы знаний по ID с опциональной фильтрацией по языку.
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|------|-----|--------------|----------|
+| article_id | int | да | ID статьи |
+| language_id | string | нет | ID языка для локализованных данных статьи. Используйте "all" для получения всех языков. По умолчанию: основной язык |
+
+Для GET-запроса используется метод `Payload::toQuery()`.
+
+**KnowledgeBaseArticleData** (поле `kb_article` в Response):
+- `article_id` — ID статьи
+- `section_id` — Основной ID раздела
+- `section_id_arr` — Массив ID разделов (если статья находится в нескольких разделах)
+- `article_title` — Название статьи (строка или массив названий на разных языках)
+- `article_content` — Содержание статьи (строка или массив содержимого на разных языках)
+- `article_tags` — Ключевые слова для поиска (строка или массив тегов на разных языках)
+- `access_type` — Уровень доступа (public/private)
+- `active` — Статус активности
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\Omnidesk;
+use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload as FetchKnowledgeBaseArticlePayload;
+
+/** @var Omnidesk $http */
+$http = app(Omnidesk::class);
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = $http->knowledgeBase();
+
+// Получение статьи на основном языке
+$payload = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100
+);
+
+// Получение статьи на конкретном языке
+$payloadWithLanguage = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100,
+    languageId: '2'
+);
+
+// Получение статьи на всех языках
+$payloadAllLanguages = new FetchKnowledgeBaseArticlePayload(
+    articleId: 100,
+    languageId: 'all'
+);
+
+$response = $knowledgeBase->fetchArticle($payload);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
+
+echo "ID статьи: " . $article->articleId . "\n";
+echo "ID раздела: " . $article->sectionId . "\n";
+echo "ID разделов: " . implode(', ', $article->sectionIdArr ?? []) . "\n";
+echo "Название статьи: " . (is_array($article->articleTitle) ? implode(', ', $article->articleTitle) : $article->articleTitle) . "\n";
+echo "Содержание статьи: " . (is_array($article->articleContent) ? implode(', ', $article->articleContent) : $article->articleContent) . "\n";
+echo "Теги: " . (is_array($article->articleTags) ? implode(', ', $article->articleTags) : $article->articleTags) . "\n";
+echo "Тип доступа: " . $article->accessType . "\n";
+echo "Активна: " . ($article->active ? 'Да' : 'Нет') . "\n";
 ```
 
 ---
