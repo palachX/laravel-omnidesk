@@ -167,6 +167,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — update a knowledge base article.
 - **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
 - **`$knowledgeBaseClient->disableArticle(int $articleId): DisabledKnowledgeBaseArticleResponse`** — disable a knowledge base article.
+- **`$knowledgeBaseClient->enableArticle(int $articleId): EnabledKnowledgeBaseArticleResponse`** — enable a knowledge base article.
 - **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — enable a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
@@ -1023,6 +1024,41 @@ $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->disableArticle(100);
 $article = $response->kbArticle; // KnowledgeBaseArticleData with active = false
+```
+
+---
+
+## Enable Knowledge Base Article (enable knowledge base article)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| article_id | int | yes | Article ID |
+
+**KnowledgeBaseArticleData** (response `kb_article` field):
+- `article_id` — Article ID
+- `section_id` — Section ID
+- `article_title` — Article title
+- `article_content` — Article content
+- `access_type` — Access type (public, private, etc.)
+- `active` — Active status (will be true after enabling)
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->enableArticle(100);
+$article = $response->kbArticle; // KnowledgeBaseArticleData with active = true
 ```
 
 ---
