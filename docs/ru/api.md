@@ -180,6 +180,7 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
 - **`$knowledgeBaseClient->moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вверх.
 - **`$knowledgeBaseClient->moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вверх.
+- **`$knowledgeBaseClient->moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вниз.
 - **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вниз.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
 - **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — удаление категории базы знаний.
@@ -1487,6 +1488,45 @@ use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveUpArticle(100);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
+```
+
+---
+
+## Move Down Knowledge Base Article (перемещение статьи базы знаний вниз)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
+
+**HTTP Method:** `PUT /api/kb_article/{id}/movedown.json`
+
+Перемещение статьи базы знаний на шаг вниз.
+
+**Параметры метода:**
+
+| Поле | Тип | Обязательный | Описание |
+|-------|------|--------------|-------------|
+| article_id | int | да | ID статьи |
+
+**KnowledgeBaseArticleData** (поле `kb_article` в ответе):
+- `article_id` — ID статьи
+- `section_id` — ID раздела
+- `article_title` — Заголовок статьи
+- `article_content` — Содержимое статьи
+- `access_type` — Тип доступа
+- `active` — Активный статус
+- `created_at` — Дата создания
+- `updated_at` — Дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->moveDownArticle(100);
 $article = $response->kbArticle; // KnowledgeBaseArticleData
 ```
 

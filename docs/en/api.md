@@ -180,6 +180,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
 - **`$knowledgeBaseClient->moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse`** — move up a knowledge base section.
 - **`$knowledgeBaseClient->moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse`** — move up a knowledge base article.
+- **`$knowledgeBaseClient->moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse`** — move down a knowledge base article.
 - **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — move down a knowledge base section.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
 - **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — delete a knowledge base category.
@@ -1234,6 +1235,45 @@ use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 $knowledgeBase = Omnidesk::knowledgeBase();
 
 $response = $knowledgeBase->moveUpArticle(100);
+$article = $response->kbArticle; // KnowledgeBaseArticleData
+```
+
+---
+
+## Move Down Knowledge Base Article (move down knowledge base article)
+
+**Response:** `Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
+
+**HTTP Method:** `PUT /api/kb_article/{id}/movedown.json`
+
+Move down a knowledge base article by one step.
+
+**Method parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| article_id | int | yes | Article ID |
+
+**KnowledgeBaseArticleData** (response `kb_article` field):
+- `article_id` — Article ID
+- `section_id` — Section ID
+- `article_title` — Article title
+- `article_content` — Article content
+- `access_type` — Access type
+- `active` — Active status
+- `created_at` — Creation date
+- `updated_at` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$response = $knowledgeBase->moveDownArticle(100);
 $article = $response->kbArticle; // KnowledgeBaseArticleData
 ```
 
