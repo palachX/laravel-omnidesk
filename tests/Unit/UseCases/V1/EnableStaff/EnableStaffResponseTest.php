@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnabledStaff;
+namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableStaff;
 
 use Palach\Omnidesk\DTO\StaffData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnableStaffResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class EnabledStaffResponseTest extends AbstractTestCase
+final class EnableStaffResponseTest extends AbstractTestCase
 {
     public static function dataArrayProvider(): iterable
     {
@@ -44,7 +44,7 @@ final class EnabledStaffResponseTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testResponse(array $data, array $expected): void
     {
-        $response = EnabledStaffResponse::from($data);
+        $response = EnableStaffResponse::from($data);
 
         $this->assertInstanceOf(StaffData::class, $response->staff);
         $this->assertEquals($expected, $response->toArray());

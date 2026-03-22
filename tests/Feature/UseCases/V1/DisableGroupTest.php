@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\DisableGroup\Payload as DisableGroupPayload;
-use Palach\Omnidesk\UseCases\V1\DisableGroup\Response as DisabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\DisableGroup\Response as DisableGroupResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -52,6 +52,6 @@ final class DisableGroupTest extends AbstractTestCase
                 && $request->body() === json_encode(['group' => ['replace_group_id' => $replaceGroupId]]);
         });
 
-        $this->assertEquals(DisabledGroupResponse::from($response), $responseData);
+        $this->assertEquals(DisableGroupResponse::from($response), $responseData);
     }
 }

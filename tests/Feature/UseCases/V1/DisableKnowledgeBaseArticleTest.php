@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\DisableArticle\Payload as DisableArticlePayload;
-use Palach\Omnidesk\UseCases\V1\DisableKnowledgeBaseArticle\Response as DisabledKnowledgeBaseArticleResponse;
+use Palach\Omnidesk\UseCases\V1\DisableKnowledgeBaseArticle\Response as DisableKnowledgeBaseArticleResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -52,6 +52,6 @@ final class DisableKnowledgeBaseArticleTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(DisabledKnowledgeBaseArticleResponse::from($response), $responseData);
+        $this->assertEquals(DisableKnowledgeBaseArticleResponse::from($response), $responseData);
     }
 }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\DisableCategory;
+namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\DisableKnowledgeBaseCategory;
 
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\DisableCategory\Payload as DisableCategoryPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class DisableCategoryPayloadTest extends AbstractTestCase
+final class DisableKnowledgeBaseCategoryPayloadTest extends AbstractTestCase
 {
     public static function dataProvider(): iterable
     {

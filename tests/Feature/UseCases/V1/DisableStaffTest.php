@@ -7,8 +7,8 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DisableStaff\Payload as DisabledStaffPayload;
-use Palach\Omnidesk\UseCases\V1\DisableStaff\Response as DisabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\Payload as DisableStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\Response as DisableStaffResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -41,7 +41,7 @@ final class DisableStaffTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testHttp(int $staffId, array $payload, array $response): void
     {
-        $payload = DisabledStaffPayload::from($payload);
+        $payload = DisableStaffPayload::from($payload);
 
         $url = $this->host."/api/staff/$staffId/disable.json";
 
@@ -58,6 +58,6 @@ final class DisableStaffTest extends AbstractTestCase
                 && $request->body() === json_encode($payload->toArray());
         });
 
-        $this->assertEquals(DisabledStaffResponse::from($response), $responseData);
+        $this->assertEquals(DisableStaffResponse::from($response), $responseData);
     }
 }

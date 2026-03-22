@@ -6,10 +6,10 @@ namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableKnowledgeBaseCategory;
 
 use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnableKnowledgeBaseCategoryResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class EnabledKnowledgeBaseCategoryResponseTest extends AbstractTestCase
+final class EnableKnowledgeBaseCategoryResponseTest extends AbstractTestCase
 {
     public static function dataArrayProvider(): iterable
     {
@@ -38,7 +38,7 @@ final class EnabledKnowledgeBaseCategoryResponseTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testResponse(array $data, array $expected): void
     {
-        $response = EnabledKnowledgeBaseCategoryResponse::from($data);
+        $response = EnableKnowledgeBaseCategoryResponse::from($data);
 
         $this->assertInstanceOf(KnowledgeBaseCategoryData::class, $response->kbCategory);
         $this->assertEquals($expected, $response->toArray());

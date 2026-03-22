@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\EnableStaff\Payload as EnableStaffPayload;
-use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnableStaffResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -52,6 +52,6 @@ final class EnableStaffTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(EnabledStaffResponse::from($response), $responseData);
+        $this->assertEquals(EnableStaffResponse::from($response), $responseData);
     }
 }

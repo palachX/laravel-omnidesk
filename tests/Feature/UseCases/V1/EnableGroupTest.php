@@ -7,8 +7,8 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableGroup\Payload as EnabledGroupPayload;
-use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Payload as EnableGroupPayload;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnableGroupResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -41,7 +41,7 @@ final class EnableGroupTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $payload = new EnabledGroupPayload(groupId: $groupId);
+        $payload = new EnableGroupPayload(groupId: $groupId);
         $responseData = $this->makeHttpClient()->groups()->enableGroup($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
@@ -51,6 +51,6 @@ final class EnableGroupTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(EnabledGroupResponse::from($response), $responseData);
+        $this->assertEquals(EnableGroupResponse::from($response), $responseData);
     }
 }

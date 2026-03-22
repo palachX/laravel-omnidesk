@@ -138,7 +138,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
 - **`$staffClient->disableStaff(DisableStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
-- **`$staffClient->enableStaff(EnableStaffPayload $payload): EnabledStaffResponse`** — enable a staff member.
+- **`$staffClient->enableStaff(EnableStaffPayload $payload): EnableStaffResponse`** — enable a staff member.
 - **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — delete a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
@@ -157,7 +157,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — update a group.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
 - **`$groupsClient->disableGroup(DisableGroupPayload $payload): DisabledGroupResponse`** — disable a group.
-- **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnabledGroupResponse`** — enable a group.
+- **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
@@ -167,8 +167,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — update a knowledge base article.
 - **`$knowledgeBaseClient->disableSection(DisableSectionPayload $payload): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
 - **`$knowledgeBaseClient->disableArticle(DisableArticlePayload $payload): DisabledKnowledgeBaseArticleResponse`** — disable a knowledge base article.
-- **`$knowledgeBaseClient->enableArticle(EnableArticlePayload $payload): EnabledKnowledgeBaseArticleResponse`** — enable a knowledge base article.
-- **`$knowledgeBaseClient->enableSection(EnableSectionPayload $payload): EnabledKnowledgeBaseSectionResponse`** — enable a knowledge base section.
+- **`$knowledgeBaseClient->enableArticle(EnableArticlePayload $payload): EnableKnowledgeBaseArticleResponse`** — enable a knowledge base article.
+- **`$knowledgeBaseClient->enableSection(EnableSectionPayload $payload): EnableKnowledgeBaseSectionResponse`** — enable a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
@@ -176,7 +176,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — fetch a single knowledge base section by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — fetch a single knowledge base article by ID with optional language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
-- **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
+- **`$knowledgeBaseClient->enableCategory(int $categoryId): EnableKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
 - **`$knowledgeBaseClient->moveUpCategory(MoveUpCategoryPayload $payload): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
 - **`$knowledgeBaseClient->moveUpSection(MoveUpSectionPayload $payload): MoveUpKnowledgeBaseSectionResponse`** — move up a knowledge base section.
 - **`$knowledgeBaseClient->moveUpArticle(MoveUpArticlePayload $payload): MoveUpKnowledgeBaseArticleResponse`** — move up a knowledge base article.
@@ -1033,7 +1033,7 @@ $article = $response->kbArticle; // KnowledgeBaseArticleData with active = false
 
 ## Enable Knowledge Base Article (enable knowledge base article)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response` (contains `KnowledgeBaseArticleData`).
 
 **Method parameters:**
 
@@ -1068,7 +1068,7 @@ $article = $response->kbArticle; // KnowledgeBaseArticleData with active = true
 
 ## Enable Knowledge Base Section (enable knowledge base section)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response` (contains `KnowledgeBaseSectionData`).
 
 **Method parameters:**
 
@@ -1102,7 +1102,7 @@ $section = $response->kbSection; // KnowledgeBaseSectionData with active = true
 
 ## Enable Knowledge Base Category (enable knowledge base category)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
 
 **Method parameters:**
 
@@ -1979,7 +1979,7 @@ $disabledStaff = $response->staff; // StaffData
 
 ## Enable Staff (enable staff member)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledStaff\Response` (contains `StaffData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableStaff\Response` (contains `StaffData`).
 
 Enable a staff member.
 
@@ -3418,7 +3418,7 @@ $group = $response->group; // GroupData with active = false
 
 ## Enable Group (enable group)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledGroup\Response` (contains `GroupData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableGroup\Response` (contains `GroupData`).
 
 **Method parameters:**
 

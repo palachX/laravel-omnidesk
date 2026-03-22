@@ -6,7 +6,7 @@ namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableKnowledgeBaseArticle;
 
 use Palach\Omnidesk\DTO\KnowledgeBaseArticleData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response as EnabledKnowledgeBaseArticleResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response as EnableKnowledgeBaseArticleResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class EnableKnowledgeBaseArticleResponseTest extends AbstractTestCase
@@ -44,7 +44,7 @@ final class EnableKnowledgeBaseArticleResponseTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testResponse(array $data, array $expected): void
     {
-        $response = EnabledKnowledgeBaseArticleResponse::from($data);
+        $response = EnableKnowledgeBaseArticleResponse::from($data);
 
         $this->assertInstanceOf(KnowledgeBaseArticleData::class, $response->kbArticle);
         $this->assertEquals($expected, $response->toArray());

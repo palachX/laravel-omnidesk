@@ -16,7 +16,7 @@ use Palach\Omnidesk\UseCases\V1\DeleteStaff\Response as DeleteStaffResponse;
 use Palach\Omnidesk\UseCases\V1\DisableStaff\Payload as DisabledStaffPayload;
 use Palach\Omnidesk\UseCases\V1\DisableStaff\Response as DisabledStaffResponse;
 use Palach\Omnidesk\UseCases\V1\EnableStaff\Payload as EnableStaffPayload;
-use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnableStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Response as FetchStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
@@ -169,7 +169,7 @@ final readonly class StaffsClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableStaff(EnableStaffPayload $payload): EnabledStaffResponse
+    public function enableStaff(EnableStaffPayload $payload): EnableStaffResponse
     {
         $url = sprintf(self::STAFF_ENABLE_URL, $payload->staffId);
 
@@ -177,7 +177,7 @@ final readonly class StaffsClient
 
         $staff = $this->extractArray('staff', $response);
 
-        return new EnabledStaffResponse(
+        return new EnableStaffResponse(
             staff: StaffData::from($staff),
         );
     }

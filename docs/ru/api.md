@@ -139,7 +139,7 @@ $users = $omnidesk->users();
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — создание сотрудника.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
 - **`$staffClient->disableStaff(DisableStaffPayload $payload): DisabledStaffResponse`** — отключение сотрудника.
-- **`$staffClient->enableStaff(EnableStaffPayload $payload): EnabledStaffResponse`** — включение сотрудника.
+- **`$staffClient->enableStaff(EnableStaffPayload $payload): EnableStaffResponse`** — включение сотрудника.
 - **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — удаление сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
@@ -158,7 +158,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — редактирование группы.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — получение списка групп с пагинацией.
 - **`$groupsClient->disableGroup(DisableGroupPayload $payload): DisabledGroupResponse`** — отключение группы.
-- **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnabledGroupResponse`** — включение группы.
+- **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
@@ -168,15 +168,15 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — редактирование статьи базы знаний.
 - **`$knowledgeBaseClient->disableSection(DisableSectionPayload $payload): DisabledKnowledgeBaseSectionResponse`** — отключение раздела базы знаний.
 - **`$knowledgeBaseClient->disableArticle(DisableArticlePayload $payload): DisabledKnowledgeBaseArticleResponse`** — отключение статьи базы знаний.
-- **`$knowledgeBaseClient->enableArticle(EnableArticlePayload $payload): EnabledKnowledgeBaseArticleResponse`** — включение статьи базы знаний.
-- **`$knowledgeBaseClient->enableSection(EnableSectionPayload $payload): EnabledKnowledgeBaseSectionResponse`** — включение раздела базы знаний.
+- **`$knowledgeBaseClient->enableArticle(EnableArticlePayload $payload): EnableKnowledgeBaseArticleResponse`** — включение статьи базы знаний.
+- **`$knowledgeBaseClient->enableSection(EnableSectionPayload $payload): EnableKnowledgeBaseSectionResponse`** — включение раздела базы знаний.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — получение списка категорий базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — получение списка разделов базы знаний с пагинацией и фильтрацией по языку.
 - **`$knowledgeBaseClient->fetchArticleList(FetchKnowledgeBaseArticleListPayload $payload): FetchKnowledgeBaseArticleListResponse`** — получение списка статей базы знаний с пагинацией, поиском и фильтрацией.
 - **`$knowledgeBaseClient->getSection(FetchKnowledgeBaseSectionPayload $payload): FetchKnowledgeBaseSectionResponse`** — получение раздела базы знаний по ID.
 - **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — получение статьи базы знаний по ID.
 - **`$knowledgeBaseClient->disableCategory(DisableCategoryPayload $payload): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
-- **`$knowledgeBaseClient->enableCategory(EnableCategoryPayload $payload): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
+- **`$knowledgeBaseClient->enableCategory(EnableCategoryPayload $payload): EnableKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
 - **`$knowledgeBaseClient->moveUpCategory(MoveUpCategoryPayload $payload): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
 - **`$knowledgeBaseClient->moveUpSection(MoveUpSectionPayload $payload): MoveUpKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вверх.
 - **`$knowledgeBaseClient->moveUpArticle(MoveUpArticlePayload $payload): MoveUpKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вверх.
@@ -1286,7 +1286,7 @@ $article = $response->kbArticle; // KnowledgeBaseArticleData с active = false
 
 ## Enable Knowledge Base Article (включение статьи базы знаний)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response` (содержит `KnowledgeBaseArticleData`).
 
 **Параметры метода:**
 
@@ -1321,7 +1321,7 @@ $article = $response->kbArticle; // KnowledgeBaseArticleData с active = true
 
 ## Enable Knowledge Base Section (включение раздела базы знаний)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseSection\Response` (содержит `KnowledgeBaseSectionData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response` (содержит `KnowledgeBaseSectionData`).
 
 **Параметры метода:**
 
@@ -1355,7 +1355,7 @@ $section = $response->kbSection; // KnowledgeBaseSectionData с active = true
 
 ## Enable Knowledge Base Category (включение категории базы знаний)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response` (содержит `KnowledgeBaseCategoryData`).
 
 **Параметры метода:**
 
@@ -1940,7 +1940,7 @@ $disabledStaff = $response->staff; // StaffData
 
 ## Enable Staff (включение сотрудника)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledStaff\Response` (содержит `StaffData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableStaff\Response` (содержит `StaffData`).
 
 Включение сотрудника.
 
@@ -3423,7 +3423,7 @@ $group = $response->group; // GroupData с полем active = false
 
 ## Enable Group (включение группы)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\EnabledGroup\Response` (содержит `GroupData`).
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableGroup\Response` (содержит `GroupData`).
 
 **Параметры метода:**
 

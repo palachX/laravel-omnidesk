@@ -7,8 +7,8 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Payload as EnabledKnowledgeBaseSectionPayload;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response as EnabledKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Payload as EnableKnowledgeBaseSectionPayload;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response as EnableKnowledgeBaseSectionResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -41,7 +41,7 @@ final class EnableKnowledgeBaseSectionTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $payload = new EnabledKnowledgeBaseSectionPayload($sectionId);
+        $payload = new EnableKnowledgeBaseSectionPayload($sectionId);
         $responseData = $this->makeHttpClient()->knowledgeBase()->enableSection($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
@@ -51,6 +51,6 @@ final class EnableKnowledgeBaseSectionTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(EnabledKnowledgeBaseSectionResponse::from($response), $responseData);
+        $this->assertEquals(EnableKnowledgeBaseSectionResponse::from($response), $responseData);
     }
 }

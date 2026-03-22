@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\EnableCategory\Payload as EnableCategoryPayload;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnableKnowledgeBaseCategoryResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -49,6 +49,6 @@ final class EnableKnowledgeBaseCategoryTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(EnabledKnowledgeBaseCategoryResponse::from($response), $responseData);
+        $this->assertEquals(EnableKnowledgeBaseCategoryResponse::from($response), $responseData);
     }
 }

@@ -22,10 +22,10 @@ use Palach\Omnidesk\UseCases\V1\DisableKnowledgeBaseSection\Response as Disabled
 use Palach\Omnidesk\UseCases\V1\DisableSection\Payload as DisableSectionPayload;
 use Palach\Omnidesk\UseCases\V1\EnableArticle\Payload as EnableArticlePayload;
 use Palach\Omnidesk\UseCases\V1\EnableCategory\Payload as EnableCategoryPayload;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response as EnabledKnowledgeBaseArticleResponse;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnabledKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseArticle\Response as EnableKnowledgeBaseArticleResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseCategory\Response as EnableKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Payload as EnableSectionPayload;
-use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response as EnabledKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Response as EnableKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Payload as FetchKnowledgeBaseArticlePayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticle\Response as FetchKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseArticleList\Payload as FetchKnowledgeBaseArticleListPayload;
@@ -354,14 +354,14 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableArticle(EnableArticlePayload $payload): EnabledKnowledgeBaseArticleResponse
+    public function enableArticle(EnableArticlePayload $payload): EnableKnowledgeBaseArticleResponse
     {
         $url = str_replace('.json', "/{$payload->articleId}/enable.json", self::ARTICLE_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $kbArticle = $this->extractArray('kb_article', $response);
 
-        return new EnabledKnowledgeBaseArticleResponse(
+        return new EnableKnowledgeBaseArticleResponse(
             kbArticle: KnowledgeBaseArticleData::from($kbArticle),
         );
     }
@@ -370,14 +370,14 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableSection(EnableSectionPayload $payload): EnabledKnowledgeBaseSectionResponse
+    public function enableSection(EnableSectionPayload $payload): EnableKnowledgeBaseSectionResponse
     {
         $url = str_replace('.json', "/{$payload->sectionId}/enable.json", self::SECTION_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
 
-        return new EnabledKnowledgeBaseSectionResponse(
+        return new EnableKnowledgeBaseSectionResponse(
             kbSection: KnowledgeBaseSectionData::from($kbSection),
         );
     }
@@ -402,7 +402,7 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableCategory(EnableCategoryPayload $payload): EnabledKnowledgeBaseCategoryResponse
+    public function enableCategory(EnableCategoryPayload $payload): EnableKnowledgeBaseCategoryResponse
     {
         $url = sprintf(self::CATEGORY_URL, $payload->categoryId);
         $url = str_replace('.json', '/enable.json', $url);
@@ -410,7 +410,7 @@ final readonly class KnowledgeBaseClient
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
-        return new EnabledKnowledgeBaseCategoryResponse(
+        return new EnableKnowledgeBaseCategoryResponse(
             kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
         );
     }

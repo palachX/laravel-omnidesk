@@ -7,7 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DisableKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\DisableKnowledgeBaseSection\Response as DisableKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\DisableSection\Payload as DisableSectionPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -51,6 +51,6 @@ final class DisableKnowledgeBaseSectionTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(DisabledKnowledgeBaseSectionResponse::from($response), $responseData);
+        $this->assertEquals(DisableKnowledgeBaseSectionResponse::from($response), $responseData);
     }
 }

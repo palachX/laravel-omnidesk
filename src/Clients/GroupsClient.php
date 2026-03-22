@@ -13,7 +13,7 @@ use Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload as DeleteGroupPayload;
 use Palach\Omnidesk\UseCases\V1\DisableGroup\Payload as DisableGroupPayload;
 use Palach\Omnidesk\UseCases\V1\DisableGroup\Response as DisabledGroupResponse;
 use Palach\Omnidesk\UseCases\V1\EnableGroup\Payload as EnableGroupPayload;
-use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnableGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Response as FetchGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
@@ -132,7 +132,7 @@ final readonly class GroupsClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableGroup(EnableGroupPayload $payload): EnabledGroupResponse
+    public function enableGroup(EnableGroupPayload $payload): EnableGroupResponse
     {
         $url = sprintf(self::GROUP_URL, $payload->groupId);
         $url = str_replace('.json', '/enable.json', $url);
@@ -141,7 +141,7 @@ final readonly class GroupsClient
 
         $group = $this->extractArray('group', $response);
 
-        return new EnabledGroupResponse(
+        return new EnableGroupResponse(
             group: GroupData::from($group),
         );
     }

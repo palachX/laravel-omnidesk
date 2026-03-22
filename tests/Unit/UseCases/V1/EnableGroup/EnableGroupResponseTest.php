@@ -6,7 +6,7 @@ namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableGroup;
 
 use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnableGroupResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class EnableGroupResponseTest extends AbstractTestCase
@@ -42,7 +42,7 @@ final class EnableGroupResponseTest extends AbstractTestCase
     #[DataProvider('dataArrayProvider')]
     public function testResponse(array $data, array $expected): void
     {
-        $response = EnabledGroupResponse::from($data);
+        $response = EnableGroupResponse::from($data);
 
         $this->assertInstanceOf(GroupData::class, $response->group);
         $this->assertEquals($expected, $response->toArray());

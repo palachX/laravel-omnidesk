@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\DisableCompany\Payload as DisableCompanyPayload;
-use Palach\Omnidesk\UseCases\V1\DisableCompany\Response as DisabledCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\DisableCompany\Response as DisableCompanyResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -54,6 +54,6 @@ final class DisableCompanyTest extends AbstractTestCase
                 && $request->body() === json_encode([]);
         });
 
-        $this->assertEquals(DisabledCompanyResponse::from($response), $responseData);
+        $this->assertEquals(DisableCompanyResponse::from($response), $responseData);
     }
 }
