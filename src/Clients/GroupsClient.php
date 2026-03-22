@@ -10,8 +10,10 @@ use Palach\Omnidesk\DTO\GroupData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteGroup\Payload as DeleteGroupPayload;
-use Palach\Omnidesk\UseCases\V1\DisabledGroup\Response as DisabledGroupResponse;
-use Palach\Omnidesk\UseCases\V1\EnabledGroup\Response as EnabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\DisableGroup\Payload as DisableGroupPayload;
+use Palach\Omnidesk\UseCases\V1\DisableGroup\Response as DisabledGroupResponse;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Payload as EnableGroupPayload;
+use Palach\Omnidesk\UseCases\V1\EnableGroup\Response as EnabledGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Payload as FetchGroupPayload;
 use Palach\Omnidesk\UseCases\V1\FetchGroup\Response as FetchGroupResponse;
 use Palach\Omnidesk\UseCases\V1\FetchGroupList\Payload as FetchGroupListPayload;
@@ -112,12 +114,12 @@ final readonly class GroupsClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse
+    public function disableGroup(DisableGroupPayload $payload): DisabledGroupResponse
     {
-        $url = sprintf(self::GROUP_URL, $groupId);
+        $url = sprintf(self::GROUP_URL, $payload->groupId);
         $url = str_replace('.json', '/disable.json', $url);
 
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, ['group' => ['replace_group_id' => $replaceGroupId]]);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, ['group' => ['replace_group_id' => $payload->replaceGroupId]]);
 
         $group = $this->extractArray('group', $response);
 
@@ -130,9 +132,9 @@ final readonly class GroupsClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableGroup(int $groupId): EnabledGroupResponse
+    public function enableGroup(EnableGroupPayload $payload): EnabledGroupResponse
     {
-        $url = sprintf(self::GROUP_URL, $groupId);
+        $url = sprintf(self::GROUP_URL, $payload->groupId);
         $url = str_replace('.json', '/enable.json', $url);
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);

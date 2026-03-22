@@ -137,8 +137,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$notesClient->deleteNote(DeleteNotePayload $payload): void`** — delete a note.
 - **`$staffClient->store(StoreStaffPayload $payload): StoreStaffResponse`** — create a staff member.
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
-- **`$staffClient->disableStaff(int $staffId, DisabledStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
-- **`$staffClient->enableStaff(int $staffId): EnabledStaffResponse`** — enable a staff member.
+- **`$staffClient->disableStaff(DisableStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
+- **`$staffClient->enableStaff(EnableStaffPayload $payload): EnabledStaffResponse`** — enable a staff member.
 - **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — delete a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
@@ -150,14 +150,14 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
 - **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — delete a company (move to deleted list).
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — block company (all subsequent company requests will be marked as spam).
-- **`$companiesClient->disableCompany(int $companyId): DisabledCompanyResponse`** — disable company (move to deleted list).
+- **`$companiesClient->disableCompany(DisableCompanyPayload $payload): DisabledCompanyResponse`** — disable company (move to deleted list).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — recover company after blocking or deletion.
 - **`$groupsClient->getGroup(FetchGroupPayload $payload): FetchGroupResponse`** — fetch a single group by ID.
 - **`$groupsClient->store(StoreGroupPayload $payload): StoreGroupResponse`** — create a group.
 - **`$groupsClient->update(int $groupId, UpdateGroupPayload $payload): UpdateGroupResponse`** — update a group.
 - **`$groupsClient->fetchList(FetchGroupListPayload $payload): FetchGroupListResponse`** — get list of groups with pagination.
-- **`$groupsClient->disableGroup(int $groupId, int $replaceGroupId): DisabledGroupResponse`** — disable a group.
-- **`$groupsClient->enableGroup(int $groupId): EnabledGroupResponse`** — enable a group.
+- **`$groupsClient->disableGroup(DisableGroupPayload $payload): DisabledGroupResponse`** — disable a group.
+- **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnabledGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
@@ -165,10 +165,10 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->updateCategory(int $categoryId, UpdateKnowledgeBaseCategoryPayload $payload): UpdateKnowledgeBaseCategoryResponse`** — update a knowledge base category.
 - **`$knowledgeBaseClient->updateSection(int $sectionId, UpdateKnowledgeBaseSectionPayload $payload): UpdateKnowledgeBaseSectionResponse`** — update a knowledge base section.
 - **`$knowledgeBaseClient->updateArticle(int $articleId, UpdateKnowledgeBaseArticlePayload $payload): UpdateKnowledgeBaseArticleResponse`** — update a knowledge base article.
-- **`$knowledgeBaseClient->disableSection(int $sectionId): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
-- **`$knowledgeBaseClient->disableArticle(int $articleId): DisabledKnowledgeBaseArticleResponse`** — disable a knowledge base article.
-- **`$knowledgeBaseClient->enableArticle(int $articleId): EnabledKnowledgeBaseArticleResponse`** — enable a knowledge base article.
-- **`$knowledgeBaseClient->enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse`** — enable a knowledge base section.
+- **`$knowledgeBaseClient->disableSection(DisableSectionPayload $payload): DisabledKnowledgeBaseSectionResponse`** — disable a knowledge base section.
+- **`$knowledgeBaseClient->disableArticle(DisableArticlePayload $payload): DisabledKnowledgeBaseArticleResponse`** — disable a knowledge base article.
+- **`$knowledgeBaseClient->enableArticle(EnableArticlePayload $payload): EnabledKnowledgeBaseArticleResponse`** — enable a knowledge base article.
+- **`$knowledgeBaseClient->enableSection(EnableSectionPayload $payload): EnabledKnowledgeBaseSectionResponse`** — enable a knowledge base section.
 - **`$knowledgeBaseClient->fetchCategory(FetchKnowledgeBaseCategoryPayload $payload): FetchKnowledgeBaseCategoryResponse`** — fetch a single knowledge base category by ID with optional language filtering.
 - **`$knowledgeBaseClient->fetchList(FetchKnowledgeBaseCategoryListPayload $payload): FetchKnowledgeBaseCategoryListResponse`** — list knowledge base categories with pagination and language filtering.
 - **`$knowledgeBaseClient->fetchSectionList(FetchKnowledgeBaseSectionListPayload $payload): FetchKnowledgeBaseSectionListResponse`** — list knowledge base sections with pagination and language filtering.
@@ -1959,8 +1959,8 @@ Disable a staff member.
 ```php
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\StaffsClient;
-use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
-use Palach\Omnidesk\UseCases\V1\DisabledStaff\DisabledStaffData;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\Payload as DisabledStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\DisabledStaffData;
 
 /** @var StaffsClient $staff */
 $staff = Omnidesk::staff();

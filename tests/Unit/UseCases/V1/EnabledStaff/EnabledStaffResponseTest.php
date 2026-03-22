@@ -6,7 +6,7 @@ namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnabledStaff;
 
 use Palach\Omnidesk\DTO\StaffData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\EnabledStaff\Response as EnabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnabledStaffResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class EnabledStaffResponseTest extends AbstractTestCase

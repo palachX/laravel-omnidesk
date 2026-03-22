@@ -13,9 +13,10 @@ use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
 use Palach\Omnidesk\UseCases\V1\DeleteStaff\Response as DeleteStaffResponse;
-use Palach\Omnidesk\UseCases\V1\DisabledStaff\Payload as DisabledStaffPayload;
-use Palach\Omnidesk\UseCases\V1\DisabledStaff\Response as DisabledStaffResponse;
-use Palach\Omnidesk\UseCases\V1\EnabledStaff\Response as EnabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\Payload as DisabledStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DisableStaff\Response as DisabledStaffResponse;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Payload as EnableStaffPayload;
+use Palach\Omnidesk\UseCases\V1\EnableStaff\Response as EnabledStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Payload as FetchStaffPayload;
 use Palach\Omnidesk\UseCases\V1\FetchStaff\Response as FetchStaffResponse;
 use Palach\Omnidesk\UseCases\V1\FetchStaffList\Payload as FetchStaffListPayload;
@@ -168,9 +169,9 @@ final readonly class StaffsClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function enableStaff(int $staffId): EnabledStaffResponse
+    public function enableStaff(EnableStaffPayload $payload): EnabledStaffResponse
     {
-        $url = sprintf(self::STAFF_ENABLE_URL, $staffId);
+        $url = sprintf(self::STAFF_ENABLE_URL, $payload->staffId);
 
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
