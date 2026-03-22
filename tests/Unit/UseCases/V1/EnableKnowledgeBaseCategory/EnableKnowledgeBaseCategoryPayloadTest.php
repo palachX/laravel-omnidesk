@@ -8,7 +8,7 @@ use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\EnableCategory\Payload as EnableCategoryPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class EnableCategoryPayloadTest extends AbstractTestCase
+final class EnableKnowledgeBaseCategoryPayloadTest extends AbstractTestCase
 {
     public static function dataProvider(): iterable
     {

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableSection;
+namespace Palach\Omnidesk\Tests\Unit\UseCases\V1\EnableKnowledgeBaseSection;
 
 use Palach\Omnidesk\Tests\AbstractTestCase;
 use Palach\Omnidesk\UseCases\V1\EnableKnowledgeBaseSection\Payload as EnableSectionPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class EnableSectionPayloadTest extends AbstractTestCase
+final class EnableKnowledgeBaseSectionPayloadTest extends AbstractTestCase
 {
     public static function dataProvider(): iterable
     {
