@@ -11,8 +11,9 @@ use Palach\Omnidesk\DTO\KnowledgeBaseCategoryData;
 use Palach\Omnidesk\DTO\KnowledgeBaseSectionData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
-use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
-use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Response as DeleteKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseArticle\Payload as DeleteArticlePayload;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Payload as DeleteCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Payload as DeleteSectionPayload;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseArticle\Response as DisabledKnowledgeBaseArticleResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseCategory\Response as DisabledKnowledgeBaseCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\DisabledKnowledgeBaseSection\Response as DisabledKnowledgeBaseSectionResponse;
@@ -360,7 +361,7 @@ final readonly class KnowledgeBaseClient
     public function enableSection(int $sectionId): EnabledKnowledgeBaseSectionResponse
     {
         $url = str_replace('.json', "/$sectionId/enable.json", self::SECTION_URL);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
 
@@ -376,7 +377,7 @@ final readonly class KnowledgeBaseClient
     public function disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse
     {
         $url = str_replace('.json', "/$categoryId/disable.json", self::API_URL);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
@@ -393,7 +394,7 @@ final readonly class KnowledgeBaseClient
     {
         $url = sprintf(self::CATEGORY_URL, $categoryId);
         $url = str_replace('.json', '/enable.json', $url);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
@@ -409,7 +410,7 @@ final readonly class KnowledgeBaseClient
     public function moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse
     {
         $url = sprintf(self::MOVE_UP_URL, $categoryId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
@@ -425,7 +426,7 @@ final readonly class KnowledgeBaseClient
     public function moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse
     {
         $url = sprintf(self::MOVE_DOWN_URL, $categoryId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
 
@@ -438,34 +439,33 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse
+    public function deleteCategory(DeleteCategoryPayload $payload): void
     {
-        $url = sprintf(self::CATEGORY_URL, $categoryId);
+        $url = sprintf(self::CATEGORY_URL, $payload->categoryId);
 
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
-
-        $kbCategory = $this->extractArray('kb_category', $response);
-
-        return new DeleteKnowledgeBaseCategoryResponse(
-            kbCategory: KnowledgeBaseCategoryData::from($kbCategory),
-        );
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 
     /**
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteSection(int $sectionId): DeleteKnowledgeBaseSectionResponse
+    public function deleteSection(DeleteSectionPayload $payload): void
     {
-        $url = sprintf(self::SECTION_DETAIL_URL, $sectionId);
+        $url = sprintf(self::SECTION_DETAIL_URL, $payload->sectionId);
 
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
+    }
 
-        $kbSection = $this->extractArray('kb_section', $response);
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteArticle(DeleteArticlePayload $payload): void
+    {
+        $url = sprintf(self::ARTICLE_DETAIL_URL, $payload->articleId);
 
-        return new DeleteKnowledgeBaseSectionResponse(
-            kbSection: KnowledgeBaseSectionData::from($kbSection),
-        );
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 
     /**
@@ -475,7 +475,7 @@ final readonly class KnowledgeBaseClient
     public function moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse
     {
         $url = sprintf(self::MOVE_UP_SECTION_URL, $sectionId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
 
@@ -491,7 +491,7 @@ final readonly class KnowledgeBaseClient
     public function moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse
     {
         $url = sprintf(self::MOVE_UP_ARTICLE_URL, $articleId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbArticle = $this->extractArray('kb_article', $response);
 
@@ -507,7 +507,7 @@ final readonly class KnowledgeBaseClient
     public function moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse
     {
         $url = sprintf(self::MOVE_DOWN_SECTION_URL, $sectionId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
 
@@ -523,7 +523,7 @@ final readonly class KnowledgeBaseClient
     public function moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse
     {
         $url = sprintf(self::MOVE_DOWN_ARTICLE_URL, $articleId);
-        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbArticle = $this->extractArray('kb_article', $response);
 

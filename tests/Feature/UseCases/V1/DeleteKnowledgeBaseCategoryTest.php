@@ -7,7 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response as DeleteKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Payload as DeleteKnowledgeBaseCategoryPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -38,7 +38,8 @@ final class DeleteKnowledgeBaseCategoryTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->knowledgeBase()->deleteCategory($categoryId);
+        $payload = new DeleteKnowledgeBaseCategoryPayload($categoryId);
+        $this->makeHttpClient()->knowledgeBase()->deleteCategory($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url
@@ -46,7 +47,5 @@ final class DeleteKnowledgeBaseCategoryTest extends AbstractTestCase
                 && $request->method() === SymfonyRequest::METHOD_DELETE
                 && $request->body() === json_encode([]);
         });
-
-        $this->assertEquals(DeleteKnowledgeBaseCategoryResponse::from($response), $responseData);
     }
 }

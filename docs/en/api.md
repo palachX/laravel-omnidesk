@@ -183,8 +183,9 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse`** — move down a knowledge base article.
 - **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — move down a knowledge base section.
 - **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
-- **`$knowledgeBaseClient->deleteCategory(int $categoryId): DeleteKnowledgeBaseCategoryResponse`** — delete a knowledge base category.
-- **`$knowledgeBaseClient->deleteSection(int $sectionId): DeleteKnowledgeBaseSectionResponse`** — delete a knowledge base section.
+- **`$knowledgeBaseClient->deleteCategory(DeleteCategoryPayload $payload): void`** — delete a knowledge base category.
+- **`$knowledgeBaseClient->deleteSection(DeleteSectionPayload $payload): void`** — delete a knowledge base section.
+- **`$knowledgeBaseClient->deleteArticle(DeleteArticlePayload $payload): void`** — delete a knowledge base article.
 - **`$usersClient->fetch(FetchUserPayload $payload): FetchUserResponse`** — fetch a single user by ID.
 - **`$usersClient->store(StoreUserPayload $payload): StoreUserResponse`** — create a user.
 - **`$usersClient->update(int $userId, UpdateUserPayload $payload): UpdateUserResponse`** — update a user.
@@ -1351,7 +1352,14 @@ $category = $response->kbCategory; // KnowledgeBaseCategoryData
 
 ## Delete Knowledge Base Category (delete category)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Response` (contains `KnowledgeBaseCategoryData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Payload`  
+**Response:** void (no response body).
+
+**Payload Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_id | int | yes | Category ID |
 
 **HTTP Method:** `DELETE /api/kb_category/{id}.json`
 
@@ -1362,22 +1370,79 @@ Example:
 ```php
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseCategory\Payload as DeleteKnowledgeBaseCategoryPayload;
 
 /** @var KnowledgeBaseClient $knowledgeBase */
 $knowledgeBase = Omnidesk::knowledgeBase();
 
-$response = $knowledgeBase->deleteCategory(234);
-$category = $response->kbCategory; // KnowledgeBaseCategoryData
+$payload = new DeleteKnowledgeBaseCategoryPayload(
+    categoryId: 234,
+);
+$knowledgeBase->deleteCategory($payload);
 ```
 
-#### Delete Knowledge Base Section
+## Delete Knowledge Base Section (delete section)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Payload`  
+**Response:** void (no response body).
+
+**Payload Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| section_id | int | yes | Section ID |
+
+**HTTP Method:** `DELETE /api/kb_section/{id}.json`
+
+Delete a knowledge base section.
+
+Example:
 
 ```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseSection\Payload as DeleteKnowledgeBaseSectionPayload;
+
 /** @var KnowledgeBaseClient $knowledgeBase */
 $knowledgeBase = Omnidesk::knowledgeBase();
 
-$response = $knowledgeBase->deleteSection(345);
-$section = $response->kbSection; // KnowledgeBaseSectionData
+$payload = new DeleteKnowledgeBaseSectionPayload(
+    sectionId: 345,
+);
+$knowledgeBase->deleteSection($payload);
+```
+
+---
+
+## Delete Knowledge Base Article (delete article)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseArticle\Payload`  
+**Response:** void (no response body).
+
+**Payload Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| article_id | int | yes | Article ID |
+
+**HTTP Method:** `DELETE /api/kb_article/{id}.json`
+
+Delete a knowledge base article.
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\KnowledgeBaseClient;
+use Palach\Omnidesk\UseCases\V1\DeleteKnowledgeBaseArticle\Payload as DeleteKnowledgeBaseArticlePayload;
+
+/** @var KnowledgeBaseClient $knowledgeBase */
+$knowledgeBase = Omnidesk::knowledgeBase();
+
+$payload = new DeleteKnowledgeBaseArticlePayload(
+    articleId: 456,
+);
+$knowledgeBase->deleteArticle($payload);
 ```
 
 ---
