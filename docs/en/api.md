@@ -193,10 +193,10 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — get user identification code.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — link user profiles.
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — unlink user profiles.
-- **`$usersClient->disableUser(int $userId): DisableUserResponse`** — disable user (move to deleted list).
-- **`$usersClient->blockUser(int $userId): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
-- **`$usersClient->deleteUser(int $userId): DeleteUserResponse`** — permanently delete user (available only for employees with full access).
-- **`$usersClient->recoveryUser(int $userId): RecoveryUserResponse`** — recover user after blocking or deletion.
+- **`$usersClient->disableUser(DisableUserPayload $payload): DisableUserResponse`** — disable user (move to deleted list).
+- **`$usersClient->blockUser(BlockUserPayload $payload): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
+- **`$usersClient->deleteUser(DeleteUserPayload $payload): void`** — permanently delete user (available only for employees with full access).
+- **`$usersClient->recoveryUser(RecoveryUserPayload $payload): RecoveryUserResponse`** — recover user after blocking or deletion.
 
 ---
 

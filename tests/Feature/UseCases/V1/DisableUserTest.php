@@ -7,6 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
+use Palach\Omnidesk\UseCases\V1\DisableUser\Payload as DisableUserPayload;
 use Palach\Omnidesk\UseCases\V1\DisableUser\Response as DisableUserResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -50,7 +51,8 @@ final class DisableUserTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->users()->disableUser($userId);
+        $payload = new DisableUserPayload($userId);
+        $responseData = $this->makeHttpClient()->users()->disableUser($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url

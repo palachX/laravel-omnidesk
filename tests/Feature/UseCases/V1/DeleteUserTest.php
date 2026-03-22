@@ -7,7 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DeleteUser\Response as DeleteUserResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteUser\Payload as DeleteUserPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -50,7 +50,8 @@ final class DeleteUserTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->users()->deleteUser($userId);
+        $payload = new DeleteUserPayload($userId);
+        $this->makeHttpClient()->users()->deleteUser($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url
@@ -58,7 +59,5 @@ final class DeleteUserTest extends AbstractTestCase
                 && $request->method() === SymfonyRequest::METHOD_DELETE
                 && $request->body() === json_encode([]);
         });
-
-        $this->assertEquals(DeleteUserResponse::from($response), $responseData);
     }
 }

@@ -193,10 +193,10 @@ $users = $omnidesk->users();
 - **`$usersClient->fetchUserIdentification(FetchUserIdentificationPayload $payload): FetchUserIdentificationResponse`** — получение кода идентификации пользователя.
 - **`$usersClient->linkUser(int $userId, LinkUserPayload $payload): LinkUserResponse`** — связывание профилей пользователей.
 - **`$usersClient->unlinkUser(int $userId, UnlinkUserPayload $payload): UnlinkUserResponse`** — отвязывание профилей пользователей.
-- **`$usersClient->disableUser(int $userId): DisableUserResponse`** — удаление пользователя (перенос в список удалённых).
-- **`$usersClient->blockUser(int $userId): BlockUserResponse`** — блокирование пользователя (все последующие обращения пользователя будут помечаться как спам).
-- **`$usersClient->deleteUser(int $userId): DeleteUserResponse`** — полное удаление пользователя (доступно только для сотрудников с полным доступом).
-- **`$usersClient->recoveryUser(int $userId): RecoveryUserResponse`** — восстановление пользователя после блокировки или удаления.
+- **`$usersClient->disableUser(DisableUserPayload $payload): DisableUserResponse`** — удаление пользователя (перенос в список удалённых).
+- **`$usersClient->blockUser(BlockUserPayload $payload): BlockUserResponse`** — блокирование пользователя (все последующие обращения пользователя будут помечаться как спам).
+- **`$usersClient->deleteUser(DeleteUserPayload $payload): void`** — полное удаление пользователя (доступно только для сотрудников с полным доступом).
+- **`$usersClient->recoveryUser(RecoveryUserPayload $payload): RecoveryUserResponse`** — восстановление пользователя после блокировки или удаления.
 
 ---
 

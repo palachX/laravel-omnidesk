@@ -9,8 +9,10 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\UserData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\BlockUser\Payload as BlockUserPayload;
 use Palach\Omnidesk\UseCases\V1\BlockUser\Response as BlockUserResponse;
-use Palach\Omnidesk\UseCases\V1\DeleteUser\Response as DeleteUserResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteUser\Payload as DeleteUserPayload;
+use Palach\Omnidesk\UseCases\V1\DisableUser\Payload as DisableUserPayload;
 use Palach\Omnidesk\UseCases\V1\DisableUser\Response as DisableUserResponse;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Payload as FetchUserPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUser\Response as FetchUserResponse;
@@ -20,6 +22,7 @@ use Palach\Omnidesk\UseCases\V1\FetchUserList\Payload as FetchUserListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchUserList\Response as FetchUserListResponse;
 use Palach\Omnidesk\UseCases\V1\LinkUser\Payload as LinkUserPayload;
 use Palach\Omnidesk\UseCases\V1\LinkUser\Response as LinkUserResponse;
+use Palach\Omnidesk\UseCases\V1\RecoveryUser\Payload as RecoveryUserPayload;
 use Palach\Omnidesk\UseCases\V1\RecoveryUser\Response as RecoveryUserResponse;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Payload as StoreUserPayload;
 use Palach\Omnidesk\UseCases\V1\StoreUser\Response as StoreUserResponse;
@@ -148,9 +151,9 @@ final readonly class UsersClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function disableUser(int $userId): DisableUserResponse
+    public function disableUser(DisableUserPayload $payload): DisableUserResponse
     {
-        $url = str_replace('.json', "/$userId/disable.json", self::API_URL);
+        $url = str_replace('.json', "/{$payload->userId}/disable.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $user = $this->extractArray('user', $response);
@@ -164,9 +167,9 @@ final readonly class UsersClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function blockUser(int $userId): BlockUserResponse
+    public function blockUser(BlockUserPayload $payload): BlockUserResponse
     {
-        $url = str_replace('.json', "/$userId/block.json", self::API_URL);
+        $url = str_replace('.json', "/{$payload->userId}/block.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $user = $this->extractArray('user', $response);
@@ -180,9 +183,9 @@ final readonly class UsersClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function recoveryUser(int $userId): RecoveryUserResponse
+    public function recoveryUser(RecoveryUserPayload $payload): RecoveryUserResponse
     {
-        $url = str_replace('.json', "/$userId/restore.json", self::API_URL);
+        $url = str_replace('.json', "/{$payload->userId}/restore.json", self::API_URL);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url, []);
 
         $user = $this->extractArray('user', $response);
@@ -196,16 +199,10 @@ final readonly class UsersClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteUser(int $userId): DeleteUserResponse
+    public function deleteUser(DeleteUserPayload $payload): void
     {
-        $url = str_replace('.json', "/$userId.json", self::API_URL);
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
-
-        $user = $this->extractArray('user', $response);
-
-        return new DeleteUserResponse(
-            user: UserData::from($user),
-        );
+        $url = str_replace('.json', "/{$payload->userId}.json", self::API_URL);
+        $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
     }
 
     /**
