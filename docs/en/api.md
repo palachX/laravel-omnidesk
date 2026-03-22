@@ -177,12 +177,12 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — fetch a single knowledge base article by ID with optional language filtering.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — disable a knowledge base category.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — enable a knowledge base category.
-- **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
-- **`$knowledgeBaseClient->moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse`** — move up a knowledge base section.
-- **`$knowledgeBaseClient->moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse`** — move up a knowledge base article.
-- **`$knowledgeBaseClient->moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse`** — move down a knowledge base article.
-- **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — move down a knowledge base section.
-- **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
+- **`$knowledgeBaseClient->moveUpCategory(MoveUpCategoryPayload $payload): MoveUpKnowledgeBaseCategoryResponse`** — move up a knowledge base category.
+- **`$knowledgeBaseClient->moveUpSection(MoveUpSectionPayload $payload): MoveUpKnowledgeBaseSectionResponse`** — move up a knowledge base section.
+- **`$knowledgeBaseClient->moveUpArticle(MoveUpArticlePayload $payload): MoveUpKnowledgeBaseArticleResponse`** — move up a knowledge base article.
+- **`$knowledgeBaseClient->moveDownArticle(MoveDownArticlePayload $payload): MoveDownKnowledgeBaseArticleResponse`** — move down a knowledge base article.
+- **`$knowledgeBaseClient->moveDownSection(MoveDownSectionPayload $payload): MoveDownKnowledgeBaseSectionResponse`** — move down a knowledge base section.
+- **`$knowledgeBaseClient->moveDownCategory(MoveDownCategoryPayload $payload): MoveDownKnowledgeBaseCategoryResponse`** — move down a knowledge base category.
 - **`$knowledgeBaseClient->deleteCategory(DeleteCategoryPayload $payload): void`** — delete a knowledge base category.
 - **`$knowledgeBaseClient->deleteSection(DeleteSectionPayload $payload): void`** — delete a knowledge base section.
 - **`$knowledgeBaseClient->deleteArticle(DeleteArticlePayload $payload): void`** — delete a knowledge base article.

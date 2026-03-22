@@ -177,12 +177,12 @@ $users = $omnidesk->users();
 - **`$knowledgeBaseClient->fetchArticle(FetchKnowledgeBaseArticlePayload $payload): FetchKnowledgeBaseArticleResponse`** — получение статьи базы знаний по ID.
 - **`$knowledgeBaseClient->disableCategory(int $categoryId): DisabledKnowledgeBaseCategoryResponse`** — отключение категории базы знаний.
 - **`$knowledgeBaseClient->enableCategory(int $categoryId): EnabledKnowledgeBaseCategoryResponse`** — включение категории базы знаний.
-- **`$knowledgeBaseClient->moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
-- **`$knowledgeBaseClient->moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вверх.
-- **`$knowledgeBaseClient->moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вверх.
-- **`$knowledgeBaseClient->moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вниз.
-- **`$knowledgeBaseClient->moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вниз.
-- **`$knowledgeBaseClient->moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
+- **`$knowledgeBaseClient->moveUpCategory(MoveUpCategoryPayload $payload): MoveUpKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вверх.
+- **`$knowledgeBaseClient->moveUpSection(MoveUpSectionPayload $payload): MoveUpKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вверх.
+- **`$knowledgeBaseClient->moveUpArticle(MoveUpArticlePayload $payload): MoveUpKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вверх.
+- **`$knowledgeBaseClient->moveDownArticle(MoveDownArticlePayload $payload): MoveDownKnowledgeBaseArticleResponse`** — перемещение статьи базы знаний вниз.
+- **`$knowledgeBaseClient->moveDownSection(MoveDownSectionPayload $payload): MoveDownKnowledgeBaseSectionResponse`** — перемещение раздела базы знаний вниз.
+- **`$knowledgeBaseClient->moveDownCategory(MoveDownCategoryPayload $payload): MoveDownKnowledgeBaseCategoryResponse`** — перемещение категории базы знаний вниз.
 - **`$knowledgeBaseClient->deleteCategory(DeleteCategoryPayload $payload): void`** — удаление категории базы знаний.
 - **`$knowledgeBaseClient->deleteSection(DeleteSectionPayload $payload): void`** — удаление раздела базы знаний.
 - **`$knowledgeBaseClient->deleteArticle(DeleteArticlePayload $payload): void`** — удаление статьи базы знаний.

@@ -32,11 +32,17 @@ use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Payload as FetchKnowle
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSection\Response as FetchKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Payload as FetchKnowledgeBaseSectionListPayload;
 use Palach\Omnidesk\UseCases\V1\FetchKnowledgeBaseSectionList\Response as FetchKnowledgeBaseSectionListResponse;
+use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseArticle\Payload as MoveDownArticlePayload;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseArticle\Response as MoveDownKnowledgeBaseArticleResponse;
+use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Payload as MoveDownCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseCategory\Response as MoveDownKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseSection\Payload as MoveDownSectionPayload;
 use Palach\Omnidesk\UseCases\V1\MoveDownKnowledgeBaseSection\Response as MoveDownKnowledgeBaseSectionResponse;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseArticle\Payload as MoveUpArticlePayload;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseArticle\Response as MoveUpKnowledgeBaseArticleResponse;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Payload as MoveUpCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseCategory\Response as MoveUpKnowledgeBaseCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Payload as MoveUpSectionPayload;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseSection\Response as MoveUpKnowledgeBaseSectionResponse;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Payload as StoreKnowledgeBaseArticlePayload;
 use Palach\Omnidesk\UseCases\V1\StoreKnowledgeBaseArticle\Response as StoreKnowledgeBaseArticleResponse;
@@ -407,9 +413,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveUpCategory(int $categoryId): MoveUpKnowledgeBaseCategoryResponse
+    public function moveUpCategory(MoveUpCategoryPayload $payload): MoveUpKnowledgeBaseCategoryResponse
     {
-        $url = sprintf(self::MOVE_UP_URL, $categoryId);
+        $url = sprintf(self::MOVE_UP_URL, $payload->categoryId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
@@ -423,9 +429,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveDownCategory(int $categoryId): MoveDownKnowledgeBaseCategoryResponse
+    public function moveDownCategory(MoveDownCategoryPayload $payload): MoveDownKnowledgeBaseCategoryResponse
     {
-        $url = sprintf(self::MOVE_DOWN_URL, $categoryId);
+        $url = sprintf(self::MOVE_DOWN_URL, $payload->categoryId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbCategory = $this->extractArray('kb_category', $response);
@@ -472,9 +478,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveUpSection(int $sectionId): MoveUpKnowledgeBaseSectionResponse
+    public function moveUpSection(MoveUpSectionPayload $payload): MoveUpKnowledgeBaseSectionResponse
     {
-        $url = sprintf(self::MOVE_UP_SECTION_URL, $sectionId);
+        $url = sprintf(self::MOVE_UP_SECTION_URL, $payload->sectionId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
@@ -488,9 +494,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveUpArticle(int $articleId): MoveUpKnowledgeBaseArticleResponse
+    public function moveUpArticle(MoveUpArticlePayload $payload): MoveUpKnowledgeBaseArticleResponse
     {
-        $url = sprintf(self::MOVE_UP_ARTICLE_URL, $articleId);
+        $url = sprintf(self::MOVE_UP_ARTICLE_URL, $payload->articleId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbArticle = $this->extractArray('kb_article', $response);
@@ -504,9 +510,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveDownSection(int $sectionId): MoveDownKnowledgeBaseSectionResponse
+    public function moveDownSection(MoveDownSectionPayload $payload): MoveDownKnowledgeBaseSectionResponse
     {
-        $url = sprintf(self::MOVE_DOWN_SECTION_URL, $sectionId);
+        $url = sprintf(self::MOVE_DOWN_SECTION_URL, $payload->sectionId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbSection = $this->extractArray('kb_section', $response);
@@ -520,9 +526,9 @@ final readonly class KnowledgeBaseClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function moveDownArticle(int $articleId): MoveDownKnowledgeBaseArticleResponse
+    public function moveDownArticle(MoveDownArticlePayload $payload): MoveDownKnowledgeBaseArticleResponse
     {
-        $url = sprintf(self::MOVE_DOWN_ARTICLE_URL, $articleId);
+        $url = sprintf(self::MOVE_DOWN_ARTICLE_URL, $payload->articleId);
         $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
 
         $kbArticle = $this->extractArray('kb_article', $response);

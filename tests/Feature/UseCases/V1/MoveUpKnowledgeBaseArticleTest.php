@@ -7,6 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
+use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseArticle\Payload as MoveUpKnowledgeBaseArticlePayload;
 use Palach\Omnidesk\UseCases\V1\MoveUpKnowledgeBaseArticle\Response as MoveUpKnowledgeBaseArticleResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -41,7 +42,8 @@ final class MoveUpKnowledgeBaseArticleTest extends AbstractTestCase
             $url => Http::response($response),
         ]);
 
-        $responseData = $this->makeHttpClient()->knowledgeBase()->moveUpArticle($articleId);
+        $payload = new MoveUpKnowledgeBaseArticlePayload($articleId);
+        $responseData = $this->makeHttpClient()->knowledgeBase()->moveUpArticle($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url
