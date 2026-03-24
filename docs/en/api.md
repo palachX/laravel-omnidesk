@@ -166,6 +166,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — create an idea category.
 - **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — fetch a single idea category by ID.
+- **`$ideaCategoriesClient->update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse`** — update an idea category.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — list idea categories with pagination.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
@@ -341,6 +342,57 @@ foreach ($categories as $category) {
     echo "Category title: " . $category->categoryTitle . "\n";
     echo "Active: " . ($category->active ? 'Yes' : 'No') . "\n";
 }
+```
+
+---
+
+## Update Idea Category (update idea category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Response` (contains `IdeaCategoryData`).
+
+Update an idea category.
+
+**IdeaCategoryUpdateData** (Payload `ideas_category` field):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_title | string | no | Category title |
+| category_default_group | int | no | Default group for the category. Should specify group ID |
+
+**Payload Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| ideas_category | IdeaCategoryUpdateData | yes | Category update data |
+
+**IdeaCategoryData** (response `ideas_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `active` — Active status
+- `category_default_group` — Default group ID (if set)
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\IdeaCategoryUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Payload as UpdateIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$categoryId = 100;
+$payload = new UpdateIdeaCategoryPayload(
+    ideasCategory: new IdeaCategoryUpdateData(
+        categoryTitle: 'Test category 2',
+        categoryDefaultGroup: 43983
+    )
+);
+
+$response = $ideaCategories->update($categoryId, $payload);
+$category = $response->ideasCategory; // IdeaCategoryData
 ```
 
 ---

@@ -167,6 +167,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — создание категории идей.
 - **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — получение категории идей по ID.
+- **`$ideaCategoriesClient->update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse`** — редактирование категории идей.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — получение списка категорий идей с пагинацией.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
@@ -564,6 +565,57 @@ foreach ($categories as $category) {
     echo "Название категории: " . $category->categoryTitle . "\n";
     echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
 }
+```
+
+---
+
+## Update Idea Category (редактирование категории идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Response` (содержит `IdeaCategoryData`).
+
+Редактирование категории идей.
+
+**IdeaCategoryUpdateData** (поле `ideas_category` в Payload):
+
+| Поле | Тип | Обязательное | Описание |
+|-------|------|-------------|----------|
+| category_title | string | нет | Название категории |
+| category_default_group | int | нет | Группа по умолчанию для категории. Нужно указывать ID группы |
+
+**Поля Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|-------|------|-------------|----------|
+| ideas_category | IdeaCategoryUpdateData | да | Данные для обновления категории |
+
+**IdeaCategoryData** (поле `ideas_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Активный статус
+- `category_default_group` — ID группы по умолчанию (если установлен)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\IdeaCategoryUpdateData;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Payload as UpdateIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$categoryId = 100;
+$payload = new UpdateIdeaCategoryPayload(
+    ideasCategory: new IdeaCategoryUpdateData(
+        categoryTitle: 'Test category 2',
+        categoryDefaultGroup: 43983
+    )
+);
+
+$response = $ideaCategories->update($categoryId, $payload);
+$category = $response->ideasCategory; // IdeaCategoryData
 ```
 
 ---

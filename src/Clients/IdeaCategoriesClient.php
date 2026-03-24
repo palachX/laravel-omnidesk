@@ -15,6 +15,8 @@ use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Payload as FetchIdeaCatego
 use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Response as FetchIdeaCategoryListResponse;
 use Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Payload as StoreIdeaCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Response as StoreIdeaCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Payload as UpdateIdeaCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\UpdateIdeaCategory\Response as UpdateIdeaCategoryResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class IdeaCategoriesClient
@@ -57,6 +59,23 @@ final readonly class IdeaCategoriesClient
         $category = $this->extractArray('ideas_category', $response);
 
         return new FetchIdeaCategoryResponse(
+            ideasCategory: IdeaCategoryData::from($category),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse
+    {
+        $url = sprintf(self::IDEA_CATEGORY_URL, $categoryId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url, $payload->toArray());
+
+        $category = $this->extractArray('ideas_category', $response);
+
+        return new UpdateIdeaCategoryResponse(
             ideasCategory: IdeaCategoryData::from($category),
         );
     }
