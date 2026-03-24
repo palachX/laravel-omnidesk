@@ -8,72 +8,64 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\DTO\IdeaCategoryData;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Payload as FetchIdeaCategoryPayload;
-use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Response as FetchIdeaCategoryResponse;
+use Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Payload as FetchIdeaCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Response as FetchIdeaCategoryResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 final class FetchIdeaCategoryTest extends AbstractTestCase
 {
-    private const string API_URL_IDEAS_CATEGORY = '/api/ideas_category.json';
+    private const string API_URL_IDEA_CATEGORY = '/api/ideas_category/%d.json';
 
     public static function dataProvider(): iterable
     {
-        yield 'full data' => [
-            'payload' => [
-                'page' => 1,
-                'limit' => 10,
-            ],
+        yield 'full idea category data' => [
+            'categoryId' => 100,
             'response' => [
-                [
-                    'ideas_category' => [
-                        'category_id' => 234,
-                        'category_title' => 'Test category 1',
-                        'category_default_group' => 44152,
-                        'active' => true,
-                    ],
+                'ideas_category' => [
+                    'category_id' => 100,
+                    'category_title' => 'Feature Requests',
+                    'active' => true,
+                    'category_default_group' => 5,
                 ],
-                [
-                    'ideas_category' => [
-                        'category_id' => 235,
-                        'category_title' => 'Test category 2',
-                        'category_default_group' => 43983,
-                        'active' => false,
-                    ],
-                ],
-                'total_count' => 10,
             ],
         ];
-        yield 'not full data' => [
-            'payload' => [],
+        yield 'minimal idea category data' => [
+            'categoryId' => 200,
             'response' => [
-                [
-                    'ideas_category' => [
-                        'category_id' => 234,
-                        'category_title' => 'Test category 1',
-                        'category_default_group' => 44152,
-                        'active' => true,
-                    ],
+                'ideas_category' => [
+                    'category_id' => 200,
+                    'category_title' => 'Bug Reports',
+                    'active' => false,
                 ],
-                'total_count' => 1,
+            ],
+        ];
+        yield 'inactive category with group' => [
+            'categoryId' => 300,
+            'response' => [
+                'ideas_category' => [
+                    'category_id' => 300,
+                    'category_title' => 'Improvements',
+                    'active' => false,
+                    'category_default_group' => 10,
+                ],
             ],
         ];
     }
 
     #[DataProvider('dataProvider')]
-    public function testHttp(array $payload, array $response): void
+    public function testHttp(int $categoryId, array $response): void
     {
-        $payload = FetchIdeaCategoryPayload::from($payload);
+        $payload = new FetchIdeaCategoryPayload($categoryId);
 
-        $url = self::API_URL_IDEAS_CATEGORY;
-        $query = http_build_query($payload->toQuery());
-        $fullUrl = $this->host.$url.(! empty($query) ? '?'.$query : '');
+        $url = sprintf(self::API_URL_IDEA_CATEGORY, $categoryId);
+        $fullUrl = $this->host.$url;
 
         Http::fake([
             $fullUrl => Http::response($response),
         ]);
 
-        $list = $this->makeHttpClient()->ideaCategories()->fetchList(FetchIdeaCategoryPayload::from($payload));
+        $ideaCategory = $this->makeHttpClient()->ideaCategories()->getIdeaCategory($payload);
 
         Http::assertSent(function (Request $request) use ($fullUrl) {
             $this->assertFalse($request->isJson());
@@ -82,23 +74,8 @@ final class FetchIdeaCategoryTest extends AbstractTestCase
             return $request->url() === $fullUrl && $request->method() === SymfonyRequest::METHOD_GET;
         });
 
-        $total = isset($response['total_count']) ? (int) $response['total_count'] : 0;
-
-        unset($response['total_count']);
-
-        /**
-         * @var array<int, array{ideas_category: array<string, mixed>}> $categoriesRaw
-         */
-        $categoriesRaw = array_values(array_filter($response, fn ($item) => isset($item['ideas_category'])));
-
-        $categories = collect($categoriesRaw)
-            ->map(function (array $item) {
-                return IdeaCategoryData::from($item['ideas_category']);
-            });
-
         $this->assertEquals(new FetchIdeaCategoryResponse(
-            ideaCategories: $categories,
-            total: $total
-        ), $list);
+            ideasCategory: IdeaCategoryData::from($response['ideas_category'])
+        ), $ideaCategory);
     }
 }
