@@ -165,6 +165,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — create an idea category.
+- **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — list idea categories with pagination.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — create a knowledge base article.
@@ -241,6 +242,61 @@ $payload = new StoreIdeaCategoryPayload(
 
 $response = $ideaCategories->store($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
+```
+
+---
+
+## Fetch Idea Category List (list idea categories)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Response` (fields: `ideaCategories` — collection of `IdeaCategoryData`, `total` — total count).
+
+Get a list of idea categories with pagination.
+
+**Payload Parameters:**
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| page | int | 1–500 | Page number (default: 1) |
+| limit | int | 1–100 | Categories per page (default: 100) |
+
+For GET requests, use the `Payload::toQuery()` method.
+
+**IdeaCategoryData** (response `ideas_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `active` — Active status
+- `category_default_group` — Default group ID (if set)
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Payload as FetchIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+// Get categories with pagination
+$payload = new FetchIdeaCategoryPayload(
+    page: 1,
+    limit: 20,
+);
+
+// Or with default parameters:
+// $payload = new FetchIdeaCategoryPayload();
+
+$response = $ideaCategories->fetchList($payload);
+$categories = $response->ideaCategories;
+$total = $response->total;
+
+// Iterate over categories
+foreach ($categories as $category) {
+    echo "Category ID: " . $category->categoryId . "\n";
+    echo "Category title: " . $category->categoryTitle . "\n";
+    echo "Active: " . ($category->active ? 'Yes' : 'No') . "\n";
+}
 ```
 
 ---

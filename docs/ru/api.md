@@ -166,6 +166,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — создание категории идей.
+- **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — получение списка категорий идей с пагинацией.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — создание статьи базы знаний.
@@ -464,6 +465,61 @@ $payload = new StoreIdeaCategoryPayload(
 
 $response = $ideaCategories->store($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
+```
+
+---
+
+## Fetch Idea Category List (получение списка категорий идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Response` (поля: `ideaCategories` — коллекция `IdeaCategoryData`, `total` — общее количество).
+
+Получение списка категорий идей с пагинацией.
+
+**Параметры Payload:**
+
+| Поле | Тип | Ограничения | Описание |
+|-------|------|-------------|----------|
+| page | int | 1–500 | Номер страницы (по умолчанию: 1) |
+| limit | int | 1–100 | Количество категорий на странице (по умолчанию: 100) |
+
+Для GET-запросов используйте метод `Payload::toQuery()`.
+
+**IdeaCategoryData** (поле `ideas_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Активный статус
+- `category_default_group` — ID группы по умолчанию (если установлен)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryListList\Payload as FetchIdeaCategoryListPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+// Получение категорий с пагинацией
+$payload = new FetchIdeaCategoryListPayload(
+    page: 1,
+    limit: 20,
+);
+
+// Или с параметрами по умолчанию:
+// $payload = new FetchIdeaCategoryListPayload();
+
+$response = $ideaCategories->fetchList($payload);
+$categories = $response->ideaCategories;
+$total = $response->total;
+
+// Перебор категорий
+foreach ($categories as $category) {
+    echo "ID категории: " . $category->categoryId . "\n";
+    echo "Название категории: " . $category->categoryTitle . "\n";
+    echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
+}
 ```
 
 ---
