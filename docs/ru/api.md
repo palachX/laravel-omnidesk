@@ -166,6 +166,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — создание категории идей.
+- **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — получение категории идей по ID.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — получение списка категорий идей с пагинацией.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
@@ -465,6 +466,49 @@ $payload = new StoreIdeaCategoryPayload(
 
 $response = $ideaCategories->store($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
+```
+
+---
+
+## Fetch Idea Category (получение категории идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Response` (содержит `IdeaCategoryData`).
+
+Получение одной категории идей по ID.
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательно | Описание |
+|-------|------|-------------|----------|
+| category_id | int | да | ID категории |
+
+**IdeaCategoryData** (поле `ideas_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Активный статус
+- `category_default_group` — ID группы по умолчанию (если установлен)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Payload as FetchIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new FetchIdeaCategoryPayload(
+    categoryId: 100
+);
+
+$response = $ideaCategories->getIdeaCategory($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
+
+echo "ID категории: " . $category->categoryId . "\n";
+echo "Название категории: " . $category->categoryTitle . "\n";
+echo "Активна: " . ($category->active ? 'Да' : 'Нет') . "\n";
 ```
 
 ---
