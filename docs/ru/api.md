@@ -17,6 +17,7 @@
 - `Palach\Omnidesk\Clients\StaffClient` — операции с персоналом
 - `Palach\Omnidesk\Clients\FiltersClient` — операции с фильтрами
 - `Palach\Omnidesk\Clients\GroupsClient` — операции с группами
+- `Palach\Omnidesk\Clients\IdeaCategoriesClient` — операции с категориями идей
 - `Palach\Omnidesk\Clients\KnowledgeBaseClient` — операции с базой знаний
 - `Palach\Omnidesk\Clients\LabelsClient` — операции с метками
 - `Palach\Omnidesk\Clients\LanguagesClient` — операции с языками
@@ -48,6 +49,9 @@ $filters = Omnidesk::filters();
 
 /** @var GroupsClient $groups */
 $groups = Omnidesk::groups();
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
 
 /** @var KnowledgeBaseClient $knowledgeBase */
 $knowledgeBase = Omnidesk::knowledgeBase();
@@ -89,6 +93,7 @@ $customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
+$ideaCategories = $omnidesk->ideaCategories();
 $knowledgeBase = $omnidesk->knowledgeBase();
 $labels = $omnidesk->labels();
 $languages = $omnidesk->languages();
@@ -160,6 +165,7 @@ $users = $omnidesk->users();
 - **`$groupsClient->disableGroup(DisableGroupPayload $payload): DisabledGroupResponse`** — отключение группы.
 - **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — включение группы.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — удаление группы.
+- **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — создание категории идей.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — создание статьи базы знаний.
@@ -419,6 +425,45 @@ $payload = new DeleteLabelPayload(
     id: 123,
 );
 $labels->deleteLabel($payload);
+```
+
+---
+
+## Store Idea Category (создание категории идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Response` (содержит `IdeaCategoryData`).
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательно | Описание |
+|-------|------|-------------|----------|
+| category_title | string | да | Название категории идей |
+| category_default_group | int | нет | ID группы по умолчанию для категории |
+
+**IdeaCategoryData** (поле `ideas_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `active` — Активный статус
+- `category_default_group` — ID группы по умолчанию (если установлен)
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Payload as StoreIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new StoreIdeaCategoryPayload(
+    categoryTitle: 'Запросы функций',
+    categoryDefaultGroup: 1
+);
+
+$response = $ideaCategories->store($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
 ```
 
 ---

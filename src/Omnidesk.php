@@ -11,6 +11,7 @@ use Palach\Omnidesk\Clients\CustomChannelsClient;
 use Palach\Omnidesk\Clients\CustomFieldsClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
 use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\LanguagesClient;
@@ -38,6 +39,7 @@ final readonly class Omnidesk
         private CustomFieldsClient $customFields,
         private CustomChannelsClient $customChannels,
         private KnowledgeBaseClient $knowledgeBase,
+        private IdeaCategoriesClient $ideaCategoriesClient,
     ) {}
 
     public function cases(): CasesClient
@@ -113,5 +115,10 @@ final readonly class Omnidesk
     public function knowledgeBase(): KnowledgeBaseClient
     {
         return $this->knowledgeBase;
+    }
+
+    public function ideaCategories(): IdeaCategoriesClient
+    {
+        return $this->ideaCategoriesClient;
     }
 }

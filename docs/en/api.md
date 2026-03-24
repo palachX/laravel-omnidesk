@@ -17,6 +17,7 @@ The main class exposes fourteen typed clients:
 - `Palach\Omnidesk\Clients\StaffClient` — operations with staff
 - `Palach\Omnidesk\Clients\FiltersClient` — operations with filters
 - `Palach\Omnidesk\Clients\GroupsClient` — operations with groups
+- `Palach\Omnidesk\Clients\IdeaCategoriesClient` — operations with idea categories
 - `Palach\Omnidesk\Clients\KnowledgeBaseClient` — operations with knowledge base
 - `Palach\Omnidesk\Clients\LabelsClient` — operations with labels
 - `Palach\Omnidesk\Clients\LanguagesClient` — operations with languages
@@ -48,6 +49,9 @@ $filters = Omnidesk::filters();
 
 /** @var GroupsClient $groups */
 $groups = Omnidesk::groups();
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
 
 /** @var KnowledgeBaseClient $knowledgeBase */
 $knowledgeBase = Omnidesk::knowledgeBase();
@@ -89,6 +93,7 @@ $customChannels = $omnidesk->customChannels();
 $staff = $omnidesk->staff();
 $filters = $omnidesk->filters();
 $groups = $omnidesk->groups();
+$ideaCategories = $omnidesk->ideaCategories();
 $knowledgeBase = $omnidesk->knowledgeBase();
 $labels = $omnidesk->labels();
 $languages = $omnidesk->languages();
@@ -159,6 +164,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$groupsClient->disableGroup(DisableGroupPayload $payload): DisabledGroupResponse`** — disable a group.
 - **`$groupsClient->enableGroup(EnableGroupPayload $payload): EnableGroupResponse`** — enable a group.
 - **`$groupsClient->deleteGroup(int $groupId, DeleteGroupPayload $payload): void`** — delete a group.
+- **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — create an idea category.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — create a knowledge base article.
@@ -197,6 +203,45 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$usersClient->blockUser(BlockUserPayload $payload): BlockUserResponse`** — block user (all subsequent user requests will be marked as spam).
 - **`$usersClient->deleteUser(DeleteUserPayload $payload): void`** — permanently delete user (available only for employees with full access).
 - **`$usersClient->recoveryUser(RecoveryUserPayload $payload): RecoveryUserResponse`** — recover user after blocking or deletion.
+
+---
+
+## Store Idea Category (create idea category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Response` (contains `IdeaCategoryData`).
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_title | string | yes | Idea category title |
+| category_default_group | int | no | Default group ID for the category |
+
+**IdeaCategoryData** (response `ideas_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `active` — Active status
+- `category_default_group` — Default group ID (if set)
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\StoreIdeaCategory\Payload as StoreIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new StoreIdeaCategoryPayload(
+    categoryTitle: 'Feature Requests',
+    categoryDefaultGroup: 1
+);
+
+$response = $ideaCategories->store($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
+```
 
 ---
 

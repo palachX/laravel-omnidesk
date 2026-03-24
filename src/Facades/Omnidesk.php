@@ -12,6 +12,7 @@ use Palach\Omnidesk\Clients\CustomChannelsClient;
 use Palach\Omnidesk\Clients\CustomFieldsClient;
 use Palach\Omnidesk\Clients\FiltersClient;
 use Palach\Omnidesk\Clients\GroupsClient;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
 use Palach\Omnidesk\Clients\KnowledgeBaseClient;
 use Palach\Omnidesk\Clients\LabelsClient;
 use Palach\Omnidesk\Clients\LanguagesClient;
@@ -37,6 +38,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static ClientEmailsClient clientEmails()
  * @method static LanguagesClient languages()
  * @method static KnowledgeBaseClient knowledgeBase()
+ * @method static IdeaCategoriesClient ideaCategories()
  */
 final class Omnidesk extends Facade
 {
