@@ -9,6 +9,8 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\IdeaCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload as DisableIdeaCategoryPayload;
+use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Response as DisableIdeaCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Payload as FetchIdeaCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\FetchIdeaCategory\Response as FetchIdeaCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\FetchIdeaCategoryList\Payload as FetchIdeaCategoryListPayload;
@@ -26,6 +28,8 @@ final readonly class IdeaCategoriesClient
     private const string API_URL = '/api/ideas_category.json';
 
     private const string IDEA_CATEGORY_URL = '/api/ideas_category/%s.json';
+
+    private const string DISABLE_URL = '/api/ideas_category/%s/disable.json';
 
     public function __construct(
         private OmnideskTransport $transport,
@@ -76,6 +80,23 @@ final readonly class IdeaCategoriesClient
         $category = $this->extractArray('ideas_category', $response);
 
         return new UpdateIdeaCategoryResponse(
+            ideasCategory: IdeaCategoryData::from($category),
+        );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse
+    {
+        $url = sprintf(self::DISABLE_URL, $payload->categoryId);
+
+        $response = $this->transport->sendJson(Request::METHOD_PUT, $url);
+
+        $category = $this->extractArray('ideas_category', $response);
+
+        return new DisableIdeaCategoryResponse(
             ideasCategory: IdeaCategoryData::from($category),
         );
     }

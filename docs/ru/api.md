@@ -168,6 +168,7 @@ $users = $omnidesk->users();
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — создание категории идей.
 - **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — получение категории идей по ID.
 - **`$ideaCategoriesClient->update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse`** — редактирование категории идей.
+- **`$ideaCategoriesClient->disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse`** — отключение категории идей.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — получение списка категорий идей с пагинацией.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
@@ -616,6 +617,47 @@ $payload = new UpdateIdeaCategoryPayload(
 
 $response = $ideaCategories->update($categoryId, $payload);
 $category = $response->ideasCategory; // IdeaCategoryData
+```
+
+---
+
+## Disable Idea Category (отключение категории идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Response` (содержит `IdeaCategoryData`).
+
+Отключение категории идей.
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|-------|------|-------------|----------|
+| category_id | int | да | ID категории |
+
+**IdeaCategoryData** (поле `ideas_category` в ответе):
+- `category_id` — ID категории
+- `category_title` — Название категории
+- `category_default_group` — ID группы по умолчанию
+- `active` — Активный статус
+
+**Пример:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload as DisableIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new DisableIdeaCategoryPayload(
+    categoryId: 234
+);
+
+$response = $ideaCategories->disable($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
+
+echo "Категория отключена: " . ($category->active ? 'Нет' : 'Да') . "\n";
 ```
 
 ---

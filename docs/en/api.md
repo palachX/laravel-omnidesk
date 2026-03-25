@@ -167,6 +167,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$ideaCategoriesClient->store(StoreIdeaCategoryPayload $payload): StoreIdeaCategoryResponse`** — create an idea category.
 - **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — fetch a single idea category by ID.
 - **`$ideaCategoriesClient->update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse`** — update an idea category.
+- **`$ideaCategoriesClient->disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse`** — disable an idea category.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — list idea categories with pagination.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
@@ -393,6 +394,47 @@ $payload = new UpdateIdeaCategoryPayload(
 
 $response = $ideaCategories->update($categoryId, $payload);
 $category = $response->ideasCategory; // IdeaCategoryData
+```
+
+---
+
+## Disable Idea Category (disable idea category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Response` (contains `IdeaCategoryData`).
+
+Disable an idea category.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_id | int | yes | Category ID |
+
+**IdeaCategoryData** (response `ideas_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `category_default_group` — Default group ID
+- `active` — Active status
+
+**Example:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload as DisableIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new DisableIdeaCategoryPayload(
+    categoryId: 234
+);
+
+$response = $ideaCategories->disable($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
+
+echo "Category disabled: " . ($category->active ? 'No' : 'Yes') . "\n";
 ```
 
 ---
