@@ -168,6 +168,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$ideaCategoriesClient->getIdeaCategory(FetchIdeaCategoryPayload $payload): FetchIdeaCategoryResponse`** — fetch a single idea category by ID.
 - **`$ideaCategoriesClient->update(int $categoryId, UpdateIdeaCategoryPayload $payload): UpdateIdeaCategoryResponse`** — update an idea category.
 - **`$ideaCategoriesClient->disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse`** — disable an idea category.
+- **`$ideaCategoriesClient->enable(EnableCategoryPayload $payload): EnableIdeaCategoryResponse`** — enable an idea category.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — list idea categories with pagination.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
@@ -435,6 +436,47 @@ $response = $ideaCategories->disable($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
 
 echo "Category disabled: " . ($category->active ? 'No' : 'Yes') . "\n";
+```
+
+---
+
+## Enable Idea Category (enable idea category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\EnableCategory\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\EnableIdeaCategory\Response` (contains `IdeaCategoryData`).
+
+Enable an idea category.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| category_id | int | yes | Category ID |
+
+**IdeaCategoryData** (response `ideas_category` field):
+- `category_id` — Category ID
+- `category_title` — Category title
+- `category_default_group` — Default group ID
+- `active` — Active status
+
+**Example:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\EnableCategory\Payload as EnableCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new EnableCategoryPayload(
+    categoryId: 234
+);
+
+$response = $ideaCategories->enable($payload);
+$category = $response->ideasCategory; // IdeaCategoryData
+
+echo "Category enabled: " . ($category->active ? 'Yes' : 'No') . "\n";
 ```
 
 ---
