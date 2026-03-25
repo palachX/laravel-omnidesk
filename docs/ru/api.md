@@ -171,6 +171,7 @@ $users = $omnidesk->users();
 - **`$ideaCategoriesClient->disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse`** — отключение категории идей.
 - **`$ideaCategoriesClient->enable(EnableCategoryPayload $payload): EnableIdeaCategoryResponse`** — включение категории идей.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — получение списка категорий идей с пагинацией.
+- **`$ideaCategoriesClient->deleteIdeaCategory(DeleteIdeaCategoryPayload $payload): void`** — удаление категории идей.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — создание категории базы знаний.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — создание раздела базы знаний.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — создание статьи базы знаний.
@@ -700,6 +701,38 @@ $response = $ideaCategories->enable($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
 
 echo "Категория включена: " . ($category->active ? 'Да' : 'Нет') . "\n";
+```
+
+---
+
+## Delete Idea Category (удаление категории идей)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteIdeaCategory\Payload`  
+**Response:** `void`
+
+Удаление категории идей.
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|-------|------|-------------|----------|
+| idea_category_id | int | да | ID категории |
+
+**Пример:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteIdeaCategory\Payload as DeleteIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new DeleteIdeaCategoryPayload(
+    ideaCategoryId: 234
+);
+
+$ideaCategories->deleteIdeaCategory($payload);
 ```
 
 ---

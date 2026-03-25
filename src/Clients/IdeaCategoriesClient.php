@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Palach\Omnidesk\DTO\IdeaCategoryData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
+use Palach\Omnidesk\UseCases\V1\DeleteIdeaCategory\Payload as DeleteIdeaCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Payload as DisableIdeaCategoryPayload;
 use Palach\Omnidesk\UseCases\V1\DisableIdeaCategory\Response as DisableIdeaCategoryResponse;
 use Palach\Omnidesk\UseCases\V1\EnableCategory\Payload as EnableCategoryPayload;
@@ -146,5 +147,15 @@ final readonly class IdeaCategoriesClient
             ideaCategories: $categories,
             total: $total,
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function deleteIdeaCategory(DeleteIdeaCategoryPayload $payload): void
+    {
+        $url = sprintf(self::IDEA_CATEGORY_URL, $payload->ideaCategoryId);
+        $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
     }
 }

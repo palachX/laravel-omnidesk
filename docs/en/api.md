@@ -170,6 +170,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$ideaCategoriesClient->disable(DisableIdeaCategoryPayload $payload): DisableIdeaCategoryResponse`** — disable an idea category.
 - **`$ideaCategoriesClient->enable(EnableCategoryPayload $payload): EnableIdeaCategoryResponse`** — enable an idea category.
 - **`$ideaCategoriesClient->fetchList(FetchIdeaCategoryListPayload $payload): FetchIdeaCategoryListResponse`** — list idea categories with pagination.
+- **`$ideaCategoriesClient->deleteIdeaCategory(DeleteIdeaCategoryPayload $payload): void`** — delete an idea category.
 - **`$knowledgeBaseClient->storeCategory(StoreKnowledgeBaseCategoryPayload $payload): StoreKnowledgeBaseCategoryResponse`** — create a knowledge base category.
 - **`$knowledgeBaseClient->storeSection(StoreKnowledgeBaseSectionPayload $payload): StoreKnowledgeBaseSectionResponse`** — create a knowledge base section.
 - **`$knowledgeBaseClient->storeArticle(StoreKnowledgeBaseArticlePayload $payload): StoreKnowledgeBaseArticleResponse`** — create a knowledge base article.
@@ -477,6 +478,38 @@ $response = $ideaCategories->enable($payload);
 $category = $response->ideasCategory; // IdeaCategoryData
 
 echo "Category enabled: " . ($category->active ? 'Yes' : 'No') . "\n";
+```
+
+---
+
+## Delete Idea Category (delete idea category)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteIdeaCategory\Payload`  
+**Response:** `void`
+
+Delete an idea category.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| idea_category_id | int | yes | Category ID |
+
+**Example:**
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\IdeaCategoriesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteIdeaCategory\Payload as DeleteIdeaCategoryPayload;
+
+/** @var IdeaCategoriesClient $ideaCategories */
+$ideaCategories = Omnidesk::ideaCategories();
+
+$payload = new DeleteIdeaCategoryPayload(
+    ideaCategoryId: 234
+);
+
+$ideaCategories->deleteIdeaCategory($payload);
 ```
 
 ---
