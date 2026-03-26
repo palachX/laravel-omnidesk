@@ -7,6 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-26
+
+### Added
+
+#### New API Methods - StatisticsClient
+- `fetchStatsSatisfaction()` - Fetch satisfaction statistics with comprehensive filtering options
+- `fetchStatsLeaderboard()` - Fetch staff leaderboard statistics
+
+#### New API Methods - IdeaCategoriesClient
+- `store()` - Create a new idea category
+- `getIdeaCategory()` - Fetch a single idea category by ID
+- `update()` - Update an existing idea category
+- `disable()` - Disable an idea category
+- `enable()` - Enable an idea category
+- `fetchList()` - Fetch paginated list of idea categories
+- `deleteIdeaCategory()` - Delete an idea category
+
+#### New API Methods - KnowledgeBaseClient
+- `storeSection()` - Create a new knowledge base section
+- `fetchSection()` - Fetch a single knowledge base section by ID
+- `updateSection()` - Update an existing knowledge base section
+- `disableSection()` - Disable a knowledge base section
+- `enableSection()` - Enable a knowledge base section
+- `fetchSectionList()` - Fetch paginated list of knowledge base sections
+- `deleteSection()` - Delete a knowledge base section
+- `moveUpSection()` - Move up a knowledge base section in order
+- `moveDownSection()` - Move down a knowledge base section in order
+- `storeCategory()` - Create a new knowledge base category
+- `fetchCategory()` - Fetch a single knowledge base category by ID
+- `updateCategory()` - Update an existing knowledge base category
+- `disableCategory()` - Disable a knowledge base category
+- `enableCategory()` - Enable a knowledge base category
+- `fetchCategoryList()` - Fetch paginated list of knowledge base categories
+- `deleteCategory()` - Delete a knowledge base category
+- `moveUpCategory()` - Move up a knowledge base category in order
+- `moveDownCategory()` - Move down a knowledge base category in order
+- `storeArticle()` - Create a new knowledge base article
+- `fetchArticle()` - Fetch a single knowledge base article by ID
+- `updateArticle()` - Update an existing knowledge base article
+- `disableArticle()` - Disable a knowledge base article
+- `enableArticle()` - Enable a knowledge base article
+- `fetchArticleList()` - Fetch paginated list of knowledge base articles
+- `deleteArticle()` - Delete a knowledge base article
+- `moveUpArticle()` - Move up a knowledge base article in order
+- `moveDownArticle()` - Move down a knowledge base article in order
+
+#### New Client Access
+- `Omnidesk::statistics()` - Access to StatisticsClient for statistics operations
+- `Omnidesk::ideaCategories()` - Access to IdeaCategoriesClient for idea category operations
+- `Omnidesk::knowledgeBase()` - Access to KnowledgeBaseClient for knowledge base operations
+
+#### New DTOs
+- `StatsSatisfactionData` - Satisfaction statistics data transfer object
+- `StatsLeaderboardData` - Staff leaderboard statistics data transfer object
+- `IdeaCategoryData` - Idea category data transfer object
+- `KnowledgeBaseSectionData` - Knowledge base section data transfer object
+- `KnowledgeBaseCategoryData` - Knowledge base category data transfer object
+- `KnowledgeBaseArticleData` - Knowledge base article data transfer object
+
+#### New Use Cases
+- Complete satisfaction statistics fetching use case (V1 namespace)
+- Complete staff leaderboard statistics fetching use case (V1 namespace)
+- Complete idea category management use cases (V1 namespace)
+- Complete knowledge base management use cases for sections, categories, and articles (V1 namespace)
+
+#### Complete Statistics System
+- Comprehensive satisfaction statistics fetching with `StatisticsClient`
+- Advanced filtering capabilities for satisfaction stats including:
+  - Period-based filtering (predefined periods and custom date ranges)
+  - Rating-based filtering (by rating ID, rating value, and comment presence)
+  - Staff-based filtering (by rated staff, assignee roles, and participants)
+  - User-based filtering (by user ID, email, and phone)
+  - Case-based filtering (by company, group, channel, status, priority, labels, custom fields)
+  - Pagination and sorting support
+- Staff leaderboard statistics with comprehensive performance metrics
+- Comprehensive statistics data handling with `StatsSatisfactionData` and `StatsLeaderboardData` DTOs
+- Total count support for paginated results
+
+#### Complete Idea Category Management System
+- Full CRUD operations for idea categories with `IdeaCategoriesClient`
+- Idea category lifecycle management: enable, disable, delete
+- Comprehensive idea category data handling with `IdeaCategoryData` DTO
+- Paginated idea category listing functionality
+
+#### Complete Knowledge Base Management System
+- Full CRUD operations for knowledge base sections, categories, and articles
+- Knowledge base lifecycle management: enable, disable, delete
+- Ordering management with move up/down operations for sections, categories, and articles
+- Comprehensive knowledge base data handling with dedicated DTOs
+- Paginated listing functionality for all knowledge base entities
+- Hierarchical structure support (sections → categories → articles)
+
+#### Enhanced API Client Access
+- `Omnidesk::statistics()` - Access to complete statistics API
+- `Omnidesk::ideaCategories()` - Access to complete idea category management API
+- `Omnidesk::knowledgeBase()` - Access to complete knowledge base management API
+
+#### Architecture Improvements
+- Structured use cases for all new operations (V1 namespace)
+- Consistent payload/response patterns with comprehensive validation
+- Proper error handling and type safety for all new operations
+- Extensive test coverage with multiple data providers for different scenarios
+- Hierarchical DTO structure for knowledge base entities
+- Advanced query parameter handling for complex filtering
+
+### Fixed
+- Improved method naming consistency across various clients
+- Enhanced attribute handling for delete, block, disable, and recovery operations
+- Fixed knowledge base article deletion functionality
+- Improved move up/down operations for ordering functionality
+
 ## [1.4.0] - 2026-03-15
 
 ### Added
