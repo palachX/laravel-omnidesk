@@ -24,6 +24,7 @@
 - `Palach\Omnidesk\Clients\MacrosClient` — операции с шаблонами
 - `Palach\Omnidesk\Clients\MessagesClient` — операции с сообщениями
 - `Palach\Omnidesk\Clients\NotesClient` — операции с заметками
+- `Palach\Omnidesk\Clients\StatisticsClient` — операции со статистикой
 - `Palach\Omnidesk\Clients\UsersClient` — операции с пользователями
 
 Использование в коде (внедрение через конструктор или `app()`):
@@ -80,6 +81,9 @@ $customChannels = Omnidesk::customChannels();
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
 // Альтернативно: Прямое внедрение класса
 use Palach\Omnidesk\Omnidesk;
 
@@ -101,6 +105,7 @@ $macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 $users = $omnidesk->users();
+$statistics = $omnidesk->statistics();
 ```
 
 ### Транспорт и аутентификация
@@ -151,6 +156,7 @@ $users = $omnidesk->users();
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — получение списка статусов сотрудников.
 - **`$statisticsClient->fetchStatsLeaderboard(FetchStatsLeaderboardPayload $payload): FetchStatsLeaderboardResponse`** — получение статистики лучших сотрудников.
+- **`$statisticsClient->fetchStatsSatisfaction(FetchStatsSatisfactionPayload $payload): FetchStatsSatisfactionResponse`** — получение оценок качества работы.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
@@ -2839,6 +2845,103 @@ foreach ($stats as $stat) {
     echo "Новых обращений: " . $stat->newCasesInTotal . "\n";
     echo "Закрыто обращений: " . $stat->closedCases . "\n";
     echo "Время первого ответа: " . $stat->firstResponseTime . " секунд\n";
+}
+```
+
+---
+
+## Fetch Stats Satisfaction (получение оценок качества работы)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Response`
+
+Получение списка оценок и комментариев к ним за указанный период.
+
+### Параметры Payload
+
+- `period` (string, required) — стандартный период (last_24_hours, last_7_days, last_14_days, last_30_days, today, yesterday, this_week, last_week, this_month, last_month, month_2, month_3, month_4, month_5, month_6, 3_previous_months, 6_previous_months, this_year, last_year)
+- `fromTime` (string, optional) — начало периода (если не используется period)
+- `toTime` (string, optional) — конец периода (если не используется period)
+- `ratingId` (int|array, optional) — ID конкретной оценки
+- `rating` (string|array, optional) — оценка (low, middle, high)
+- `ratingComment` (bool, optional) — оценки с комментариями (true/false)
+- `ratedStaffId` (int|array, optional) — ID сотрудника (оценки конкретного ответа)
+- `ratedAssigneeRoleId` (int|array, optional) — ID роли ответственных сотрудников
+- `participantId` (int|array, optional) — ID сотрудника-участника
+- `participantRoleId` (int|array, optional) — ID роли сотрудников-участников
+- `userId` (int|array, optional) — ID пользователя
+- `userEmail` (string|array, optional) — email пользователя (минимум 4 символа)
+- `userPhone` (string|array, optional) — телефон пользователя (минимум 4 символа)
+- `initiator` (string, optional) — инициатор обращения (user, agent)
+- `companyId` (int|array, optional) — ID компании
+- `groupId` (int|array, optional) — ID группы
+- `channel` (string|array, optional) — канал обращения (email, web, call, live_chat, facebook, fb_chat, vkontakte, vk_chat, twitter, instagram_posts, instagram_chat, ok_chat, telegram, skype, slack, viber, line, zalo, wa_chat, youscan, avito, idea, cch123, sync, async, social, messengers)
+- `status` (string|array, optional) — статус обращения (open, waiting, closed)
+- `priority` (string|array, optional) — приоритет обращения (low, normal, high, critical)
+- `labels` (array, optional) — метки обращения
+- `customFields` (array, optional) — кастомные поля
+- `page` (int, optional) — номер страницы
+- `limit` (int, optional) — лимит на странице (1-100)
+- `sort` (string, optional) — сортировка (added_at_desc, added_at_asc)
+
+### Поля Response
+
+- `statsSatisfaction` (Collection<StatsSatisfactionData>) — коллекция оценок
+- `totalCount` (int) — общее количество оценок
+
+#### Поля StatsSatisfactionData
+
+- `ratingId` — ID оценки
+- `rating` — Оценка (1, 2, 3)
+- `ratingComment` — Комментарий к оценке
+- `ratedStaffId` — ID сотрудника (0 если оценка всему обращению)
+- `caseId` — ID обращения
+- `caseNumber` — номер обращения
+- `userId` — ID пользователя
+- `staffId` — ID ответственного сотрудника
+- `groupId` — ID группы
+- `createdAt` — дата создания
+- `updatedAt` — дата обновления
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StatisticsClient;
+use Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Payload as FetchStatsSatisfactionPayload;
+
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
+// Получение оценок за последние 24 часа
+$payload = new FetchStatsSatisfactionPayload(
+    period: 'last_24_hours',
+);
+
+// Получение оценок с фильтрами
+$payload = new FetchStatsSatisfactionPayload(
+    period: 'this_month',
+    rating: ['high', 'middle'],
+    ratingComment: true,
+    companyId: 123,
+    limit: 50,
+    sort: 'added_at_desc',
+);
+
+$response = $statistics->fetchStatsSatisfaction($payload);
+$ratings = $response->statsSatisfaction;
+$totalCount = $response->totalCount;
+
+echo "Всего оценок: " . $totalCount . "\n";
+
+foreach ($ratings as $rating) {
+    echo "Оценка: " . $rating->rating . "\n";
+    echo "Комментарий: " . $rating->ratingComment . "\n";
+    echo "Обращение: " . $rating->caseNumber . "\n";
+    echo "Пользователь: " . $rating->userId . "\n";
+    echo "Сотрудник: " . $rating->staffId . "\n";
+    echo "Дата: " . $rating->createdAt . "\n";
+    echo "---\n";
 }
 ```
 

@@ -24,6 +24,7 @@ The main class exposes fourteen typed clients:
 - `Palach\Omnidesk\Clients\MacrosClient` — operations with macros
 - `Palach\Omnidesk\Clients\MessagesClient` — operations with messages
 - `Palach\Omnidesk\Clients\NotesClient` — operations with notes
+- `Palach\Omnidesk\Clients\StatisticsClient` — operations with statistics
 - `Palach\Omnidesk\Clients\UsersClient` — operations with users
 
 Usage (inject via constructor or `app()`):
@@ -80,6 +81,9 @@ $customChannels = Omnidesk::customChannels();
 /** @var UsersClient $users */
 $users = Omnidesk::users();
 
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
 // Alternative: Direct class injection
 use Palach\Omnidesk\Omnidesk;
 
@@ -101,6 +105,7 @@ $macros = $omnidesk->macros();
 $messages = $omnidesk->messages();
 $notes = $omnidesk->notes();
 $users = $omnidesk->users();
+$statistics = $omnidesk->statistics();
 ```
 
 ### Transport and authentication
@@ -150,6 +155,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — list staff statuses.
 - **`$statisticsClient->fetchStatsLeaderboard(FetchStatsLeaderboardPayload $payload): FetchStatsLeaderboardResponse`** — fetch staff statistics leaderboard.
+- **`$statisticsClient->fetchStatsSatisfaction(FetchStatsSatisfactionPayload $payload): FetchStatsSatisfactionResponse`** — fetch satisfaction ratings and comments.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -2879,6 +2885,103 @@ foreach ($stats as $stat) {
     echo "New cases: " . $stat->newCasesInTotal . "\n";
     echo "Closed cases: " . $stat->closedCases . "\n";
     echo "First response time: " . $stat->firstResponseTime . " seconds\n";
+}
+```
+
+---
+
+## Fetch Stats Satisfaction (fetch satisfaction ratings and comments)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Response`
+
+Fetch satisfaction ratings and comments for a specific period with optional filters.
+
+### Payload Parameters
+
+- `period` (string, required) — standard period (last_24_hours, last_7_days, last_14_days, last_30_days, today, yesterday, this_week, last_week, this_month, last_month, month_2, month_3, month_4, month_5, month_6, 3_previous_months, 6_previous_months, this_year, last_year)
+- `fromTime` (string, optional) — start of custom period (if period is not used)
+- `toTime` (string, optional) — end of custom period (if period is not used)
+- `ratingId` (int|array, optional) — specific rating ID
+- `rating` (string|array, optional) — rating (low, middle, high)
+- `ratingComment` (bool, optional) — ratings with comments (true/false)
+- `ratedStaffId` (int|array, optional) — staff ID (ratings of specific responses)
+- `ratedAssigneeRoleId` (int|array, optional) — responsible staff role ID
+- `participantId` (int|array, optional) — participant staff ID
+- `participantRoleId` (int|array, optional) — participant staff role ID
+- `userId` (int|array, optional) — user ID
+- `userEmail` (string|array, optional) — user email (minimum 4 characters)
+- `userPhone` (string|array, optional) — user phone (minimum 4 characters)
+- `initiator` (string, optional) — case initiator (user, agent)
+- `companyId` (int|array, optional) — company ID
+- `groupId` (int|array, optional) — group ID
+- `channel` (string|array, optional) — case channel (email, web, call, live_chat, facebook, fb_chat, vkontakte, vk_chat, twitter, instagram_posts, instagram_chat, ok_chat, telegram, skype, slack, viber, line, zalo, wa_chat, youscan, avito, idea, cch123, sync, async, social, messengers)
+- `status` (string|array, optional) — case status (open, waiting, closed)
+- `priority` (string|array, optional) — case priority (low, normal, high, critical)
+- `labels` (array, optional) — case labels
+- `customFields` (array, optional) — custom fields
+- `page` (int, optional) — page number
+- `limit` (int, optional) — page limit (1-100)
+- `sort` (string, optional) — sorting (added_at_desc, added_at_asc)
+
+### Response Fields
+
+- `statsSatisfaction` (Collection<StatsSatisfactionData>) — collection of ratings
+- `totalCount` (int) — total number of ratings
+
+#### StatsSatisfactionData Fields
+
+- `ratingId` — Rating ID
+- `rating` — Rating (1, 2, 3)
+- `ratingComment` — Rating comment
+- `ratedStaffId` — Staff ID (0 if rating is for entire case)
+- `caseId` — Case ID
+- `caseNumber` — Case number
+- `userId` — User ID
+- `staffId` — Responsible staff ID
+- `groupId` — Group ID
+- `createdAt` — Creation date
+- `updatedAt` — Update date
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StatisticsClient;
+use Palach\Omnidesk\UseCases\V1\FetchStatsSatisfaction\Payload as FetchStatsSatisfactionPayload;
+
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
+// Get ratings for last 24 hours
+$payload = new FetchStatsSatisfactionPayload(
+    period: 'last_24_hours',
+);
+
+// Get ratings with filters
+$payload = new FetchStatsSatisfactionPayload(
+    period: 'this_month',
+    rating: ['high', 'middle'],
+    ratingComment: true,
+    companyId: 123,
+    limit: 50,
+    sort: 'added_at_desc',
+);
+
+$response = $statistics->fetchStatsSatisfaction($payload);
+$ratings = $response->statsSatisfaction;
+$totalCount = $response->totalCount;
+
+echo "Total ratings: " . $totalCount . "\n";
+
+foreach ($ratings as $rating) {
+    echo "Rating: " . $rating->rating . "\n";
+    echo "Comment: " . $rating->ratingComment . "\n";
+    echo "Case: " . $rating->caseNumber . "\n";
+    echo "User: " . $rating->userId . "\n";
+    echo "Staff: " . $rating->staffId . "\n";
+    echo "Date: " . $rating->createdAt . "\n";
+    echo "---\n";
 }
 ```
 
