@@ -149,6 +149,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — list staff statuses.
+- **`$statisticsClient->fetchStatsLeaderboard(FetchStatsLeaderboardPayload $payload): FetchStatsLeaderboardResponse`** — fetch staff statistics leaderboard.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — create a company.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
@@ -2785,6 +2786,99 @@ foreach ($staffStatuses as $status) {
     echo "Status ID: " . $status->statusId . "\n";
     echo "Status Name: " . $status->status . "\n";
     echo "Active: " . ($status->active ? 'Yes' : 'No') . "\n";
+}
+```
+
+---
+
+## Fetch Stats Leaderboard (fetch staff statistics leaderboard)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Response` (fields: `statsLeaderboard` — collection of `StatsLeaderboardData`).
+
+Fetch staff statistics leaderboard for a specific period with optional filters.
+
+**Payload Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| period | string | yes | Standard period (last_24_hours, last_7_days, last_14_days, last_30_days, today, yesterday, this_week, last_week, this_month, last_month, month_2, month_3, month_4, month_5, month_6, 3_previous_months, 6_previous_months, this_year, last_year) |
+| from_time | string | no* | Start of custom period (required if period is not set) |
+| to_time | string | no* | End of custom period (required if period is not set) |
+| group_id | array|int | no | Group ID filter |
+| channel | array|string | no | Channel filter (email, web, call, live_chat, facebook, fb_chat, vkontakte, vk_chat, twitter, instagram_posts, instagram_chat, ok_chat, telegram, skype, slack, mattermost, viber, line, zalo, wa_chat, youscan, avito, idea, cch123, sync, async, social, messengers) |
+| status | array|string | no | Status filter (open, waiting, closed) |
+| priority | array|string | no | Priority filter (low, normal, high, critical) |
+| staff_id | array|int | no | Staff ID filter (use 'all' for all staff) |
+| assignee_role_id | array|int | no | Assignee role ID filter |
+| participant_id | array|int | no | Participant ID filter (use 'all' for all participants) |
+| participant_role_id | array|int | no | Participant role ID filter |
+| labels | array | no | Labels filter |
+| initiator | string | no | Initiator filter (user, agent) |
+| user_id | array|int | no | User ID filter |
+| company_id | array|int | no | Company ID filter |
+| custom_fields | array | no | Custom fields filter |
+
+\* Either `period` OR both `from_time` and `to_time` must be provided.
+
+**Response Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| statsLeaderboard | Collection<StatsLeaderboardData> | Collection of staff statistics data |
+
+**StatsLeaderboardData**:
+- `staffId` — Staff ID
+- `staffName` — Staff name
+- `newCasesInTotal` — New cases in total
+- `newUserCases` — New user cases
+- `reopenedCases` — Reopened cases
+- `casesBeingHandled` — Cases being handled
+- `casesWithAResponse` — Cases with a response
+- `firstResponseTime` — First response time (seconds)
+- `firstResponseSlaViolated` — First response SLA violated (percentage)
+- `responseTime` — Response time (seconds)
+- `responseSlaViolated` — Response SLA violated (percentage)
+- `responseWritingTime` — Response writing time (seconds)
+- `totalNumberOfResponses` — Total number of responses
+- `totalNumberOfNotes` — Total number of notes
+- `numberOfResponsesForResolution` — Number of responses for resolution
+- `closedCases` — Closed cases
+- `resolutionTime` — Resolution time (seconds)
+- `resolutionSlaViolated` — Resolution SLA violated (percentage)
+- `ratingsOfResponses` — Ratings of responses (percentage or "-")
+
+Example:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StatisticsClient;
+use Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Payload as FetchStatsLeaderboardPayload;
+
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
+// Get stats for last 24 hours
+$payload = new FetchStatsLeaderboardPayload(
+    period: 'last_24_hours',
+);
+
+// Get stats with filters
+$payload = new FetchStatsLeaderboardPayload(
+    period: 'this_month',
+    groupId: 123,
+    channel: ['email', 'web'],
+    status: 'open',
+);
+
+$response = $statistics->fetchStatsLeaderboard($payload);
+$stats = $response->statsLeaderboard;
+
+foreach ($stats as $stat) {
+    echo "Staff: " . $stat->staffName . "\n";
+    echo "New cases: " . $stat->newCasesInTotal . "\n";
+    echo "Closed cases: " . $stat->closedCases . "\n";
+    echo "First response time: " . $stat->firstResponseTime . " seconds\n";
 }
 ```
 

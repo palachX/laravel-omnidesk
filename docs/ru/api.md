@@ -150,6 +150,7 @@ $users = $omnidesk->users();
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
 - **`$staffClient->fetchStaffStatusList(): FetchStaffStatusListResponse`** — получение списка статусов сотрудников.
+- **`$statisticsClient->fetchStatsLeaderboard(FetchStatsLeaderboardPayload $payload): FetchStatsLeaderboardResponse`** — получение статистики лучших сотрудников.
 - **`$companiesClient->store(StoreCompanyPayload $payload): StoreCompanyResponse`** — создание компании.
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
@@ -2745,6 +2746,99 @@ foreach ($staffStatuses as $status) {
     echo "ID статуса: " . $status->statusId . "\n";
     echo "Название статуса: " . $status->status . "\n";
     echo "Активен: " . ($status->active ? 'Да' : 'Нет') . "\n";
+}
+```
+
+---
+
+## Fetch Stats Leaderboard (получение статистики лучших в команде)
+
+**Payload:** `Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Payload`  
+**Response:** `Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Response` (поля: `statsLeaderboard` — коллекция `StatsLeaderboardData`).
+
+Получение статистики лучших сотрудников в команде за определенный период с дополнительными фильтрами.
+
+**Параметры Payload:**
+
+| Поле | Тип | Обязательное | Описание |
+|-------|------|--------------|----------|
+| period | string | да | Стандартный период (last_24_hours, last_7_days, last_14_days, last_30_days, today, yesterday, this_week, last_week, this_month, last_month, month_2, month_3, month_4, month_5, month_6, 3_previous_months, 6_previous_months, this_year, last_year) |
+| from_time | string | нет* | Начало кастомного периода (обязательно, если не указан period) |
+| to_time | string | нет* | Конец кастомного периода (Обязательно, если не указан period) |
+| group_id | array|int | нет | Фильтр по ID группы |
+| channel | array|string | нет | Фильтр по каналу (email, web, call, live_chat, facebook, fb_chat, vkontakte, vk_chat, twitter, instagram_posts, instagram_chat, ok_chat, telegram, skype, slack, mattermost, viber, line, zalo, wa_chat, youscan, avito, idea, cch123, sync, async, social, messengers) |
+| status | array|string | нет | Фильтр по статусу (open, waiting, closed) |
+| priority | array|string | нет | Фильтр по приоритету (low, normal, high, critical) |
+| staff_id | array|int | нет | Фильтр по ID сотрудника (используйте 'all' для всех сотрудников) |
+| assignee_role_id | array|int | нет | Фильтр по ID роли ответственных |
+| participant_id | array|int | нет | Фильтр по ID участника (используйте 'all' для всех участников) |
+| participant_role_id | array|int | нет | Фильтр по ID роли участников |
+| labels | array | нет | Фильтр по меткам |
+| initiator | string | нет | Фильтр по инициатору (user, agent) |
+| user_id | array|int | нет | Фильтр по ID пользователя |
+| company_id | array|int | нет | Фильтр по ID компании |
+| custom_fields | array | нет | Фильтр по кастомным полям |
+
+\* Либо `period`, ЛИБО оба параметра `from_time` и `to_time` должны быть указаны.
+
+**Поля Response:**
+
+| Поле | Тип | Описание |
+|-------|------|----------|
+| statsLeaderboard | Collection<StatsLeaderboardData> | Коллекция данных статистики сотрудников |
+
+**StatsLeaderboardData**:
+- `staffId` — ID сотрудника
+- `staffName` — Имя сотрудника
+- `newCasesInTotal` — Всего новых обращений
+- `newUserCases` — Новые обращения от пользователей
+- `reopenedCases` — Переоткрытые обращения
+- `casesBeingHandled` — Обрабатываемые обращения
+- `casesWithAResponse` — Обращения с ответом
+- `firstResponseTime` — Время первого ответа (в секундах)
+- `firstResponseSlaViolated` — Нарушение SLA первого ответа (процент)
+- `responseTime` — Время ответа (в секундах)
+- `responseSlaViolated` — Нарушение SLA ответа (процент)
+- `responseWritingTime` — Время написания ответа (в секундах)
+- `totalNumberOfResponses` — Общее количество ответов
+- `totalNumberOfNotes` — Общее количество заметок
+- `numberOfResponsesForResolution` — Количество ответов для решения
+- `closedCases` — Закрытые обращения
+- `resolutionTime` — Время решения (в секундах)
+- `resolutionSlaViolated` — Нарушение SLA решения (процент)
+- `ratingsOfResponses` — Оценки ответов (процент или "-")
+
+Пример:
+
+```php
+use Palach\Omnidesk\Facades\Omnidesk;
+use Palach\Omnidesk\Clients\StatisticsClient;
+use Palach\Omnidesk\UseCases\V1\FetchStatsLeaderboard\Payload as FetchStatsLeaderboardPayload;
+
+/** @var StatisticsClient $statistics */
+$statistics = Omnidesk::statistics();
+
+// Получение статистики за последние 24 часа
+$payload = new FetchStatsLeaderboardPayload(
+    period: 'last_24_hours',
+);
+
+// Получение статистики с фильтрами
+$payload = new FetchStatsLeaderboardPayload(
+    period: 'this_month',
+    groupId: 123,
+    channel: ['email', 'web'],
+    status: 'open',
+);
+
+$response = $statistics->fetchStatsLeaderboard($payload);
+$stats = $response->statsLeaderboard;
+
+foreach ($stats as $stat) {
+    echo "Сотрудник: " . $stat->staffName . "\n";
+    echo "Новых обращений: " . $stat->newCasesInTotal . "\n";
+    echo "Закрыто обращений: " . $stat->closedCases . "\n";
+    echo "Время первого ответа: " . $stat->firstResponseTime . " секунд\n";
 }
 ```
 

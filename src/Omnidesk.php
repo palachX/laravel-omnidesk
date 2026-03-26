@@ -19,6 +19,7 @@ use Palach\Omnidesk\Clients\MacrosClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Clients\StatisticsClient;
 use Palach\Omnidesk\Clients\UsersClient;
 
 final readonly class Omnidesk
@@ -40,6 +41,7 @@ final readonly class Omnidesk
         private CustomChannelsClient $customChannels,
         private KnowledgeBaseClient $knowledgeBase,
         private IdeaCategoriesClient $ideaCategoriesClient,
+        private StatisticsClient $statistics,
     ) {}
 
     public function cases(): CasesClient
@@ -60,6 +62,11 @@ final readonly class Omnidesk
     public function staffs(): StaffsClient
     {
         return $this->staffs;
+    }
+
+    public function statistics(): StatisticsClient
+    {
+        return $this->statistics;
     }
 
     public function filters(): FiltersClient

@@ -20,6 +20,7 @@ use Palach\Omnidesk\Clients\MacrosClient;
 use Palach\Omnidesk\Clients\MessagesClient;
 use Palach\Omnidesk\Clients\NotesClient;
 use Palach\Omnidesk\Clients\StaffsClient;
+use Palach\Omnidesk\Clients\StatisticsClient;
 use Palach\Omnidesk\Clients\UsersClient;
 
 /**
@@ -33,6 +34,7 @@ use Palach\Omnidesk\Clients\UsersClient;
  * @method static UsersClient users()
  * @method static CompaniesClient companies()
  * @method static StaffsClient staff()
+ * @method static StatisticsClient statistics()
  * @method static CustomFieldsClient customFields()
  * @method static CustomChannelsClient customChannels()
  * @method static ClientEmailsClient clientEmails()
