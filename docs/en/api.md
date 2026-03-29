@@ -124,8 +124,8 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — restore multiple cases from trash.
 - **`$casesClient->spamCase(SpamCasePayload $payload): SpamCaseResponse`** — mark a case as spam.
 - **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — mark multiple cases as spam.
-- **`$casesClient->deleteCase(DeleteCasePayload $payload): DeleteCaseResponse`** — permanently delete a case.
-- **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — permanently delete multiple cases.
+- **`$casesClient->deleteCase(DeleteCasePayload $payload): void`** — permanently delete a case.
+- **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): void`** — permanently delete multiple cases.
 - **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — update an idea (proposal).
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — update idea official response.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — delete idea official response.
@@ -149,7 +149,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — update a staff member.
 - **`$staffClient->disableStaff(DisableStaffPayload $payload): DisabledStaffResponse`** — disable a staff member.
 - **`$staffClient->enableStaff(EnableStaffPayload $payload): EnableStaffResponse`** — enable a staff member.
-- **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — delete a staff member.
+- **`$staffClient->deleteStaff(DeleteStaffPayload $payload): void`** — delete a staff member.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — fetch a specific staff member by ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — list staff members with pagination and filters.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — list staff roles.
@@ -160,7 +160,7 @@ On network errors or unexpected response format, methods throw (`RequestExceptio
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — update a company.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — list companies with pagination and filters.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — fetch a single company by ID.
-- **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — delete a company (move to deleted list).
+- **`$companiesClient->deleteCompany(DeleteCompanyPayload $payload): void`** — delete a company (move to deleted list).
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — block company (all subsequent company requests will be marked as spam).
 - **`$companiesClient->disableCompany(DisableCompanyPayload $payload): DisabledCompanyResponse`** — disable company (move to deleted list).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — recover company after blocking or deletion.
@@ -2328,20 +2328,20 @@ $enabledStaff = $response->staff; // StaffData
 ## Delete Staff (delete staff member)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Response` (contains `StaffData`).
+**Response:** void
 
 **Payload Parameters:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| replace_staff_id | int | yes | ID of the staff member who will replace the deleted staff member in rule settings, common templates, and parameters of all cases (with any status) |
+| staff_id | int | yes | Staff member ID |
+| staff | DeleteStaffData | yes | Delete staff data |
 
-**Method parameters:**
+**DeleteStaffData Parameters:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| staff_id | int | yes | Staff member ID (from URL) - the staff member to be deleted |
-| payload | DeleteStaffPayload | yes | Delete data |
+| replace_staff_id | int | yes | ID of the staff member who will replace the deleted staff member in rule settings, common templates, and parameters of all cases (with any status) |
 
 Delete a staff member.
 
@@ -2351,16 +2351,19 @@ Example:
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\StaffsClient;
 use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\DeleteStaffData;
 
 /** @var StaffsClient $staff */
 $staff = Omnidesk::staff();
 
 $payload = new DeleteStaffPayload(
-    replaceStaffId: 300
+    staffId: 100,
+    staff: new DeleteStaffData(
+        replaceStaffId: 300
+    )
 );
 
-$response = $staff->deleteStaff(100, $payload);
-$deletedStaff = $response->staff; // StaffData with deleted = true
+$staff->deleteStaff($payload);
 ```
 
 ---
@@ -3038,13 +3041,14 @@ echo "Domains: " . $company->companyDomains . "\n";
 
 ## Delete Company (delete company)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCompany\Response` (contains `CompanyData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload`  
+**Response:** void
 
-**Method parameters:**
+**Payload Parameters:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| company_id | int | yes | Company ID (from URL) - to be deleted |
+| company_id | int | yes | Company ID |
 
 Delete a company. In this case, the company is moved to the deleted list and can be restored if necessary.
 
@@ -3053,12 +3057,16 @@ Example:
 ```php
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload as DeleteCompanyPayload;
 
 /** @var CompaniesClient $companies */
 $companies = Omnidesk::companies();
 
-$response = $companies->deleteCompany(200);
-$company = $response->company; // CompanyData with deleted = true
+$payload = new DeleteCompanyPayload(
+    companyId: 200
+);
+
+$companies->deleteCompany($payload);
 ```
 
 ---
@@ -4477,7 +4485,7 @@ $cases->deleteIdeaOfficialResponse($payload);
 ## Delete Case (permanently delete case)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Response` (field `case` — `CaseData`).
+**Response:** void
 
 **Payload fields:**
 
@@ -4500,8 +4508,7 @@ $cases = $http->cases();
 $payload = new DeleteCasePayload(
     caseId: 98765,
 );
-$response = $cases->deleteCase($payload);
-$case = $response->case; // CaseData
+$cases->deleteCase($payload);
 ```
 
 ---
@@ -4509,7 +4516,7 @@ $case = $response->case; // CaseData
 ## Delete Case Bulk (permanently delete multiple cases)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse` (field `caseSuccessId` — array of successfully processed case IDs).
+**Response:** void
 
 **Payload fields:**
 
@@ -4532,8 +4539,7 @@ $cases = $http->cases();
 $payload = new DeleteCaseBulkPayload(
     caseIds: [98765, 98766, 98767],
 );
-$response = $cases->deleteBulk($payload);
-$successIds = $response->caseSuccessId; // array of successful case IDs
+$cases->deleteBulk($payload);
 ```
 
 ---

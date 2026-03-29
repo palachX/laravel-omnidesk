@@ -125,8 +125,8 @@ $statistics = $omnidesk->statistics();
 - **`$casesClient->restoreBulk(RestoreCaseBulkPayload $payload): RestoreCaseBulkResponse`** — восстановление нескольких обращений из корзины.
 - **`$casesClient->spamCase(SpamCasePayload $payload): SpamCaseResponse`** — пометить обращение как спам.
 - **`$casesClient->spamBulk(SpamCaseBulkPayload $payload): SpamCaseBulkResponse`** — пометить несколько обращений как спам.
-- **`$casesClient->deleteCase(DeleteCasePayload $payload): DeleteCaseResponse`** — полное удаление обращения.
-- **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse`** — полное удаление нескольких обращений.
+- **`$casesClient->deleteCase(DeleteCasePayload $payload): void`** — полное удаление обращения.
+- **`$casesClient->deleteBulk(DeleteCaseBulkPayload $payload): void`** — полное удаление нескольких обращений.
 - **`$casesClient->updateIdea(UpdateIdeaPayload $payload): UpdateIdeaResponse`** — редактирование предложения.
 - **`$casesClient->updateIdeaOfficialResponse(UpdateIdeaOfficialResponsePayload $payload): UpdateIdeaOfficialResponseResponse`** — обновление официального ответа предложения.
 - **`$casesClient->deleteIdeaOfficialResponse(DeleteIdeaOfficialResponsePayload $payload): void`** — удаление официального ответа предложения.
@@ -150,7 +150,7 @@ $statistics = $omnidesk->statistics();
 - **`$staffClient->update(int $staffId, UpdateStaffPayload $payload): UpdateStaffResponse`** — редактирование сотрудника.
 - **`$staffClient->disableStaff(DisableStaffPayload $payload): DisabledStaffResponse`** — отключение сотрудника.
 - **`$staffClient->enableStaff(EnableStaffPayload $payload): EnableStaffResponse`** — включение сотрудника.
-- **`$staffClient->deleteStaff(int $staffId, DeleteStaffPayload $payload): DeleteStaffResponse`** — удаление сотрудника.
+- **`$staffClient->deleteStaff(DeleteStaffPayload $payload): void`** — удаление сотрудника.
 - **`$staffClient->fetchStaff(FetchStaffPayload $payload): FetchStaffResponse`** — получение сотрудника по ID.
 - **`$staffClient->fetchStaffList(?FetchStaffListPayload $payload): FetchStaffListResponse`** — получение списка сотрудников с пагинацией и фильтрами.
 - **`$staffClient->fetchStaffRoleList(): FetchStaffRoleListResponse`** — получение списка ролей сотрудников.
@@ -161,7 +161,7 @@ $statistics = $omnidesk->statistics();
 - **`$companiesClient->update(int $companyId, UpdateCompanyPayload $payload): UpdateCompanyResponse`** — редактирование компании.
 - **`$companiesClient->fetchCompanyList(?FetchCompanyListPayload $payload): FetchCompanyListResponse`** — получение списка компаний с пагинацией и фильтрами.
 - **`$companiesClient->getCompany(FetchCompanyPayload $payload): FetchCompanyResponse`** — получение компании по ID.
-- **`$companiesClient->deleteCompany(int $companyId): DeleteCompanyResponse`** — удаление компании (перенос в список удалённых).
+- **`$companiesClient->deleteCompany(DeleteCompanyPayload $payload): void`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->blockCompany(int $companyId): BlockCompanyResponse`** — блокирование компании (все последующие обращения компании будут помечаться как спам).
 - **`$companiesClient->disableCompany(DisableCompanyPayload $payload): DisabledCompanyResponse`** — удаление компании (перенос в список удалённых).
 - **`$companiesClient->recoveryCompany(int $companyId): RecoveryCompanyResponse`** — восстановление компании после блокировки или удаления.
@@ -2289,20 +2289,20 @@ $enabledStaff = $response->staff; // StaffData
 ## Delete Staff (удаление сотрудника)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteStaff\Response` (содержит `StaffData`).
+**Response:** void
 
 **Параметры Payload:**
 
 | Поле | Тип | Обязательное | Описание |
 |------|-----|--------------|----------|
-| replace_staff_id | int | да | ID сотрудника, который заменит удаляемого в настройках правил, общих шаблонов и параметрах всех обращений (с любым статусом) |
+| staff_id | int | да | ID сотрудника |
+| staff | DeleteStaffData | да | Данные для удаления сотрудника |
 
-**Параметры метода:**
+**Параметры DeleteStaffData:**
 
 | Поле | Тип | Обязательное | Описание |
 |------|-----|--------------|----------|
-| staff_id | int | да | ID сотрудника (из URL) - который будет удалён |
-| payload | DeleteStaffPayload | да | Данные для удаления |
+| replace_staff_id | int | да | ID сотрудника, который заменит удаляемого в настройках правил, общих шаблонов и параметрах всех обращений (с любым статусом) |
 
 Удаление сотрудника.
 
@@ -2312,16 +2312,19 @@ $enabledStaff = $response->staff; // StaffData
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\StaffsClient;
 use Palach\Omnidesk\UseCases\V1\DeleteStaff\Payload as DeleteStaffPayload;
+use Palach\Omnidesk\UseCases\V1\DeleteStaff\DeleteStaffData;
 
 /** @var StaffsClient $staff */
 $staff = Omnidesk::staff();
 
 $payload = new DeleteStaffPayload(
-    replaceStaffId: 300
+    staffId: 100,
+    staff: new DeleteStaffData(
+        replaceStaffId: 300
+    )
 );
 
-$response = $staff->deleteStaff(100, $payload);
-$deletedStaff = $response->staff; // StaffData с полем deleted = true
+$staff->deleteStaff($payload);
 ```
 
 ---
@@ -4067,13 +4070,14 @@ $company = $response->company; // CompanyData с полем active = false
 
 ## Delete Company (удаление компании)
 
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCompany\Response` (содержит `CompanyData`).
+**Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload`  
+**Response:** void
 
-**Параметры метода:**
+**Параметры Payload:**
 
 | Поле | Тип | Обязательное | Описание |
 |------|-----|--------------|----------|
-| company_id | int | да | ID компании (из URL) - которая будет удалена |
+| company_id | int | да | ID компании |
 
 Удаление компании. В этом случае компания переносится в список удалённых и при необходимости её можно восстановить.
 
@@ -4082,12 +4086,16 @@ $company = $response->company; // CompanyData с полем active = false
 ```php
 use Palach\Omnidesk\Facades\Omnidesk;
 use Palach\Omnidesk\Clients\CompaniesClient;
+use Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload as DeleteCompanyPayload;
 
 /** @var CompaniesClient $companies */
 $companies = Omnidesk::companies();
 
-$response = $companies->deleteCompany(200);
-$company = $response->company; // CompanyData с полем deleted = true
+$payload = new DeleteCompanyPayload(
+    companyId: 200
+);
+
+$companies->deleteCompany($payload);
 ```
 
 ---
@@ -4516,7 +4524,7 @@ $cases->deleteIdeaOfficialResponse($payload);
 ## Delete Case (полное удаление обращения)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Payload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\Response` (поле `case` — `CaseData`).
+**Response:** void
 
 **Поля Payload:**
 
@@ -4539,8 +4547,7 @@ $cases = $http->cases();
 $payload = new DeleteCasePayload(
     caseId: 98765,
 );
-$response = $cases->deleteCase($payload);
-$case = $response->case; // CaseData
+$cases->deleteCase($payload);
 ```
 
 ---
@@ -4548,7 +4555,7 @@ $case = $response->case; // CaseData
 ## Delete Case Bulk (полное удаление нескольких обращений)
 
 **Payload:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload`  
-**Response:** `Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse` (поле `caseSuccessId` — массив успешно обработанных ID обращений).
+**Response:** void
 
 **Поля Payload:**
 
@@ -4571,8 +4578,7 @@ $cases = $http->cases();
 $payload = new DeleteCaseBulkPayload(
     caseIds: [98765, 98766, 98767],
 );
-$response = $cases->deleteBulk($payload);
-$successIds = $response->caseSuccessId; // массив успешных ID обращений
+$cases->deleteBulk($payload);
 ```
 
 ---
