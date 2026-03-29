@@ -15,11 +15,13 @@ final class DeleteStaffPayloadTest extends AbstractTestCase
     {
         yield 'disable staff with replace staff id' => [
             'data' => [
+                'staff_id' => 123,
                 'staff' => [
                     'replace_staff_id' => 300,
                 ],
             ],
             'expected' => new DeleteStaffPayload(
+                staffId: 123,
                 staff: new DeleteStaffData(
                     replaceStaffId: 300
                 )
@@ -28,11 +30,13 @@ final class DeleteStaffPayloadTest extends AbstractTestCase
 
         yield 'disable staff with different replace staff id' => [
             'data' => [
+                'staff_id' => 124,
                 'staff' => [
                     'replace_staff_id' => 450,
                 ],
             ],
             'expected' => new DeleteStaffPayload(
+                staffId: 124,
                 staff: new DeleteStaffData(
                     replaceStaffId: 450
                 )

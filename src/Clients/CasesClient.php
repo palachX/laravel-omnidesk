@@ -11,9 +11,7 @@ use Palach\Omnidesk\DTO\ChangelogData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkPayload as DeleteCaseBulkPayload;
-use Palach\Omnidesk\UseCases\V1\DeleteCase\BulkResponse as DeleteCaseBulkResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteCase\Payload as DeleteCasePayload;
-use Palach\Omnidesk\UseCases\V1\DeleteCase\Response as DeleteCaseResponse;
 use Palach\Omnidesk\UseCases\V1\DeleteIdeaOfficialResponse\Payload as DeleteIdeaOfficialResponsePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Payload as FetchCasePayload;
 use Palach\Omnidesk\UseCases\V1\FetchCase\Response as FetchCaseResponse;
@@ -242,35 +240,22 @@ final readonly class CasesClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteCase(DeleteCasePayload $payload): DeleteCaseResponse
+    public function deleteCase(DeleteCasePayload $payload): void
     {
         $url = sprintf(self::DELETE_URL, $payload->caseId);
 
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
-
-        $case = $this->extractArray('case', $response);
-
-        return new DeleteCaseResponse(
-            case: CaseData::from($case),
-        );
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 
     /**
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteBulk(DeleteCaseBulkPayload $payload): DeleteCaseBulkResponse
+    public function deleteBulk(DeleteCaseBulkPayload $payload): void
     {
         $url = sprintf(self::DELETE_URL, implode(',', $payload->caseIds));
 
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url);
-
-        /** @var int[] $caseSuccessId */
-        $caseSuccessId = $this->extractArray('case_success_id', $response);
-
-        return new DeleteCaseBulkResponse(
-            caseSuccessId: $caseSuccessId,
-        );
+        $this->transport->sendJson(Request::METHOD_DELETE, $url);
     }
 
     /**

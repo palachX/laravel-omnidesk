@@ -12,6 +12,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class Payload extends Data
 {
     public function __construct(
+        public readonly int $staffId,
         public readonly DeleteStaffData $staff
     ) {}
 }

@@ -10,7 +10,7 @@ use Palach\Omnidesk\DTO\CompanyData;
 use Palach\Omnidesk\Traits\ExtractsResponseData;
 use Palach\Omnidesk\Transport\OmnideskTransport;
 use Palach\Omnidesk\UseCases\V1\BlockCompany\Response as BlockCompanyResponse;
-use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload as DeleteCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\DisableCompany\Payload as DisableCompanyPayload;
 use Palach\Omnidesk\UseCases\V1\DisableCompany\Response as DisabledCompanyResponse;
 use Palach\Omnidesk\UseCases\V1\FetchCompany\Payload as FetchCompanyPayload;
@@ -114,17 +114,11 @@ final readonly class CompaniesClient
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function deleteCompany(int $companyId): DeleteCompanyResponse
+    public function deleteCompany(DeleteCompanyPayload $payload): void
     {
-        $url = sprintf(self::COMPANY_URL, $companyId);
+        $url = sprintf(self::COMPANY_URL, $payload->companyId);
 
-        $response = $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
-
-        $company = $this->extractArray('company', $response);
-
-        return new DeleteCompanyResponse(
-            company: CompanyData::from($company),
-        );
+        $this->transport->sendJson(Request::METHOD_DELETE, $url, []);
     }
 
     /**

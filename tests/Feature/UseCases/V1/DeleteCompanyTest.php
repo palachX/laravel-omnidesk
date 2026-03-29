@@ -7,7 +7,7 @@ namespace Palach\Omnidesk\Tests\Feature\UseCases\V1;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Palach\Omnidesk\Tests\AbstractTestCase;
-use Palach\Omnidesk\UseCases\V1\DeleteCompany\Response as DeleteCompanyResponse;
+use Palach\Omnidesk\UseCases\V1\DeleteCompany\Payload as DeleteCompanyPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -16,34 +16,23 @@ final class DeleteCompanyTest extends AbstractTestCase
     public static function dataArrayProvider(): iterable
     {
         yield 'delete company' => [
-            'companyId' => 200,
-            'response' => [
-                'company' => [
-                    'company_id' => 200,
-                    'company_name' => "Company's full name changed",
-                    'company_domains' => 'newcompany.ru',
-                    'company_default_group' => 492,
-                    'company_address' => 'Some address',
-                    'company_note' => 'New note',
-                    'active' => true,
-                    'deleted' => true,
-                    'created_at' => 'Mon, 05 May 2014 00:15:17 +0300',
-                    'updated_at' => 'Tue, 23 Dec 2014 10:55:23 +0200',
-                ],
+            'payload' => [
+                'companyId' => 200,
             ],
         ];
     }
 
     #[DataProvider('dataArrayProvider')]
-    public function testHttp(int $companyId, array $response): void
+    public function testHttp(array $payload): void
     {
-        $url = $this->host."/api/companies/$companyId.json";
+        $payload = DeleteCompanyPayload::from($payload);
+        $url = $this->host."/api/companies/$payload->companyId.json";
 
         Http::fake([
-            $url => Http::response($response),
+            $url => Http::response([]),
         ]);
 
-        $responseData = $this->makeHttpClient()->companies()->deleteCompany($companyId);
+        $this->makeHttpClient()->companies()->deleteCompany($payload);
 
         Http::assertSent(function (Request $request) use ($url) {
             return $request->url() === $url
@@ -51,7 +40,5 @@ final class DeleteCompanyTest extends AbstractTestCase
                 && $request->method() === SymfonyRequest::METHOD_DELETE
                 && $request->body() === json_encode([]);
         });
-
-        $this->assertEquals(DeleteCompanyResponse::from($response), $responseData);
     }
 }
