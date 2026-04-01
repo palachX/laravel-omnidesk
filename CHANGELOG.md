@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-04-01
+
+### Added
+
+#### Documentation Updates
+- Updated documentation to reflect latest API changes and improvements
+
+#### API Response and Payload Updates
+- Updated response and payload handling for delete operations in cases, companies, and staffs
+- Enhanced data consistency and validation for delete operations across multiple clients
+
 ## [1.5.0] - 2026-03-26
 
 ### Added
